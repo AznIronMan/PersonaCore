@@ -11,10 +11,8 @@ from typing import Iterator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-for path in (ROOT, ROOT / "src"):
-    path_text = str(path)
-    if path_text not in sys.path:
-        sys.path.insert(0, path_text)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from examples.fixture_app import render_dashboard_fragment, render_fixture_page
 

@@ -99,6 +99,18 @@ else
   echo "warning: rg is not installed; skipped content scan" >&2
 fi
 
+release_version="$(
+  python3 - "$output_dir/pyproject.toml" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as handle:
+    data = tomllib.load(handle)
+
+print(data["project"]["version"])
+PY
+)"
+
 cat <<EOF
 Exported public baseline to:
   $output_dir
@@ -108,7 +120,7 @@ Next steps:
   git init
   git add .
   git commit -m "Start sanitized PersonaCore public baseline"
-  git tag v1.0.1
+  git tag v$release_version
   git remote add origin https://github.com/AznIronMan/PersonaCore.git
 
 Push only after reviewing the exported tree.

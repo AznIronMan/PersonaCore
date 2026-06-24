@@ -77,7 +77,7 @@ cd /tmp/personacore-public-baseline
 git init
 git add .
 git commit -m "Start sanitized PersonaCore public baseline"
-git tag v1.0.1
+git tag v1.0.3  # use the version printed by the export script
 git remote add origin https://github.com/AznIronMan/PersonaCore.git
 ```
 
@@ -92,7 +92,7 @@ Recommended host pattern:
 
 - Keep a local checkout of the public PersonaCore repository on each server or
   build host.
-- Pull an explicit tag or commit, such as `v1.0.1`.
+- Pull an explicit tag or commit, such as `v1.0.3`.
 - Install the package into the runtime environment, or mount/import its `src`
   directory read-only where containerized consumers already use that pattern.
 - Rebuild or restart consumer services according to the owning runtime's

@@ -99,7 +99,7 @@ __all__ = [
     "token_health_lookup",
 ]
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 
 def configure_jinja_loader(*args, **kwargs):

@@ -32,7 +32,7 @@ def test_token_health_report_is_redacted_and_counts_statuses():
                 ),
             ],
         ),
-        values={"SOCIAL_TOKEN": "fixture-token-value", "WEBHOOK_TOKEN": ""},
+        values={"SOCIAL_TOKEN": "raw-secret-token", "WEBHOOK_TOKEN": ""},
     )
 
     assert report["ok"] is True
@@ -40,7 +40,7 @@ def test_token_health_report_is_redacted_and_counts_statuses():
     assert report["present_count"] == 1
     assert report["missing_count"] == 1
     assert report["warnings"] == 1
-    assert "fixture-token-value" not in str(report)
+    assert "raw-secret-token" not in str(report)
     assert token_health_lookup(report, "social")["status"] == "ready"
     assert token_health_lookup(report, "optional_webhook")["status"] == "degraded"
 

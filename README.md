@@ -57,8 +57,9 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
 ## Package Identity
 
 The public package distribution is `personacore`. The sanitized `v1.0.1`
-baseline starts the public history, and `v1.0.2` adds configurable token health
-as a shared feature primitive. The existing `persona_console` Python package
+baseline starts the public history, `v1.0.2` adds configurable token health as
+a shared feature primitive, and `v1.0.3` carries the current public-safe export
+and release workflow cleanup. The existing `persona_console` Python package
 remains in the source tree as a compatibility implementation path for v1.x
 consumers.
 
@@ -106,8 +107,8 @@ Create a fresh public-safe tree with:
 scripts/export_public_baseline.sh /tmp/personacore-public-baseline
 ```
 
-Review the exported tree before creating fresh public git history and tagging
-`v1.0.1`.
+Review the exported tree before creating fresh public git history. The export
+script prints the tag matching the exported package version.
 
 ## Docs
 
@@ -116,6 +117,7 @@ Review the exported tree before creating fresh public git history and tagging
 - [Feature Extraction Plan](docs/FEATURE_EXTRACTION_PLAN.md)
 - [Reference Console Backlog](docs/REFERENCE_CONSOLE_BACKLOG.md)
 - [Release 1.0.2](docs/RELEASE_1.0.2.md)
+- [Release 1.0.3](docs/RELEASE_1.0.3.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

@@ -147,7 +147,6 @@ def build_token_health_report(
                 {
                     "key": str(check.key),
                     "label": str(label),
-                    "name": str(label),
                     "group": str(check.group or "Integrations"),
                     "status": status,
                     "tone": tone,
@@ -209,7 +208,7 @@ def _row_html(raw_row: Mapping[str, object]) -> str:
     tone = _tone(raw_row.get("tone"))
     status = str(raw_row.get("status") or "unknown")
     required = "required" if raw_row.get("required") else "optional"
-    label = str(raw_row.get("label") or raw_row.get("name") or raw_row.get("key") or "Token")
+    label = str(raw_row.get("label") or raw_row.get("key") or "Token")
     group = str(raw_row.get("group") or "Integrations")
     summary = str(raw_row.get("summary") or "")
     detail = str(raw_row.get("detail") or "")
