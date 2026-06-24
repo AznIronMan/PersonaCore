@@ -12,6 +12,8 @@ from persona_console import (
     DashboardMetric,
     DashboardQueueRow,
     DashboardRouteCard,
+    TokenHealthCheck,
+    TokenHealthConfig,
     render_dashboard_activity,
     render_dashboard_attention,
     render_dashboard_flow,
@@ -83,6 +85,10 @@ def test_health_adapters_flow_queue_and_activity_render_expected_surfaces():
                 "Runtime health",
                 metrics=[DashboardHealthMetric("CPU", "18%", "ok", tone="green")],
             ),
+            token_health=TokenHealthConfig(
+                enabled=True,
+                checks=[TokenHealthCheck("social", "Social provider token", configured=True)],
+            ),
             adapters=[
                 DashboardAdapterCard(
                     "Messages",
@@ -103,6 +109,8 @@ def test_health_adapters_flow_queue_and_activity_render_expected_surfaces():
     )
 
     assert "Runtime health" in html
+    assert "Token Health" in html
+    assert "Social provider token" in html
     assert "Adapter health" in html
     assert "height: 100%" in html
     assert "height: 0%" in html

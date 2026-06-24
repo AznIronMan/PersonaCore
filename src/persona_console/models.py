@@ -84,6 +84,7 @@ class PersonaConsoleConfig:
     page_title: str
     page_subtitle: str = ""
     active: str = "dashboard"
+    features: Mapping[str, bool] = field(default_factory=dict)
     nav_groups: Sequence[NavGroup | Mapping[str, object]] = field(default_factory=tuple)
     nav_badges: Mapping[str, int] = field(default_factory=dict)
     status_pills: Sequence[StatusPill | Mapping[str, object] | str] = field(default_factory=tuple)
@@ -182,6 +183,30 @@ class DashboardHealthStrip:
 
 
 @dataclass(frozen=True)
+class TokenHealthCheck:
+    key: str
+    label: str = ""
+    group: str = "Integrations"
+    secret_names: Sequence[str] = field(default_factory=tuple)
+    required: bool = True
+    enabled: bool = True
+    configured: bool | None = None
+    href: str = ""
+    summary: str = ""
+    detail: str = ""
+
+
+@dataclass(frozen=True)
+class TokenHealthConfig:
+    enabled: bool = False
+    title: str = "Token Health"
+    subtitle: str = "Configured integration credentials"
+    checks: Sequence[TokenHealthCheck | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No token checks configured."
+    show_secret_names: bool = True
+
+
+@dataclass(frozen=True)
 class DashboardSparkBucket:
     label: str
     percent: int | float = 0
@@ -259,6 +284,7 @@ class DashboardData:
     metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
     routes: Sequence[DashboardRouteCard | Mapping[str, object]] = field(default_factory=tuple)
     health: DashboardHealthStrip | Mapping[str, object] | None = None
+    token_health: TokenHealthConfig | Mapping[str, object] | None = None
     adapters: Sequence[DashboardAdapterCard | Mapping[str, object]] = field(default_factory=tuple)
     flow: DashboardFlow | Mapping[str, object] | None = None
     queue: Sequence[DashboardQueueRow | Mapping[str, object]] = field(default_factory=tuple)

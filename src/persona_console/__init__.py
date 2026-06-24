@@ -36,6 +36,8 @@ from .models import (
     PersonaConsoleConfig,
     StatusPill,
     ThemeTokens,
+    TokenHealthCheck,
+    TokenHealthConfig,
     UserPill,
 )
 from .render import (
@@ -46,6 +48,7 @@ from .render import (
     render_status_pill,
     render_user_pill,
 )
+from .token_health import build_token_health_report, render_token_health_panel, token_health_lookup
 
 __all__ = [
     "NavGroup",
@@ -70,8 +73,11 @@ __all__ = [
     "PersonaConsoleConfig",
     "StatusPill",
     "ThemeTokens",
+    "TokenHealthCheck",
+    "TokenHealthConfig",
     "UserPill",
     "active_nav_label",
+    "build_token_health_report",
     "configure_jinja_loader",
     "register_static_assets",
     "render_dashboard_activity",
@@ -88,10 +94,12 @@ __all__ = [
     "render_nav_groups",
     "render_shell_html",
     "render_status_pill",
+    "render_token_health_panel",
     "render_user_pill",
+    "token_health_lookup",
 ]
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 
 def configure_jinja_loader(*args, **kwargs):

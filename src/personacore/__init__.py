@@ -23,8 +23,11 @@ from persona_console import (
     PersonaConsoleConfig,
     StatusPill,
     ThemeTokens,
+    TokenHealthCheck,
+    TokenHealthConfig,
     UserPill,
     active_nav_label,
+    build_token_health_report,
     configure_jinja_loader,
     register_static_assets,
     render_dashboard_activity,
@@ -41,7 +44,9 @@ from persona_console import (
     render_nav_groups,
     render_shell_html,
     render_status_pill,
+    render_token_health_panel,
     render_user_pill,
+    token_health_lookup,
 )
 from persona_console import __version__
 
@@ -68,8 +73,11 @@ __all__ = [
     "PersonaConsoleConfig",
     "StatusPill",
     "ThemeTokens",
+    "TokenHealthCheck",
+    "TokenHealthConfig",
     "UserPill",
     "active_nav_label",
+    "build_token_health_report",
     "configure_jinja_loader",
     "register_static_assets",
     "render_dashboard_activity",
@@ -86,5 +94,7 @@ __all__ = [
     "render_nav_groups",
     "render_shell_html",
     "render_status_pill",
+    "render_token_health_panel",
     "render_user_pill",
+    "token_health_lookup",
 ]

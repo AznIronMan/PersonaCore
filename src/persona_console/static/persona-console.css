@@ -835,6 +835,78 @@ pre, code, textarea {
   font-style: normal;
   line-height: 1.3;
 }
+.pc-token-health {
+  display: grid;
+  gap: 10px;
+}
+.pc-token-health-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pc-token-health-summary span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--pc-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pc-bg) 26%, transparent);
+  color: var(--pc-muted);
+  font-size: 11px;
+  font-weight: 720;
+  padding: 0 10px;
+}
+.pc-token-health-summary strong {
+  color: var(--pc-text);
+  font-variant-numeric: tabular-nums;
+}
+.pc-token-health-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--pc-bg) 24%, transparent);
+}
+.pc-token-health-table {
+  min-width: 760px;
+}
+.pc-token-health-table td:first-child {
+  display: grid;
+  gap: 3px;
+}
+.pc-token-health-table td:first-child strong {
+  color: var(--pc-text);
+  font-size: 13px;
+}
+.pc-token-health-table td:first-child span,
+.pc-token-health-muted,
+.pc-token-health-detail {
+  color: var(--pc-muted);
+  font-size: 11px;
+}
+.pc-token-health-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pc-token-health-sources code {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--pc-border) 78%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pc-surface) 76%, black);
+  color: color-mix(in srgb, var(--pc-text) 84%, var(--pc-muted));
+  font-size: 10px;
+  line-height: 1;
+  padding: 0 7px;
+  white-space: nowrap;
+}
+.pc-token-health-detail {
+  display: block;
+  margin-top: 3px;
+}
 .pc-dashboard-panel,
 .pc-dashboard-visual {
   margin-bottom: 14px;

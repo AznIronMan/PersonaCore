@@ -23,6 +23,8 @@ from persona_console.models import (
     PersonaConsoleConfig,
     StatusPill,
     ThemeTokens,
+    TokenHealthCheck,
+    TokenHealthConfig,
     UserPill,
 )
 
@@ -49,5 +51,7 @@ __all__ = [
     "PersonaConsoleConfig",
     "StatusPill",
     "ThemeTokens",
+    "TokenHealthCheck",
+    "TokenHealthConfig",
     "UserPill",
 ]

@@ -42,7 +42,13 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   admins that build page bodies as trusted HTML strings.
 - `personacore.render_dashboard_sections(...)` renders generic dashboard
   primitives such as attention cards, filters, metrics, route cards, health
-  strips, adapter cards, flow charts, queue summaries, and activity rows.
+  strips, token health, adapter cards, flow charts, queue summaries, and
+  activity rows.
+- `personacore.TokenHealthConfig` and
+  `personacore.build_token_health_report(...)` provide an opt-in, redacted
+  credential health primitive for provider tokens and webhook secrets. Consumers
+  supply their own settings/env lookup and PersonaCore only reports configured,
+  missing, required, and optional states.
 - `persona_console.register_static_assets(app, ...)` mounts shared CSS and JS
   assets in FastAPI apps.
 - `persona_console.configure_jinja_loader(templates)` adds PersonaCore
@@ -50,9 +56,11 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
 
 ## Package Identity
 
-The public package distribution is `personacore` starting with the sanitized
-`v1.0.1` baseline. The existing `persona_console` Python package remains in
-the source tree as a compatibility implementation path for v1.x consumers.
+The public package distribution is `personacore`. The sanitized `v1.0.1`
+baseline starts the public history, and `v1.0.2` adds configurable token health
+as a shared feature primitive. The existing `persona_console` Python package
+remains in the source tree as a compatibility implementation path for v1.x
+consumers.
 
 ## Public Safety
 
@@ -107,6 +115,7 @@ Review the exported tree before creating fresh public git history and tagging
 - [Configuration Model](docs/CONFIGURATION_MODEL.md)
 - [Feature Extraction Plan](docs/FEATURE_EXTRACTION_PLAN.md)
 - [Reference Console Backlog](docs/REFERENCE_CONSOLE_BACKLOG.md)
+- [Release 1.0.2](docs/RELEASE_1.0.2.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

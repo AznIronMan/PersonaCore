@@ -25,6 +25,8 @@ from personacore import (
     PersonaCoreConfig,
     StatusPill,
     ThemeTokens,
+    TokenHealthCheck,
+    TokenHealthConfig,
     UserPill,
     register_static_assets,
     render_dashboard_sections,
@@ -78,7 +80,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.1-fixture",
+        app_version="v1.0.2-fixture",
         static_base_url=static_base_url,
         theme=ThemeTokens(
             accent="rgb(20 184 166)",
@@ -138,6 +140,34 @@ def render_dashboard_fragment() -> str:
                 DashboardHealthMetric("RAM", "61%", "stable", tone="good"),
                 DashboardHealthMetric("Disk", "72%", "watch growth", tone="warn"),
                 DashboardHealthMetric("Network", "ok", "adapter reachable", tone="good"),
+            ],
+        ),
+        token_health=TokenHealthConfig(
+            enabled=True,
+            subtitle="Fixture credentials are status-only examples",
+            checks=[
+                TokenHealthCheck(
+                    "social_provider",
+                    "Social provider token",
+                    "Social",
+                    ["SOCIAL_PROVIDER_TOKEN"],
+                    configured=True,
+                ),
+                TokenHealthCheck(
+                    "messaging_provider",
+                    "Messaging provider token",
+                    "Messaging",
+                    ["MESSAGING_PROVIDER_TOKEN"],
+                    configured=True,
+                ),
+                TokenHealthCheck(
+                    "webhook_verify",
+                    "Webhook verify token",
+                    "Webhooks",
+                    ["WEBHOOK_VERIFY_TOKEN"],
+                    required=False,
+                    configured=False,
+                ),
             ],
         ),
         adapters=[

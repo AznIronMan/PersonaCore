@@ -28,15 +28,18 @@ screenshots, data, and runtime policy stay outside the public repo.
    compact linked counts with labels, values, tones, and optional detail text.
 4. Health strip:
    linked runtime health row with metric chips and degraded/missing data states.
-5. Adapter health cards:
+5. Token health:
+   redacted configured/missing status for provider tokens, webhook secrets, and
+   other runtime-owned credentials with required/optional severity.
+6. Adapter health cards:
    provider route, last in/out timestamps, queued/failed counts, policy detail,
    sparkline buckets, and action hints.
-6. Flow chart:
+7. Flow chart:
    lightweight bar visualization for inbound/outbound activity with optional
    provider segments.
-7. Queue summary:
+8. Queue summary:
    status rows with counts and proportional bars.
-8. Activity timeline:
+9. Activity timeline:
    compact linked rows with label, title, timestamp, summary, metadata, and
    tone dot.
 

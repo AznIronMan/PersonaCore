@@ -14,6 +14,8 @@ public examples.
 - Capability flags: facts about what the runtime can do, such as whether it has
   conversations, media, review queues, workers, scheduling, or external adapter
   health.
+- Feature-specific settings: opt-in module configuration such as token health
+  checks, labels, required/optional state, and runtime-owned data lookups.
 - Data providers: runtime-owned callables or routes that supply rows, counts,
   summaries, and partial refresh fragments to shared render primitives.
 
@@ -87,6 +89,44 @@ features = {
 Feature flags should hide navigation and UI modules by default when disabled.
 They should not import optional dependencies or private adapters unless the
 feature is enabled and the consumer provides the integration.
+
+## Token Health
+
+Token health is a shared, opt-in feature. PersonaCore should not read private
+`.env` files or runtime databases on its own. A consuming runtime enables the
+feature, names the checks it wants to expose, and passes a settings/env mapping
+or lookup callable into the redacted report builder.
+
+```python
+from personacore import TokenHealthCheck, TokenHealthConfig, build_token_health_report
+
+token_health = TokenHealthConfig(
+    enabled=True,
+    checks=[
+        TokenHealthCheck(
+            "social_api",
+            "Social API token",
+            "Social",
+            ["SOCIAL_API_TOKEN"],
+            required=True,
+        ),
+        TokenHealthCheck(
+            "webhook_verify",
+            "Webhook verify token",
+            "Webhooks",
+            ["WEBHOOK_VERIFY_TOKEN"],
+            required=False,
+        ),
+    ],
+)
+
+report = build_token_health_report(token_health, values=runtime_settings)
+```
+
+The returned report is safe to render or expose through an admin health route:
+raw values are never copied into the report. Consumers may hide secret key names
+with `TokenHealthConfig(show_secret_names=False)` when even source names should
+stay runtime-local.
 
 ## Extension Rules
 
