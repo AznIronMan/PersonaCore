@@ -80,6 +80,7 @@ features = {
     "dashboard": True,
     "messages": True,
     "media": False,
+    "owner_private_admin": False,
     "review": True,
     "workers": False,
     "scheduling": False,
@@ -89,6 +90,44 @@ features = {
 Feature flags should hide navigation and UI modules by default when disabled.
 They should not import optional dependencies or private adapters unless the
 feature is enabled and the consumer provides the integration.
+
+Navigation items may declare a `feature` key. PersonaCore hides feature-gated
+navigation when that feature is disabled or absent. This is only a UI/module
+switch; consumers must still enforce permissions in their own server routes.
+
+## Owner-Private Visibility
+
+Owner-private visibility is a shared, opt-in policy helper for content that only
+the linked owner account should see raw. PersonaCore provides generic policy and
+rendering primitives; consuming runtimes provide their own scope names, aliases,
+person mappings, database filters, and file-route checks.
+
+```python
+from personacore import AdminPrivacyContext, OwnerPrivateScopePolicy, render_private_text
+
+policy = OwnerPrivateScopePolicy(
+    owner_private_scopes={"owner_private": ["owner"]},
+    aliases={"master_private": "owner_private"},
+)
+context = AdminPrivacyContext(
+    access_tier="operator",
+    viewer_person_key="operator",
+    allowed_scopes=["public", "operator"],
+)
+
+text = render_private_text(
+    "raw note text",
+    safe_alternate="operator-safe summary",
+    policy=policy,
+    context=context,
+    scope="owner_private",
+)
+```
+
+The `owner_private_admin` feature flag controls whether a runtime exposes
+owner-private admin panels. It does not disable server-side protection. JSON
+endpoints, HTML snapshots, and artifact/media byte routes should all call the
+same runtime policy before returning raw owner-private data.
 
 ## Token Health
 

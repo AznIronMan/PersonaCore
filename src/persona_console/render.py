@@ -5,6 +5,7 @@ from html import escape
 from typing import Any, Mapping, Sequence
 
 from .models import NavGroup, NavItem, PersonaConsoleConfig, StatusPill, UserPill
+from .privacy import feature_enabled
 
 
 def _mapping(value: Any) -> dict[str, Any]:
@@ -34,6 +35,7 @@ def _nav_item(value: NavItem | Mapping[str, object]) -> NavItem:
         active=str(data.get("active") or "") or None,
         badge=data.get("badge"),
         external=bool(data.get("external")),
+        feature=str(data.get("feature") or ""),
     )
 
 
@@ -85,11 +87,14 @@ def active_nav_label(
     nav_groups: Sequence[NavGroup | Mapping[str, object]],
     active: str,
     current_path: str = "",
+    features: Mapping[str, bool] | None = None,
 ) -> str:
     for raw_group in nav_groups:
         group = _nav_group(raw_group)
         for raw_item in group.items:
             item = _nav_item(raw_item)
+            if item.feature and not feature_enabled(features, item.feature):
+                continue
             if _item_active(active, item, current_path):
                 return item.label or group.label or "Current"
     return active.replace("_", " ").replace("-", " ").title() or "Dashboard"
@@ -101,13 +106,20 @@ def render_nav_groups(
     active: str,
     badges: Mapping[str, int] | None = None,
     current_path: str = "",
+    features: Mapping[str, bool] | None = None,
 ) -> str:
     badge_map = badges or {}
     desktop: list[str] = []
     mobile: list[str] = []
     for raw_group in nav_groups:
         group = _nav_group(raw_group)
-        items = [_nav_item(item) for item in group.items]
+        items = [
+            item
+            for item in (_nav_item(item) for item in group.items)
+            if not item.feature or feature_enabled(features, item.feature)
+        ]
+        if not items:
+            continue
         group_active = group.key == active or any(_item_active(active, item, current_path) for item in items)
         group_badge = sum(_badge_value(item.badge, badge_map) for item in items)
         item_html: list[str] = []
@@ -137,7 +149,7 @@ def render_nav_groups(
             f'{escape(group.label)}</div><div class="admin-mobile-links">'
             f'{"".join(mobile_item_html)}</div></section>'
         )
-    label = active_nav_label(nav_groups, active, current_path)
+    label = active_nav_label(nav_groups, active, current_path, features)
     return (
         '<nav class="admin-nav-groups" aria-label="Admin sections">'
         + "".join(desktop)
@@ -243,6 +255,7 @@ def render_shell_html(
         active=config.active,
         badges=config.nav_badges,
         current_path=current_path,
+        features=config.features,
     )
     status = [render_user_pill(config.user)]
     status.extend(render_status_pill(pill) for pill in config.status_pills)

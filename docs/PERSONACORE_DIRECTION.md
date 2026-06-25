@@ -14,6 +14,8 @@ PersonaCore should include reusable pieces for:
   conversation/message browsers, media/workflow surfaces, and operator tools.
 - Live refresh, flash messages, user/status pills, badges, filters, tables,
   cards, metrics, and route cards.
+- Owner-private visibility helpers that consuming runtimes enforce at their
+  route, snapshot, and media-serving boundaries.
 - Generic adapters or extension points for runtime-owned data providers.
 
 The public distro should be broad enough that future personas can adopt it
@@ -45,6 +47,9 @@ PersonaCore should not contain:
   state.
 - Runtime database logic that only belongs to one private app.
 - Auth decisions or permission policies that only belong to one private app.
+- Private owner-account mappings, private scope names, or runtime database
+  rules. PersonaCore can expose generic policy helpers, but consumers own the
+  private mappings and enforcement points.
 - Public docs that describe private infrastructure.
 
 Private consumers should pass sanitized, generic data into PersonaCore or keep

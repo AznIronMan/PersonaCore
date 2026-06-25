@@ -53,6 +53,19 @@ from .render import (
     render_user_pill,
 )
 from .token_health import build_token_health_report, render_token_health_panel, token_health_lookup
+from .privacy import (
+    OWNER_PRIVATE_ADMIN_FEATURE,
+    WITHHELD_PRIVATE_TEXT,
+    AdminPrivacyContext,
+    OwnerPrivateScopePolicy,
+    PrivacyRenderMode,
+    can_view_raw_private,
+    canonical_privacy_scope,
+    feature_enabled,
+    owner_private_scope_for_content,
+    privacy_render_mode,
+    render_private_text,
+)
 
 __all__ = [
     "NavGroup",
@@ -74,18 +87,28 @@ __all__ = [
     "DashboardRouteCard",
     "DashboardSparkBucket",
     "NavItem",
+    "OWNER_PRIVATE_ADMIN_FEATURE",
+    "AdminPrivacyContext",
+    "OwnerPrivateScopePolicy",
     "PersonaCoreConfig",
     "PersonaConsoleConfig",
+    "PrivacyRenderMode",
     "StatusPill",
     "ThemeTokens",
     "TokenHealthCheck",
     "TokenHealthConfig",
     "UserPill",
+    "WITHHELD_PRIVATE_TEXT",
     "active_nav_label",
     "build_token_health_report",
+    "can_view_raw_private",
+    "canonical_privacy_scope",
     "configure_jinja_loader",
     "dashboard_metrics_from_counts",
+    "feature_enabled",
     "format_dashboard_metric_value",
+    "owner_private_scope_for_content",
+    "privacy_render_mode",
     "register_static_assets",
     "render_dashboard_activity",
     "render_dashboard_adapter_cards",
@@ -100,6 +123,7 @@ __all__ = [
     "render_dashboard_summary_grid",
     "render_live_controls",
     "render_nav_groups",
+    "render_private_text",
     "render_shell_html",
     "render_status_pill",
     "render_token_health_panel",
@@ -107,7 +131,7 @@ __all__ = [
     "token_health_lookup",
 ]
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 
 def configure_jinja_loader(*args, **kwargs):

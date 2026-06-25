@@ -11,6 +11,7 @@ class NavItem:
     active: str | None = None
     badge: int | str | None = None
     external: bool = False
+    feature: str = ""
 
 
 @dataclass(frozen=True)

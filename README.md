@@ -63,8 +63,9 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
 The public package distribution is `personacore`. The sanitized `v1.0.1`
 baseline starts the public history, `v1.0.2` adds configurable token health as
 a shared feature primitive, `v1.0.3` carries public-safe export workflow
-cleanup, and `v1.0.4` adds reusable dashboard summary-card helpers for consumer
-deduplication. The existing `persona_console` Python package remains in the
+cleanup, `v1.0.4` adds reusable dashboard summary-card helpers for consumer
+deduplication, and `v1.0.5` adds generic owner-private admin visibility helpers
+for runtime-enforced privacy. The existing `persona_console` Python package remains in the
 source tree as a compatibility implementation path for v1.x consumers.
 
 ## Public Safety
@@ -123,6 +124,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.2](docs/RELEASE_1.0.2.md)
 - [Release 1.0.3](docs/RELEASE_1.0.3.md)
 - [Release 1.0.4](docs/RELEASE_1.0.4.md)
+- [Release 1.0.5](docs/RELEASE_1.0.5.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)
