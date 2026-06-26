@@ -48,6 +48,7 @@ from personacore import (
     ReviewQueueCard,
     ReviewQueueSection,
     ReviewSurfaceConfig,
+    StatusTab,
     StatusPill,
     SurfaceBadge,
     ThemeTokens,
@@ -59,6 +60,7 @@ from personacore import (
     render_people_surface,
     render_review_surface,
     render_shell_html,
+    render_status_tabs,
     render_surface_sections,
 )
 
@@ -135,7 +137,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.14-fixture",
+        app_version="v1.0.15-fixture",
         static_base_url=static_base_url,
         theme=ThemeTokens(
             accent="rgb(239 71 111)",
@@ -389,7 +391,16 @@ def render_dashboard_fragment() -> str:
         privacy_policy=privacy_policy,
         privacy_context=operator_context,
     )
-    review_surface = render_review_surface(
+    review_tabs = render_status_tabs(
+        [
+            StatusTab("All", "/review", 8, active=True),
+            StatusTab("Pending", "/review?status=pending", 4, tone="warn"),
+            StatusTab("Ready", "/review?status=ready", 3, tone="good"),
+            StatusTab("Failed", "/review?status=failed", 1, tone="bad"),
+        ],
+        aria_label="Review status",
+    )
+    review_surface = review_tabs + render_review_surface(
         ReviewSurfaceConfig(
             enabled=True,
             title="Review",

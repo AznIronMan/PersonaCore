@@ -91,8 +91,9 @@ PersonaCore should supply reusable primitives for common module surfaces:
   consumers still own lookups, auth, edits, and private scope mapping.
 - `review`: queue metrics, pending rows, decision context, and action slots.
   PersonaCore `1.0.14` supplies the typed review-board, agenda, and queue-card
-  surface; consumers still own queries, auth, mutations, and private scope
-  mapping.
+  primitives. PersonaCore `1.0.15` supplies the shared status-tab control for
+  filtered queue/list pages; consumers still own queries, auth, mutations, and
+  private scope mapping.
 - `tasks`: task status tables and operator next actions.
 - `workers`: queue latency, retry state, and adapter/runtime cards.
 - `logs`: sanitized runtime events and warning summaries.

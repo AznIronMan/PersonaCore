@@ -79,11 +79,14 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   `personacore.render_review_surface(...)` provide a shared review-board
   surface for operator-gated decision rows, agenda cards, publishing queue
   summaries, and owner-private safe-alternate summaries.
+- `personacore.StatusTab` and `personacore.render_status_tabs(...)` provide a
+  shared dense tab control for queue/list status filters while leaving URL
+  construction, counts, and filtering semantics in the consuming runtime.
 - `personacore.run_consumer_integration_doctor(...)` verifies consumer installs
   or source mounts by checking version alignment, required shared exports,
   owner-private helpers, token-health helpers, adapter-health helpers,
-  message/media/activity helpers, people helpers, review helpers, and generic
-  render smokes.
+  message/media/activity helpers, people helpers, review helpers, shared
+  controls, and generic render smokes.
 - `persona_console.register_static_assets(app, ...)` mounts shared CSS and JS
   assets in FastAPI apps.
 - `persona_console.configure_jinja_loader(templates)` adds PersonaCore
@@ -110,8 +113,9 @@ adapter-health card markup so linked adapter titles and linked sparkline
 buckets remain valid card content instead of breaking browser layout.
 `v1.0.14` adds a shared review-board surface for operator-gated decision rows,
 agenda cards, publishing queue summaries, and owner-private safe-alternate
-rendering. The existing `persona_console` Python package remains in the source
-tree as a compatibility implementation path for v1.x consumers.
+rendering. `v1.0.15` adds a shared status-tab control for review queues and
+filtered list pages. The existing `persona_console` Python package remains in
+the source tree as a compatibility implementation path for v1.x consumers.
 
 ## Public Safety
 
@@ -144,7 +148,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.14
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.15
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -189,6 +193,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.12](docs/RELEASE_1.0.12.md)
 - [Release 1.0.13](docs/RELEASE_1.0.13.md)
 - [Release 1.0.14](docs/RELEASE_1.0.14.md)
+- [Release 1.0.15](docs/RELEASE_1.0.15.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

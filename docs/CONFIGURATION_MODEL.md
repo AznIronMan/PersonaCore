@@ -453,21 +453,46 @@ strips raw links for non-owner contexts and renders the configured safe
 alternate or withheld placeholder. Consumer HTML snapshots, JSON endpoints,
 database queries, and action routes must still enforce the same policy.
 
+## Shared Controls
+
+Shared controls are small UI primitives that keep list and queue pages visually
+consistent without moving URL construction, database filters, or authorization
+into PersonaCore.
+
+```python
+from personacore import StatusTab, render_status_tabs
+
+html = render_status_tabs(
+    [
+        StatusTab("All", "/review", 12, active=True),
+        StatusTab("Pending", "/review?status=pending", 3, tone="warn"),
+        {"label": "Approved", "href": "/review?status=approved", "count": 8, "tone": "good"},
+    ],
+    aria_label="Review status",
+)
+```
+
+`render_status_tabs(...)` emits both the generic PersonaCore classes
+(`pc-status-tabs`, `pc-status-tab`, `pc-status-tab-count`) and the legacy class
+hooks (`status-tabs`, `status-tab`, `status-tab-count`) so consumers can migrate
+page by page without breaking existing admin tests or styles.
+
 ## Consumer Integration Doctor
 
 After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.14
+PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.15
 ```
 
 The doctor verifies that `persona_console` and `personacore` import, report the
 same version, expose adapter-health, token-health, owner-private, and
-message/activity/media/people/review helpers, and can render a generic shell
-plus redacted feature panels. It does not read runtime secrets, databases,
-private routes, or consumer settings. Filesystem paths are omitted from output
-unless `--show-paths` is explicitly passed for local diagnostics.
+message/activity/media/people/review helpers plus shared controls, and can
+render a generic shell plus redacted feature panels. It does not read runtime
+secrets, databases, private routes, or consumer settings. Filesystem paths are
+omitted from output unless `--show-paths` is explicitly passed for local
+diagnostics.
 
 ## Dashboard Summary Cards
 

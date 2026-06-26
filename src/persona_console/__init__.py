@@ -63,6 +63,7 @@ from .models import (
     ReviewQueueCard,
     ReviewQueueSection,
     ReviewSurfaceConfig,
+    StatusTab,
     StatusPill,
     SurfaceBadge,
     ThemeTokens,
@@ -78,6 +79,7 @@ from .render import (
     render_status_pill,
     render_user_pill,
 )
+from .controls import render_status_tabs
 from .token_health import (
     TOKEN_HEALTH_FEATURE,
     build_token_health_report,
@@ -186,6 +188,7 @@ __all__ = [
     "ReviewQueueCard",
     "ReviewQueueSection",
     "ReviewSurfaceConfig",
+    "StatusTab",
     "StatusPill",
     "SurfaceBadge",
     "ThemeTokens",
@@ -233,6 +236,7 @@ __all__ = [
     "render_private_text",
     "render_review_surface",
     "render_shell_html",
+    "render_status_tabs",
     "render_status_pill",
     "render_surface_sections",
     "render_token_health_panel",
@@ -245,7 +249,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.14"
+__version__ = "1.0.15"
 
 
 def configure_jinja_loader(*args, **kwargs):

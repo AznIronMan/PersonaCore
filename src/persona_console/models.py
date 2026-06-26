@@ -266,6 +266,16 @@ class SurfaceBadge:
 
 
 @dataclass(frozen=True)
+class StatusTab:
+    label: str
+    href: str = ""
+    count: str | int = ""
+    active: bool = False
+    tone: str = "neutral"
+    title: str = ""
+
+
+@dataclass(frozen=True)
 class PersonTag:
     label: str
     href: str = ""

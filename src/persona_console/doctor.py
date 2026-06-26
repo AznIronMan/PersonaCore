@@ -76,6 +76,10 @@ _RENDER_EXPORTS = (
     "render_dashboard_sections",
     "render_shell_html",
 )
+_CONTROL_EXPORTS = (
+    "StatusTab",
+    "render_status_tabs",
+)
 
 
 @dataclass(frozen=True)
@@ -163,8 +167,10 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "review_exports", _REVIEW_EXPORTS))
         checks.extend(_export_checks(module, "owner_private_exports", _OWNER_PRIVATE_EXPORTS))
         checks.extend(_export_checks(module, "render_exports", _RENDER_EXPORTS))
+        checks.extend(_export_checks(module, "control_exports", _CONTROL_EXPORTS))
         checks.append(_adapter_health_render_check(module))
         checks.append(_token_health_render_check(module))
+        checks.append(_controls_render_check(module))
         checks.append(_surface_render_check(module))
         checks.append(_people_render_check(module))
         checks.append(_review_render_check(module))
@@ -301,6 +307,27 @@ def _adapter_health_render_check(module: Any) -> DoctorCheck:
         and "runtime-owned policy" in html
     )
     return _check(ok, "adapter_health_render", "adapter health panel renders generic runtime cards")
+
+
+def _controls_render_check(module: Any) -> DoctorCheck:
+    try:
+        html = module.render_status_tabs(
+            [
+                module.StatusTab("All", "/review", 8, active=True),
+                module.StatusTab("Pending", "/review?status=pending", 3, tone="warn"),
+            ],
+        )
+    except Exception as exc:
+        return _check(False, "controls_render", "shared controls render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-status-tabs" in html
+        and "status-tabs" in html
+        and "pc-status-tab" in html
+        and "status-tab-count" in html
+        and "/review?status=pending" in html
+        and "Pending" in html
+    )
+    return _check(ok, "controls_render", "shared controls render status tabs")
 
 
 def _surface_render_check(module: Any) -> DoctorCheck:

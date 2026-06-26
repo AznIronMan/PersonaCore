@@ -42,6 +42,8 @@ def test_personacore_reexports_core_api():
     assert personacore.ReviewSurfaceConfig is persona_console.ReviewSurfaceConfig
     assert personacore.ReviewBoardRow is persona_console.ReviewBoardRow
     assert personacore.render_review_surface is persona_console.render_review_surface
+    assert personacore.StatusTab is persona_console.StatusTab
+    assert personacore.render_status_tabs is persona_console.render_status_tabs
     assert personacore.OwnerPrivateScopePolicy is persona_console.OwnerPrivateScopePolicy
     assert personacore.AdminPrivacyContext is persona_console.AdminPrivacyContext
     assert personacore.PrivacyRenderMode is persona_console.PrivacyRenderMode
@@ -64,6 +66,8 @@ def test_personacore_reexports_core_api():
     assert "REVIEW_FEATURE" in personacore.__all__
     assert "ReviewSurfaceConfig" in personacore.__all__
     assert "render_review_surface" in personacore.__all__
+    assert "StatusTab" in personacore.__all__
+    assert "render_status_tabs" in personacore.__all__
     assert "OwnerPrivateScopePolicy" in personacore.__all__
 
 
@@ -76,7 +80,9 @@ def test_personacore_submodules_reexport_existing_implementation():
         MessageSurfaceConfig,
         PeopleSurfaceConfig,
         PersonaCoreConfig,
+        StatusTab,
     )
+    from personacore.controls import render_status_tabs
     from personacore.people import PEOPLE_FEATURE, render_people_surface
     from personacore.privacy import OwnerPrivateScopePolicy, render_private_text
     from personacore.render import render_nav_groups
@@ -90,6 +96,8 @@ def test_personacore_submodules_reexport_existing_implementation():
     assert MessageSurfaceConfig is persona_console.MessageSurfaceConfig
     assert PeopleSurfaceConfig is persona_console.PeopleSurfaceConfig
     assert DashboardMetricSpec is persona_console.DashboardMetricSpec
+    assert StatusTab is persona_console.StatusTab
+    assert render_status_tabs is persona_console.render_status_tabs
     assert render_adapter_health_panel is persona_console.render_adapter_health_panel
     assert OwnerPrivateScopePolicy is persona_console.OwnerPrivateScopePolicy
     assert render_private_text is persona_console.render_private_text
@@ -122,4 +130,4 @@ def test_public_package_metadata_matches_runtime_version():
     pyproject = tomllib.loads(Path("pyproject.toml").read_text())
 
     assert pyproject["project"]["name"] == "personacore"
-    assert pyproject["project"]["version"] == personacore.__version__ == "1.0.14"
+    assert pyproject["project"]["version"] == personacore.__version__ == "1.0.15"
