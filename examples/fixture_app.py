@@ -80,7 +80,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.2-fixture",
+        app_version="v1.0.8-fixture",
         static_base_url=static_base_url,
         theme=ThemeTokens(
             accent="rgb(20 184 166)",

@@ -5,6 +5,7 @@ from html import escape
 from typing import Any, Mapping, Sequence, TypeVar
 
 from .models import (
+    AdapterHealthConfig,
     DashboardAction,
     DashboardActivityItem,
     DashboardAdapterCard,
@@ -21,8 +22,8 @@ from .models import (
     DashboardMetricSpec,
     DashboardQueueRow,
     DashboardRouteCard,
-    DashboardSparkBucket,
 )
+from .adapter_health import render_adapter_health_panel
 from .token_health import render_token_health_panel
 
 T = TypeVar("T")
@@ -337,65 +338,10 @@ def render_dashboard_health_strip(health: DashboardHealthStrip | Mapping[str, ob
     return _link_or_tag("section", model.href, f"pc-dashboard-health pc-dashboard-tone-{_tone(model.tone)}", body)
 
 
-def _render_sparkline(buckets: Sequence[DashboardSparkBucket | Mapping[str, object]]) -> str:
-    spans = []
-    for raw_bucket in buckets:
-        bucket = _coerce(raw_bucket, DashboardSparkBucket)
-        attrs = _attrs(title=bucket.title or bucket.label)
-        body = (
-            f'<span class="pc-dashboard-spark pc-dashboard-tone-{_tone(bucket.tone)}" '
-            f'style="height: {_percent(bucket.percent)}%"{attrs}></span>'
-        )
-        if bucket.href:
-            body = f'<a href="{escape(bucket.href, quote=True)}" aria-label="{escape(bucket.label, quote=True)}">{body}</a>'
-        spans.append(body)
-    if not spans:
-        return ""
-    return '<div class="pc-dashboard-sparkline">' + "".join(spans) + "</div>"
-
-
 def render_dashboard_adapter_cards(adapters: Sequence[DashboardAdapterCard | Mapping[str, object]]) -> str:
-    cards = []
-    for raw_adapter in adapters:
-        adapter = _coerce(raw_adapter, DashboardAdapterCard)
-        counts = []
-        for raw_count in adapter.counts:
-            if isinstance(raw_count, Mapping):
-                label = str(raw_count.get("label") or "")
-                tone = _tone(raw_count.get("tone"))
-            else:
-                label = str(raw_count)
-                tone = "neutral"
-            if label:
-                counts.append(f'<span class="pc-dashboard-count pc-dashboard-tone-{tone}">{escape(label)}</span>')
-        body = (
-            '<div class="pc-dashboard-adapter-title-row">'
-            f'<strong>{escape(str(adapter.label))}</strong>'
-            f'<span class="pc-dashboard-adapter-status">{escape(str(adapter.status))}</span></div>'
-            + (f'<div class="pc-dashboard-section-meta">{escape(str(adapter.route))}</div>' if adapter.route else "")
-            + (f'<div class="pc-dashboard-adapter-policy">{escape(str(adapter.policy))}</div>' if adapter.policy else "")
-            + '<div class="pc-dashboard-adapter-times">'
-            f"<div><span>In</span><strong>{escape(str(adapter.last_in or 'never'))}</strong></div>"
-            f"<div><span>Out</span><strong>{escape(str(adapter.last_out or 'never'))}</strong></div>"
-            "</div>"
-            + (f'<div class="pc-dashboard-counts">{"".join(counts)}</div>' if counts else "")
-            + _render_sparkline(adapter.sparkline)
-            + (f'<div class="pc-dashboard-attention-detail">{escape(str(adapter.detail))}</div>' if adapter.detail else "")
-            + (f'<div class="pc-dashboard-action-hint">{escape(str(adapter.action_hint))}</div>' if adapter.action_hint else "")
-        )
-        cards.append(_link_or_tag("article", adapter.href, f"pc-dashboard-adapter pc-dashboard-tone-{_tone(adapter.tone)}", body))
-    if not cards:
+    if not adapters:
         return ""
-    return (
-        '<section class="pc-dashboard-panel">'
-        '<div class="pc-dashboard-panel-head"><div>'
-        '<div class="pc-dashboard-section-title">Adapter health</div>'
-        '<div class="pc-dashboard-section-meta">Routes, queues, and recent provider activity</div>'
-        "</div></div>"
-        '<div class="pc-dashboard-adapter-grid">'
-        + "".join(cards)
-        + "</div></section>"
-    )
+    return render_adapter_health_panel(AdapterHealthConfig(enabled=True, cards=adapters))
 
 
 def render_dashboard_flow(flow: DashboardFlow | Mapping[str, object] | None) -> str:

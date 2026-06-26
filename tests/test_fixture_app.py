@@ -18,6 +18,7 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Example Persona" in html
     assert "pc-dashboard-overview" in html
     assert "Adapter health" in html
+    assert "pc-adapter-health" in html
     assert "Token Health" in html
     assert "Webhook verify token" in html
     assert "/static-fixture/persona-console.css" in html

@@ -1,6 +1,11 @@
 """Shared admin console shell and assets for persona runtimes."""
 
 from .fastapi import register_static_assets
+from .adapter_health import (
+    ADAPTER_HEALTH_FEATURE,
+    adapter_health_feature_enabled,
+    render_adapter_health_panel,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -17,6 +22,9 @@ from .dashboard import (
     render_dashboard_summary_grid,
 )
 from .models import (
+    AdapterHealthCard,
+    AdapterHealthConfig,
+    AdapterHealthSparkBucket,
     DashboardAction,
     DashboardActivityItem,
     DashboardAdapterCard,
@@ -85,6 +93,10 @@ from .privacy import (
 
 __all__ = [
     "NavGroup",
+    "ADAPTER_HEALTH_FEATURE",
+    "AdapterHealthCard",
+    "AdapterHealthConfig",
+    "AdapterHealthSparkBucket",
     "DashboardAction",
     "DashboardActivityItem",
     "DashboardAdapterCard",
@@ -120,6 +132,7 @@ __all__ = [
     "UserPill",
     "WITHHELD_PRIVATE_TEXT",
     "active_nav_label",
+    "adapter_health_feature_enabled",
     "build_token_health_report",
     "can_view_raw_private",
     "canonical_privacy_scope",
@@ -142,6 +155,7 @@ __all__ = [
     "render_dashboard_route_cards",
     "render_dashboard_sections",
     "render_dashboard_summary_grid",
+    "render_adapter_health_panel",
     "render_live_controls",
     "render_nav_groups",
     "render_private_text",
@@ -157,7 +171,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 
 def configure_jinja_loader(*args, **kwargs):

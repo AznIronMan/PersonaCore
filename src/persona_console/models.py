@@ -245,6 +245,20 @@ class DashboardAdapterCard:
     sparkline: Sequence[DashboardSparkBucket | Mapping[str, object]] = field(default_factory=tuple)
 
 
+AdapterHealthCard = DashboardAdapterCard
+AdapterHealthSparkBucket = DashboardSparkBucket
+
+
+@dataclass(frozen=True)
+class AdapterHealthConfig:
+    enabled: bool = False
+    feature: str = "adapter_health"
+    title: str = "Adapter health"
+    subtitle: str = "Routes, queues, and recent provider activity"
+    cards: Sequence[DashboardAdapterCard | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No adapter health checks configured."
+
+
 @dataclass(frozen=True)
 class DashboardFlowSegment:
     label: str

@@ -77,6 +77,7 @@ Future shared configuration should make common feature modules selectable:
 
 ```python
 features = {
+    "adapter_health": False,
     "dashboard": True,
     "messages": True,
     "media": False,
@@ -203,18 +204,50 @@ Built-in provider presets are public labels only. Runtime-specific aliases,
 credential names, validation calls, token refresh state, and health routes
 should stay in the consumer repository.
 
+## Adapter Health
+
+Adapter health is a shared, opt-in feature for runtime-owned provider, route,
+queue, worker, and policy status. PersonaCore renders the cards and summary
+shell; consuming runtimes own the actual checks and pass only display-safe data.
+
+```python
+from personacore import AdapterHealthCard, AdapterHealthConfig, AdapterHealthSparkBucket
+
+adapter_health = AdapterHealthConfig(
+    enabled=True,
+    cards=[
+        AdapterHealthCard(
+            "Messages",
+            "healthy",
+            href="/messages",
+            tone="good",
+            route="inbound/outbound",
+            policy="reply route enabled",
+            last_in="2m ago",
+            last_out="1m ago",
+            counts=[{"label": "0 failed", "tone": "good"}],
+            sparkline=[AdapterHealthSparkBucket("now", 76, tone="good")],
+        )
+    ],
+)
+```
+
+`features["adapter_health"] = False` hides the shared panel when a runtime wants
+to keep the module off. The flag does not grant health-probe permissions,
+restart rights, or provider access; those remain runtime-owned.
+
 ## Consumer Integration Doctor
 
 After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.7
+PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.8
 ```
 
 The doctor verifies that `persona_console` and `personacore` import, report the
-same version, expose token-health and owner-private helpers, and can render a
-generic shell plus redacted token-health panel. It does not read runtime
+same version, expose adapter-health, token-health, and owner-private helpers,
+and can render a generic shell plus redacted feature panels. It does not read runtime
 secrets, databases, private routes, or consumer settings. Filesystem paths are
 omitted from output unless `--show-paths` is explicitly passed for local
 diagnostics.

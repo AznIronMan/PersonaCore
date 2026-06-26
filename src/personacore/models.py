@@ -1,6 +1,9 @@
 """Model re-exports for the public PersonaCore import path."""
 
 from persona_console.models import (
+    AdapterHealthCard,
+    AdapterHealthConfig,
+    AdapterHealthSparkBucket,
     DashboardAction,
     DashboardActivityItem,
     DashboardAdapterCard,
@@ -30,6 +33,9 @@ from persona_console.models import (
 )
 
 __all__ = [
+    "AdapterHealthCard",
+    "AdapterHealthConfig",
+    "AdapterHealthSparkBucket",
     "DashboardAction",
     "DashboardActivityItem",
     "DashboardAdapterCard",

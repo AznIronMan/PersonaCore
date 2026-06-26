@@ -33,7 +33,8 @@ screenshots, data, and runtime policy stay outside the public repo.
    other runtime-owned credentials with required/optional severity.
 6. Adapter health cards:
    provider route, last in/out timestamps, queued/failed counts, policy detail,
-   sparkline buckets, and action hints.
+   sparkline buckets, and action hints. Initial shared renderer shipped in
+   PersonaCore `1.0.8`.
 7. Flow chart:
    lightweight bar visualization for inbound/outbound activity with optional
    provider segments.

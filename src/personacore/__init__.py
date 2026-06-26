@@ -1,6 +1,10 @@
 """Public PersonaCore import path for the shared admin console runtime."""
 
 from persona_console import (
+    ADAPTER_HEALTH_FEATURE,
+    AdapterHealthCard,
+    AdapterHealthConfig,
+    AdapterHealthSparkBucket,
     DashboardAction,
     DashboardActivityItem,
     DashboardAdapterCard,
@@ -37,6 +41,7 @@ from persona_console import (
     UserPill,
     WITHHELD_PRIVATE_TEXT,
     active_nav_label,
+    adapter_health_feature_enabled,
     build_token_health_report,
     can_view_raw_private,
     canonical_privacy_scope,
@@ -48,6 +53,7 @@ from persona_console import (
     owner_private_scope_for_content,
     privacy_render_mode,
     register_static_assets,
+    render_adapter_health_panel,
     render_dashboard_activity,
     render_dashboard_adapter_cards,
     render_dashboard_attention,
@@ -77,6 +83,10 @@ from persona_console import __version__
 
 __all__ = [
     "DashboardAction",
+    "ADAPTER_HEALTH_FEATURE",
+    "AdapterHealthCard",
+    "AdapterHealthConfig",
+    "AdapterHealthSparkBucket",
     "DashboardActivityItem",
     "DashboardAdapterCard",
     "DashboardAttention",
@@ -112,6 +122,7 @@ __all__ = [
     "UserPill",
     "WITHHELD_PRIVATE_TEXT",
     "active_nav_label",
+    "adapter_health_feature_enabled",
     "build_token_health_report",
     "can_view_raw_private",
     "canonical_privacy_scope",
@@ -123,6 +134,7 @@ __all__ = [
     "owner_private_scope_for_content",
     "privacy_render_mode",
     "register_static_assets",
+    "render_adapter_health_panel",
     "render_dashboard_activity",
     "render_dashboard_adapter_cards",
     "render_dashboard_attention",

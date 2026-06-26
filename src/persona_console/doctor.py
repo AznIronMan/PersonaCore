@@ -19,6 +19,14 @@ _TOKEN_HEALTH_EXPORTS = (
     "token_health_feature_enabled",
     "token_health_lookup",
 )
+_ADAPTER_HEALTH_EXPORTS = (
+    "ADAPTER_HEALTH_FEATURE",
+    "AdapterHealthCard",
+    "AdapterHealthConfig",
+    "AdapterHealthSparkBucket",
+    "adapter_health_feature_enabled",
+    "render_adapter_health_panel",
+)
 _OWNER_PRIVATE_EXPORTS = (
     "OWNER_PRIVATE_ADMIN_FEATURE",
     "AdminPrivacyContext",
@@ -116,9 +124,11 @@ def run_consumer_integration_doctor(
         )
     if personacore.imported:
         module = importlib.import_module("personacore")
+        checks.extend(_export_checks(module, "adapter_health_exports", _ADAPTER_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "owner_private_exports", _OWNER_PRIVATE_EXPORTS))
         checks.extend(_export_checks(module, "render_exports", _RENDER_EXPORTS))
+        checks.append(_adapter_health_render_check(module))
         checks.append(_token_health_render_check(module))
         checks.append(_owner_private_render_check(module))
         checks.append(_shell_render_check(module))
@@ -223,6 +233,36 @@ def _token_health_render_check(module: Any) -> DoctorCheck:
         and raw_value not in html
     )
     return _check(ok, "token_health_render", "token health report and panel render without raw values")
+
+
+def _adapter_health_render_check(module: Any) -> DoctorCheck:
+    try:
+        html = module.render_adapter_health_panel(
+            module.AdapterHealthConfig(
+                enabled=True,
+                cards=[
+                    module.AdapterHealthCard(
+                        "Messages",
+                        "healthy",
+                        route="inbound/outbound",
+                        policy="runtime-owned policy",
+                        last_in="1m ago",
+                        last_out="2m ago",
+                        counts=[{"label": "0 failed", "tone": "good"}],
+                        sparkline=[module.AdapterHealthSparkBucket("now", 75, tone="good")],
+                    )
+                ],
+            )
+        )
+    except Exception as exc:
+        return _check(False, "adapter_health_render", "adapter health render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-adapter-health" in html
+        and "Messages" in html
+        and "0 failed" in html
+        and "runtime-owned policy" in html
+    )
+    return _check(ok, "adapter_health_render", "adapter health panel renders generic runtime cards")
 
 
 def _owner_private_render_check(module: Any) -> DoctorCheck:

@@ -30,6 +30,7 @@ Recommended first extraction targets:
   enabled by runtime settings and populated by runtime-owned lookups.
 - Adapter/provider health cards with route state, last in/out timestamps,
   queued/failed counts, and optional sparkline buckets.
+  - Initial public-safe renderer: PersonaCore `1.0.8`.
 - Message flow visualization for inbound/outbound activity.
 - Review queue summary cards and decision rows.
 - Conversation/message browser surfaces.
