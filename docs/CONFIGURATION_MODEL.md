@@ -97,6 +97,26 @@ Navigation items may declare a `feature` key. PersonaCore hides feature-gated
 navigation when that feature is disabled or absent. This is only a UI/module
 switch; consumers must still enforce permissions in their own server routes.
 
+## Reference Admin Parity Fixture
+
+`examples/fixture_app.py` is the public-safe reference fixture for consumer
+alignment. It shows how one `PersonaCoreConfig` can present a fuller admin
+workspace with grouped overview, conversations, operations, and system
+navigation while still keeping all real routes and data consumer-owned.
+
+Use the fixture as a configuration target when making consumer admins feel
+consistent:
+
+- Enable only the modules the runtime actually supports.
+- Keep local labels, hrefs, status pills, badges, and theme tokens in the
+  consumer repo.
+- Feed shared render primitives with safe counts, summaries, and status data.
+- Keep route auth, mutation policy, database queries, secrets, restart
+  controls, and owner-private scope aliases outside PersonaCore.
+
+See [Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md) for the
+shared composition contract.
+
 ## Owner-Private Visibility
 
 Owner-private visibility is a shared, opt-in policy helper for content that only
@@ -303,7 +323,7 @@ After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.9
+PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.10
 ```
 
 The doctor verifies that `persona_console` and `personacore` import, report the

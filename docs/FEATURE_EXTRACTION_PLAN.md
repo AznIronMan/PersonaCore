@@ -16,6 +16,11 @@ including private screenshots, paths, or operational details.
    metrics, tables, review queues, dashboards, activity feeds, message views,
    media/workflow panels, worker health, scheduling, and feature toggles.
 
+The shared composition target is documented in
+[Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md). Consumer
+migrations should align to that shape through configuration and shared
+primitives before adding runtime-specific code.
+
 ## First Shared Modules
 
 Recommended first extraction targets:
@@ -36,6 +41,9 @@ Recommended first extraction targets:
 - Conversation/message browser surfaces.
   - Initial public-safe message/activity/media surfaces shipped in PersonaCore
     `1.0.9`.
+- Reference admin parity fixture.
+  - Public-safe spec and fuller operator workspace fixture shipped in
+    PersonaCore `1.0.10`.
 - Command preview/queue panels.
 - Media/workflow status panels.
 - Worker, scheduling, and availability/live monitor panels.

@@ -2,7 +2,8 @@
 
 PersonaCore includes an optional Playwright smoke for the public-safe fixture
 admin console. It verifies the shared shell, dashboard primitives, live
-controls, desktop navigation, and mobile navigation, then writes screenshots.
+controls, reference workspace panels, desktop navigation, and mobile
+navigation, then writes screenshots.
 
 Install optional tooling:
 
@@ -26,3 +27,7 @@ build/visual-smoke/screenshots/
 The smoke uses only generic fixture data. Private runtime screenshots,
 credentials, authenticated sessions, and deployment paths must stay outside the
 public PersonaCore repo.
+
+The fixture follows the public
+[Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md), so screenshots
+are useful for consumer alignment without exposing private runtime details.

@@ -48,45 +48,70 @@ from personacore import (
     render_surface_sections,
 )
 
+PEOPLE_FEATURE = "people"
+TASKS_FEATURE = "tasks"
+WORKERS_FEATURE = "workers"
+LOGS_FEATURE = "logs"
+SETTINGS_FEATURE = "settings"
+
 
 def build_fixture_config(*, static_base_url: str = "/persona-console/static") -> PersonaCoreConfig:
     return PersonaCoreConfig(
         brand_name="Example Persona",
-        page_title="Runtime Dashboard",
-        page_subtitle="Shared admin overview",
+        page_title="Admin Overview",
+        page_subtitle="Reference-style shared admin workspace",
         active="dashboard",
-        features={MESSAGES_FEATURE: True, ACTIVITY_FEATURE: True, MEDIA_FEATURE: True},
+        features={
+            MESSAGES_FEATURE: True,
+            ACTIVITY_FEATURE: True,
+            MEDIA_FEATURE: True,
+            PEOPLE_FEATURE: True,
+            TASKS_FEATURE: True,
+            WORKERS_FEATURE: True,
+            LOGS_FEATURE: True,
+            SETTINGS_FEATURE: True,
+        },
         nav_groups=[
             NavGroup(
-                "Core",
+                "Overview",
                 [
-                    NavItem("Dashboard", "/", active="dashboard"),
-                    NavItem("Messages", "/messages", active="messages", badge="messages", feature=MESSAGES_FEATURE),
+                    NavItem("Overview", "/", active="dashboard"),
                     NavItem("Activity", "/activity", active="activity", feature=ACTIVITY_FEATURE),
                 ],
-                key="core",
+                key="overview",
+            ),
+            NavGroup(
+                "Conversations",
+                [
+                    NavItem("Messages", "/messages", active="messages", badge="messages", feature=MESSAGES_FEATURE),
+                    NavItem("People", "/people", active="people", badge="people", feature=PEOPLE_FEATURE),
+                    NavItem("Media", "/media", active="media", badge="media", feature=MEDIA_FEATURE),
+                ],
+                key="conversations",
             ),
             NavGroup(
                 "Operations",
                 [
                     NavItem("Review Queue", "/review", active="review", badge="review"),
-                    NavItem("Media", "/media", active="media", feature=MEDIA_FEATURE),
-                    NavItem("Workers", "/workers", active="workers", badge="workers"),
+                    NavItem("Tasks", "/tasks", active="tasks", badge="tasks", feature=TASKS_FEATURE),
+                    NavItem("Workers", "/workers", active="workers", badge="workers", feature=WORKERS_FEATURE),
                 ],
                 key="operations",
             ),
             NavGroup(
-                "Runtime",
+                "System",
                 [
-                    NavItem("Configuration", "/configuration", active="configuration"),
+                    NavItem("Logs", "/logs", active="logs", badge="logs", feature=LOGS_FEATURE),
+                    NavItem("Settings", "/settings", active="settings", feature=SETTINGS_FEATURE),
                     NavItem("Health", "/health", active="health"),
                 ],
-                key="runtime",
+                key="system",
             ),
         ],
-        nav_badges={"messages": 12, "review": 4, "workers": 1},
+        nav_badges={"messages": 12, "people": 3, "media": 9, "review": 4, "tasks": 6, "workers": 1, "logs": 2},
         status_pills=[
-            StatusPill("Runtime healthy", "good"),
+            StatusPill("Runtime active", "good"),
+            StatusPill("Admin active", "good"),
             StatusPill("Review 4", "info"),
             StatusPill("Worker lag", "warn"),
         ],
@@ -96,16 +121,19 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.9-fixture",
+        app_version="v1.0.10-fixture",
         static_base_url=static_base_url,
         theme=ThemeTokens(
-            accent="rgb(20 184 166)",
-            accent_soft="rgb(153 246 228)",
-            accent_surface="rgb(19 78 74 / 0.36)",
-            background="rgb(11 18 32)",
-            surface="rgb(17 24 39)",
-            surface_raised="rgb(17 24 39 / 0.98)",
-            surface_muted="rgb(31 41 55 / 0.74)",
+            accent="rgb(239 71 111)",
+            accent_soft="rgb(251 113 133)",
+            accent_surface="rgb(80 25 40 / 0.38)",
+            background="rgb(8 9 11)",
+            surface="rgb(18 20 22)",
+            surface_raised="rgb(24 26 28 / 0.98)",
+            surface_muted="rgb(31 36 39 / 0.74)",
+            border="rgb(64 70 74)",
+            muted="rgb(156 163 175)",
+            info="rgb(45 212 191)",
         ),
         live_url="/fragments/dashboard",
         live_interval=30,
@@ -122,46 +150,55 @@ def render_dashboard_fragment() -> str:
     )
     dashboard = DashboardData(
         attention=DashboardAttention(
-            title="Runtime Overview",
-            subtitle="Current shared admin state for a generic persona runtime",
+            title="Operator Attention",
+            subtitle="Shared first-screen rhythm for a generic persona runtime",
             label="Needs operator pass",
             tone="warn",
-            count=3,
+            count=4,
             refreshed_label="refreshed just now",
             items=[
                 DashboardAttentionItem("Review", 4, "Items waiting for operator review.", "/review", tone="warn"),
+                DashboardAttentionItem("Credentials", 1, "One optional webhook credential is missing.", "/health", tone="info"),
                 DashboardAttentionItem("Workers", "42s", "Queue latency is above target.", "/workers", tone="bad"),
-                DashboardAttentionItem("Media", 9, "Jobs queued or processing.", "/media", tone="info"),
+                DashboardAttentionItem("Messages", 12, "Unread conversations need triage.", "/messages", tone="warn"),
             ],
         ),
         filters=[
-            DashboardFilter("All routes", "/", active=True, color="rgb(153 246 228)"),
-            DashboardFilter("Messages", "/?platform=messages", key="messages", color="rgb(56 189 248)"),
-            DashboardFilter("Media", "/?platform=media", key="media", color="rgb(244 114 182)"),
-            DashboardFilter("Workers", "/?platform=workers", key="workers", color="rgb(251 191 36)"),
+            DashboardFilter("All", "/", active=True, color="rgb(251 113 133)"),
+            DashboardFilter("Messages", "/?surface=messages", key="messages", color="rgb(45 212 191)"),
+            DashboardFilter("People", "/?surface=people", key="people", color="rgb(251 191 36)"),
+            DashboardFilter("Media", "/?surface=media", key="media", color="rgb(129 140 248)"),
+            DashboardFilter("Tasks", "/?surface=tasks", key="tasks", color="rgb(52 211 153)"),
+            DashboardFilter("System", "/?surface=system", key="system", color="rgb(248 113 113)"),
         ],
         metrics=[
+            DashboardMetric("Services", "6/6", "/health", "Admin, runtime, workers, storage", tone="good"),
+            DashboardMetric("Messages", 128, "/messages", "Across active channels", tone="info"),
+            DashboardMetric("People", 37, "/people", "Profiles with recent activity"),
             DashboardMetric("Open reviews", 4, "/review", "Needs operator pass", tone="warn"),
-            DashboardMetric("Messages today", 128, "/messages", "Across active channels", tone="info"),
-            DashboardMetric("Media jobs", 9, "/media", "Queued or processing"),
             DashboardMetric("Worker latency", "42s", "/workers", "P95 over last hour", tone="bad"),
+            DashboardMetric("Artifacts", 9, "/media", "Queued or ready"),
         ],
         routes=[
+            DashboardRouteCard("Messages", "/messages", "Scan conversations, summaries, and handoffs.", metric=12, tone="warn"),
+            DashboardRouteCard("People", "/people", "Review profiles, notes, and visibility labels.", metric=37, tone="info"),
             DashboardRouteCard("Review Queue", "/review", "Approve, hold, or dismiss items.", metric=4, tone="warn"),
-            DashboardRouteCard("Messages", "/messages", "Scan conversations and handoffs.", metric=128, tone="info"),
-            DashboardRouteCard("Media", "/media", "Track generation and publishing status.", metric=9),
+            DashboardRouteCard("Media", "/media", "Track artifacts, previews, and publishing status.", metric=9),
+            DashboardRouteCard("Tasks", "/tasks", "Follow queued work and operator-owned next actions.", metric=6),
+            DashboardRouteCard("Logs", "/logs", "Read sanitized runtime events and warnings.", metric=2, tone="info"),
+            DashboardRouteCard("Settings", "/settings", "Adjust feature flags and integration posture.", metric="on"),
             DashboardRouteCard("Workers", "/workers", "Inspect queue health and retries.", metric="42s", tone="bad"),
         ],
         health=DashboardHealthStrip(
             "Runtime health",
             "/health",
             tone="good",
-            meta="fixture host · sampled just now",
+            meta="fixture runtime sampled just now",
             metrics=[
-                DashboardHealthMetric("CPU", "18%", "within normal band", tone="good"),
-                DashboardHealthMetric("RAM", "61%", "stable", tone="good"),
-                DashboardHealthMetric("Disk", "72%", "watch growth", tone="warn"),
-                DashboardHealthMetric("Network", "ok", "adapter reachable", tone="good"),
+                DashboardHealthMetric("Runtime", "ok", "request path reachable", tone="good"),
+                DashboardHealthMetric("Admin", "ok", "shell and assets loaded", tone="good"),
+                DashboardHealthMetric("Workers", "lag", "one queue above target", tone="warn"),
+                DashboardHealthMetric("Storage", "ok", "artifact index reachable", tone="good"),
             ],
         ),
         token_health=TokenHealthConfig(
@@ -225,9 +262,21 @@ def render_dashboard_fragment() -> str:
                 counts=[{"label": "1 queued", "tone": "warn"}, {"label": "0 failed", "tone": "good"}],
                 detail="One queue is above the expected latency target.",
             ),
+            DashboardAdapterCard(
+                "Social",
+                "healthy",
+                "/activity",
+                tone="good",
+                route="public engagement",
+                policy="comments and likes visible by normal scope",
+                last_in="5m ago",
+                last_out="7m ago",
+                counts=["41 events/24h", "0 failed"],
+                detail="Public and group activity stays in the normal operator surface.",
+            ),
         ],
         flow=DashboardFlow(
-            "Message flow",
+            "Conversation Flow",
             "Last 12 hours",
             inbound_total=128,
             outbound_total=117,
@@ -248,6 +297,7 @@ def render_dashboard_fragment() -> str:
         ),
         queue=[
             DashboardQueueRow("Pending", 4, "/pending?status=pending", tone="warn"),
+            DashboardQueueRow("Held", 3, "/pending?status=held", tone="info"),
             DashboardQueueRow("Applied", 22, "/pending?status=applied", tone="good"),
             DashboardQueueRow("Failed", 1, "/pending?status=failed", tone="bad"),
             DashboardQueueRow("Cancelled", 2, "/pending?status=cancelled"),
@@ -255,10 +305,79 @@ def render_dashboard_fragment() -> str:
         activity=[
             DashboardActivityItem("Review", "Four items queued", "/review", "09:42", "Waiting for operator pass.", tone="warn"),
             DashboardActivityItem("Messages", "Conversation summary refreshed", "/messages", "09:38", "Active channel state updated.", tone="info"),
+            DashboardActivityItem("People", "Profile snapshot refreshed", "/people", "09:34", "Recent people notes rebuilt with privacy guards.", tone="good"),
             DashboardActivityItem("Workers", "Latency warning", "/workers", "09:31", "One worker is above target.", tone="bad"),
             DashboardActivityItem("Media", "Assets ready", "/media", "09:26", "Three generated assets are ready for inspection.", tone="good"),
         ],
     )
+    operator_workspace = """
+<section class="pc-dashboard-panel pc-reference-workspace">
+  <div class="pc-dashboard-panel-head">
+    <div>
+      <div class="pc-dashboard-section-title">Operator Workspace</div>
+      <p class="pc-dashboard-section-meta">Reference module mix for consumer-owned routes and data.</p>
+    </div>
+    <span class="pc-dashboard-status"><span class="pc-dashboard-status-dot"></span>4 modules</span>
+  </div>
+  <div class="grid">
+    <article class="card">
+      <div class="panel-head">
+        <h3>People Snapshot</h3>
+        <span class="pc-dashboard-tag">visibility aware</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Segment</th><th>Count</th><th>Operator view</th></tr></thead>
+          <tbody>
+            <tr><td>Active profiles</td><td>37</td><td>Names, notes, and public summaries</td></tr>
+            <tr><td>Owner-private lane</td><td>1</td><td>Safe alternate summary only</td></tr>
+            <tr><td>Moderator review</td><td>5</td><td>Read-only queue visibility</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card">
+      <div class="panel-head">
+        <h3>Task Queue</h3>
+        <span class="pc-dashboard-tag">runtime-owned</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task</th><th>Status</th><th>Next action</th></tr></thead>
+          <tbody>
+            <tr><td>Review pending replies</td><td>Waiting</td><td>Operator decision</td></tr>
+            <tr><td>Refresh profile rollups</td><td>Running</td><td>Watch worker latency</td></tr>
+            <tr><td>Publish ready artifact</td><td>Held</td><td>Confirm destination</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card">
+      <div class="panel-head">
+        <h3>Log Tail</h3>
+        <span class="pc-dashboard-tag">sanitized</span>
+      </div>
+      <pre>[09:45] review queued for operator
+[09:38] conversation summary refreshed
+[09:34] owner-private raw fields withheld
+[09:31] worker latency warning</pre>
+    </article>
+    <article class="card">
+      <div class="panel-head">
+        <h3>Settings Posture</h3>
+        <span class="pc-dashboard-tag">feature flags</span>
+      </div>
+      <div class="pc-token-health-summary">
+        <span><strong>on</strong> messages</span>
+        <span><strong>on</strong> people</span>
+        <span><strong>on</strong> media</span>
+        <span><strong>on</strong> owner-private guards</span>
+      </div>
+      <p class="hint">Mutation routes, restart controls, and secret lookups stay in the consumer runtime.</p>
+    </article>
+  </div>
+</section>
+"""
     hold_form = """
 <section class="panel">
   <div class="panel-head">
@@ -376,7 +495,7 @@ def render_dashboard_fragment() -> str:
         privacy_policy=privacy_policy,
         privacy_context=operator_context,
     )
-    return render_dashboard_sections(dashboard) + surfaces + hold_form
+    return render_dashboard_sections(dashboard) + surfaces + operator_workspace + hold_form
 
 
 def render_fixture_page(*, static_base_url: str = "/persona-console/static") -> str:

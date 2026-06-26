@@ -8,15 +8,25 @@ def test_fixture_uses_public_personacore_config_name():
 
     assert config.brand_name == "Example Persona"
     assert config.nav_badges["review"] == 4
+    assert config.nav_badges["people"] == 3
+    assert config.features["people"] is True
+    assert config.features["tasks"] is True
+    assert config.features["settings"] is True
     assert config.live_interval == 30
 
 
 def test_fixture_renders_shared_shell_with_generic_data():
     html = render_fixture_page(static_base_url="/static-fixture")
 
-    assert "Runtime Dashboard" in html
+    assert "Admin Overview" in html
     assert "Example Persona" in html
     assert "pc-dashboard-overview" in html
+    assert "Operator Attention" in html
+    assert "Operator Workspace" in html
+    assert "People Snapshot" in html
+    assert "Task Queue" in html
+    assert "Log Tail" in html
+    assert "Settings Posture" in html
     assert "Adapter health" in html
     assert "pc-adapter-health" in html
     assert "pc-message-surface" in html

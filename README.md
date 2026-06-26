@@ -88,9 +88,11 @@ for runtime-enforced privacy, `v1.0.6` adds token-health feature gating and
 public provider presets, `v1.0.7` adds the consumer integration doctor for
 upgrade/restart smokes, and `v1.0.8` adds adapter/runtime health cards as an
 opt-in shared module. `v1.0.9` adds reusable message, activity, and
-media/artifact surfaces with owner-private redaction hooks. The existing
-`persona_console` Python package remains in the source tree as a compatibility
-implementation path for v1.x consumers.
+media/artifact surfaces with owner-private redaction hooks. `v1.0.10` adds a
+public-safe reference admin parity spec and expands the fixture into a fuller
+operator workspace target. The existing `persona_console` Python package
+remains in the source tree as a compatibility implementation path for v1.x
+consumers.
 
 ## Public Safety
 
@@ -123,7 +125,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.9
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.10
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -153,6 +155,7 @@ script prints the tag matching the exported package version.
 - [PersonaCore Direction](docs/PERSONACORE_DIRECTION.md)
 - [Configuration Model](docs/CONFIGURATION_MODEL.md)
 - [Feature Extraction Plan](docs/FEATURE_EXTRACTION_PLAN.md)
+- [Reference Admin Parity Spec](docs/REFERENCE_ADMIN_PARITY_SPEC.md)
 - [Reference Console Backlog](docs/REFERENCE_CONSOLE_BACKLOG.md)
 - [Release 1.0.2](docs/RELEASE_1.0.2.md)
 - [Release 1.0.3](docs/RELEASE_1.0.3.md)
@@ -162,6 +165,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.7](docs/RELEASE_1.0.7.md)
 - [Release 1.0.8](docs/RELEASE_1.0.8.md)
 - [Release 1.0.9](docs/RELEASE_1.0.9.md)
+- [Release 1.0.10](docs/RELEASE_1.0.10.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

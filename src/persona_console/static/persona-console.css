@@ -534,6 +534,32 @@ pre, code, textarea {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+pre {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--pc-border) 72%, transparent);
+  border-radius: 7px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--pc-bg) 36%, transparent);
+  color: color-mix(in srgb, var(--pc-text) 86%, var(--pc-muted));
+  font-size: 12px;
+  line-height: 1.45;
+}
+.panel h2,
+.card h3 {
+  margin: 0;
+  color: var(--pc-text);
+  font-size: 15px;
+  line-height: 1.2;
+}
+.pc-reference-workspace .grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  margin-top: 10px;
+}
+.pc-reference-workspace .card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
 
 .pc-dashboard-overview,
 .pc-dashboard-panel,

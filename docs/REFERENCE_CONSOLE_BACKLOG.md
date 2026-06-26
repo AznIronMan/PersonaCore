@@ -15,6 +15,9 @@ screenshots, data, and runtime policy stay outside the public repo.
   runtime-owned unless the behavior is truly generic.
 - Make every shared surface configurable by feature flags, capability flags,
   labels, hrefs, badges, tones, and optional data providers.
+- Keep the public fixture aligned with the shared composition target in
+  [Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md). The first
+  fuller generic fixture target shipped in PersonaCore `1.0.10`.
 
 ## First Dashboard Modules
 
@@ -68,6 +71,10 @@ screenshots, data, and runtime policy stay outside the public repo.
   policy, and scenario/status QA.
 - Media/artifact cards for generated or uploaded assets with preview,
   classification, sendable status, and action slots.
+- Generic people, task, log, and settings posture panels for reference-console
+  parity. Initial public-safe fixture examples shipped in PersonaCore `1.0.10`;
+  typed renderers should be extracted only when repeated consumer usage proves
+  the shape is stable.
 
 ## Implementation Rules
 
