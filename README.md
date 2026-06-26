@@ -61,10 +61,17 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   runtime health panel for provider routes, recent in/out activity, queue
   counts, policy notes, action hints, and compact sparkline buckets. Consumers
   own the underlying health probes and pass only public-safe display data.
+- `personacore.MessageSurfaceConfig`,
+  `personacore.ActivitySurfaceConfig`, `personacore.MediaSurfaceConfig`, and
+  `personacore.render_surface_sections(...)` provide opt-in conversation,
+  activity, and media/artifact admin surfaces. Owner-private render helpers can
+  show raw text to the linked owner context while rendering safe alternates or
+  withheld placeholders for non-owner admins; consumers must still enforce the
+  same policy in their HTML, JSON, query, snapshot, and file routes.
 - `personacore.run_consumer_integration_doctor(...)` verifies consumer installs
   or source mounts by checking version alignment, required shared exports,
-  owner-private helpers, token-health helpers, adapter-health helpers, and a
-  generic render smoke.
+  owner-private helpers, token-health helpers, adapter-health helpers,
+  message/media/activity helpers, and a generic render smoke.
 - `persona_console.register_static_assets(app, ...)` mounts shared CSS and JS
   assets in FastAPI apps.
 - `persona_console.configure_jinja_loader(templates)` adds PersonaCore
@@ -80,8 +87,10 @@ deduplication, `v1.0.5` adds generic owner-private admin visibility helpers
 for runtime-enforced privacy, `v1.0.6` adds token-health feature gating and
 public provider presets, `v1.0.7` adds the consumer integration doctor for
 upgrade/restart smokes, and `v1.0.8` adds adapter/runtime health cards as an
-opt-in shared module. The existing `persona_console` Python package remains in
-the source tree as a compatibility implementation path for v1.x consumers.
+opt-in shared module. `v1.0.9` adds reusable message, activity, and
+media/artifact surfaces with owner-private redaction hooks. The existing
+`persona_console` Python package remains in the source tree as a compatibility
+implementation path for v1.x consumers.
 
 ## Public Safety
 
@@ -114,7 +123,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.8
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.9
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -152,6 +161,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.6](docs/RELEASE_1.0.6.md)
 - [Release 1.0.7](docs/RELEASE_1.0.7.md)
 - [Release 1.0.8](docs/RELEASE_1.0.8.md)
+- [Release 1.0.9](docs/RELEASE_1.0.9.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

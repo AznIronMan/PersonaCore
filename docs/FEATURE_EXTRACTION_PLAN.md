@@ -34,6 +34,8 @@ Recommended first extraction targets:
 - Message flow visualization for inbound/outbound activity.
 - Review queue summary cards and decision rows.
 - Conversation/message browser surfaces.
+  - Initial public-safe message/activity/media surfaces shipped in PersonaCore
+    `1.0.9`.
 - Command preview/queue panels.
 - Media/workflow status panels.
 - Worker, scheduling, and availability/live monitor panels.

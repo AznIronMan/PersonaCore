@@ -27,6 +27,19 @@ _ADAPTER_HEALTH_EXPORTS = (
     "adapter_health_feature_enabled",
     "render_adapter_health_panel",
 )
+_SURFACE_EXPORTS = (
+    "ACTIVITY_FEATURE",
+    "MEDIA_FEATURE",
+    "MESSAGES_FEATURE",
+    "ActivitySurfaceConfig",
+    "MediaSurfaceConfig",
+    "MessageSurfaceConfig",
+    "message_surface_feature_enabled",
+    "render_activity_surface",
+    "render_media_surface",
+    "render_message_surface",
+    "render_surface_sections",
+)
 _OWNER_PRIVATE_EXPORTS = (
     "OWNER_PRIVATE_ADMIN_FEATURE",
     "AdminPrivacyContext",
@@ -126,10 +139,12 @@ def run_consumer_integration_doctor(
         module = importlib.import_module("personacore")
         checks.extend(_export_checks(module, "adapter_health_exports", _ADAPTER_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
+        checks.extend(_export_checks(module, "surface_exports", _SURFACE_EXPORTS))
         checks.extend(_export_checks(module, "owner_private_exports", _OWNER_PRIVATE_EXPORTS))
         checks.extend(_export_checks(module, "render_exports", _RENDER_EXPORTS))
         checks.append(_adapter_health_render_check(module))
         checks.append(_token_health_render_check(module))
+        checks.append(_surface_render_check(module))
         checks.append(_owner_private_render_check(module))
         checks.append(_shell_render_check(module))
 
@@ -263,6 +278,66 @@ def _adapter_health_render_check(module: Any) -> DoctorCheck:
         and "runtime-owned policy" in html
     )
     return _check(ok, "adapter_health_render", "adapter health panel renders generic runtime cards")
+
+
+def _surface_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-message"
+    raw_url = "/doctor/raw-private-media"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_surface_sections(
+            messages=module.MessageSurfaceConfig(
+                enabled=True,
+                conversations=[
+                    module.MessageConversation(
+                        "one",
+                        "Example thread",
+                        summary=raw_value,
+                        safe_alternate="safe thread summary",
+                        privacy_scope="owner_private",
+                    )
+                ],
+                transcript=[
+                    module.MessageTranscriptItem(
+                        "Example",
+                        raw_value,
+                        safe_alternate="safe message summary",
+                        privacy_scope="owner_private",
+                    )
+                ],
+            ),
+            media=module.MediaSurfaceConfig(
+                enabled=True,
+                cards=[
+                    module.MediaArtifactCard(
+                        raw_value,
+                        href=raw_url,
+                        preview_url=raw_url + ".png",
+                        safe_alternate="safe media summary",
+                        privacy_scope="owner_private",
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "surface_render", "message/activity/media surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-message-surface" in html
+        and "pc-media-surface" in html
+        and "safe thread summary" in html
+        and "safe message summary" in html
+        and "safe media summary" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "surface_render", "message and media surfaces render with owner-private redaction")
 
 
 def _owner_private_render_check(module: Any) -> DoctorCheck:

@@ -56,6 +56,8 @@ screenshots, data, and runtime policy stay outside the public repo.
 
 - Message browser with conversation list, selected thread, platform badges,
   transcript bubbles, attachments, reactions, and audit-link slots.
+  Initial public-safe list, transcript, attachment, activity, and media card
+  primitives shipped in PersonaCore `1.0.9`.
 - Conversation transcript table for forensic/admin views.
 - Review queue cards and tables with summary metrics, tags, decision actions,
   and pending-change integration hooks.

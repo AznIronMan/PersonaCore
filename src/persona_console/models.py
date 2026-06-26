@@ -260,6 +260,120 @@ class AdapterHealthConfig:
 
 
 @dataclass(frozen=True)
+class SurfaceBadge:
+    label: str
+    tone: str = "neutral"
+
+
+@dataclass(frozen=True)
+class MessageAttachment:
+    label: str
+    href: str = ""
+    media_type: str = ""
+    status: str = ""
+    detail: str = ""
+    preview_url: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+
+
+@dataclass(frozen=True)
+class MessageConversation:
+    key: str
+    label: str
+    href: str = ""
+    provider: str = ""
+    participant: str = ""
+    summary: str = ""
+    timestamp: str = ""
+    unread: int = 0
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class MessageTranscriptItem:
+    sender: str
+    text: str
+    timestamp: str = ""
+    direction: str = "incoming"
+    provider: str = ""
+    meta: str = ""
+    href: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    attachments: Sequence[MessageAttachment | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class MessageSurfaceConfig:
+    enabled: bool = False
+    feature: str = "messages"
+    title: str = "Messages"
+    subtitle: str = "Conversation review"
+    conversations: Sequence[MessageConversation | Mapping[str, object]] = field(default_factory=tuple)
+    transcript: Sequence[MessageTranscriptItem | Mapping[str, object]] = field(default_factory=tuple)
+    selected_key: str = ""
+    empty_label: str = "No conversations found."
+    transcript_empty_label: str = "Select a conversation to inspect its messages."
+
+
+@dataclass(frozen=True)
+class ActivityEvent:
+    label: str
+    title: str
+    timestamp: str = ""
+    summary: str = ""
+    href: str = ""
+    provider: str = ""
+    meta: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class ActivitySurfaceConfig:
+    enabled: bool = False
+    feature: str = "activity"
+    title: str = "Activity"
+    subtitle: str = "Recent runtime events"
+    events: Sequence[ActivityEvent | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No recent activity found."
+
+
+@dataclass(frozen=True)
+class MediaArtifactCard:
+    label: str
+    href: str = ""
+    preview_url: str = ""
+    media_type: str = ""
+    status: str = ""
+    detail: str = ""
+    timestamp: str = ""
+    provider: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class MediaSurfaceConfig:
+    enabled: bool = False
+    feature: str = "media"
+    title: str = "Media"
+    subtitle: str = "Artifacts and shared assets"
+    cards: Sequence[MediaArtifactCard | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No media artifacts found."
+
+
+@dataclass(frozen=True)
 class DashboardFlowSegment:
     label: str
     percent: int | float

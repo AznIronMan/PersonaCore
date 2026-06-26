@@ -5,6 +5,12 @@ import os
 from pathlib import Path
 
 from personacore import (
+    ACTIVITY_FEATURE,
+    MEDIA_FEATURE,
+    MESSAGES_FEATURE,
+    ActivityEvent,
+    ActivitySurfaceConfig,
+    AdminPrivacyContext,
     DashboardActivityItem,
     DashboardAdapterCard,
     DashboardAttention,
@@ -20,10 +26,18 @@ from personacore import (
     DashboardQueueRow,
     DashboardRouteCard,
     DashboardSparkBucket,
+    MediaArtifactCard,
+    MediaSurfaceConfig,
+    MessageAttachment,
+    MessageConversation,
+    MessageSurfaceConfig,
+    MessageTranscriptItem,
     NavGroup,
     NavItem,
+    OwnerPrivateScopePolicy,
     PersonaCoreConfig,
     StatusPill,
+    SurfaceBadge,
     ThemeTokens,
     TokenHealthCheck,
     TokenHealthConfig,
@@ -31,6 +45,7 @@ from personacore import (
     register_static_assets,
     render_dashboard_sections,
     render_shell_html,
+    render_surface_sections,
 )
 
 
@@ -40,13 +55,14 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
         page_title="Runtime Dashboard",
         page_subtitle="Shared admin overview",
         active="dashboard",
+        features={MESSAGES_FEATURE: True, ACTIVITY_FEATURE: True, MEDIA_FEATURE: True},
         nav_groups=[
             NavGroup(
                 "Core",
                 [
                     NavItem("Dashboard", "/", active="dashboard"),
-                    NavItem("Messages", "/messages", active="messages", badge="messages"),
-                    NavItem("Activity", "/activity", active="activity"),
+                    NavItem("Messages", "/messages", active="messages", badge="messages", feature=MESSAGES_FEATURE),
+                    NavItem("Activity", "/activity", active="activity", feature=ACTIVITY_FEATURE),
                 ],
                 key="core",
             ),
@@ -54,7 +70,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
                 "Operations",
                 [
                     NavItem("Review Queue", "/review", active="review", badge="review"),
-                    NavItem("Media", "/media", active="media"),
+                    NavItem("Media", "/media", active="media", feature=MEDIA_FEATURE),
                     NavItem("Workers", "/workers", active="workers", badge="workers"),
                 ],
                 key="operations",
@@ -80,7 +96,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.8-fixture",
+        app_version="v1.0.9-fixture",
         static_base_url=static_base_url,
         theme=ThemeTokens(
             accent="rgb(20 184 166)",
@@ -98,6 +114,12 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
 
 
 def render_dashboard_fragment() -> str:
+    privacy_policy = OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+    operator_context = AdminPrivacyContext(
+        access_tier="operator",
+        viewer_person_key="operator",
+        allowed_scopes=("public", "operator"),
+    )
     dashboard = DashboardData(
         attention=DashboardAttention(
             title="Runtime Overview",
@@ -260,7 +282,101 @@ def render_dashboard_fragment() -> str:
   </form>
 </section>
 """
-    return render_dashboard_sections(dashboard) + hold_form
+    surfaces = render_surface_sections(
+        messages=MessageSurfaceConfig(
+            enabled=True,
+            conversations=[
+                MessageConversation(
+                    "thread-1",
+                    "Example customer thread",
+                    href="/messages/thread-1",
+                    provider="Chat",
+                    participant="Consumer",
+                    summary="Conversation needs a response handoff.",
+                    timestamp="09:42",
+                    unread=2,
+                    tone="warn",
+                    badges=[SurfaceBadge("reply", "warn")],
+                ),
+                MessageConversation(
+                    "thread-2",
+                    "Owner-private direct thread",
+                    href="/messages/thread-2/raw",
+                    provider="Direct",
+                    participant="Owner",
+                    summary="raw fixture private thread text",
+                    safe_alternate="Owner-private thread has an operator-safe summary.",
+                    timestamp="09:31",
+                    tone="info",
+                    privacy_scope="owner_private",
+                ),
+            ],
+            selected_key="thread-1",
+            transcript=[
+                MessageTranscriptItem(
+                    "Consumer",
+                    "Can you check whether this is ready?",
+                    timestamp="09:41",
+                    provider="Chat",
+                    attachments=[
+                        MessageAttachment(
+                            "Example attachment",
+                            href="/media/example-asset",
+                            media_type="image",
+                            detail="public-safe fixture asset",
+                            tone="info",
+                        )
+                    ],
+                ),
+                MessageTranscriptItem(
+                    "Owner",
+                    "raw fixture owner private message",
+                    timestamp="09:40",
+                    direction="outgoing",
+                    provider="Direct",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private reply summarized for operators.",
+                ),
+            ],
+        ),
+        activity=ActivitySurfaceConfig(
+            enabled=True,
+            events=[
+                ActivityEvent("Review", "Operator queued a decision", "09:45", "Item moved into review.", "/review", tone="warn"),
+                ActivityEvent("Media", "Fixture asset ready", "09:35", "Preview generated for operator inspection.", "/media", tone="good"),
+            ],
+        ),
+        media=MediaSurfaceConfig(
+            enabled=True,
+            cards=[
+                MediaArtifactCard(
+                    "Example generated asset",
+                    href="/media/example-asset",
+                    media_type="image",
+                    status="ready",
+                    detail="Public-safe fixture media card.",
+                    timestamp="09:35",
+                    provider="Media",
+                    tone="good",
+                ),
+                MediaArtifactCard(
+                    "raw fixture private media title",
+                    href="/media/raw-private-fixture",
+                    preview_url="/media/raw-private-fixture-preview",
+                    media_type="image",
+                    status="private",
+                    detail="raw fixture private media detail",
+                    safe_alternate="Owner-private media summarized for operators.",
+                    privacy_scope="owner_private",
+                    tone="info",
+                ),
+            ],
+        ),
+        features={MESSAGES_FEATURE: True, ACTIVITY_FEATURE: True, MEDIA_FEATURE: True},
+        privacy_policy=privacy_policy,
+        privacy_context=operator_context,
+    )
+    return render_dashboard_sections(dashboard) + surfaces + hold_form
 
 
 def render_fixture_page(*, static_base_url: str = "/persona-console/static") -> str:

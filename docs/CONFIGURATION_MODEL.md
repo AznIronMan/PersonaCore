@@ -236,21 +236,82 @@ adapter_health = AdapterHealthConfig(
 to keep the module off. The flag does not grant health-probe permissions,
 restart rights, or provider access; those remain runtime-owned.
 
+## Message, Activity, And Media Surfaces
+
+Message, activity, and media/artifact surfaces are shared, opt-in UI modules
+for consumer-owned data. PersonaCore renders the shell, lists, transcript
+bubbles, attachment chips, activity rows, media cards, badges, and empty states;
+the consuming runtime still owns the queries, route authorization, file byte
+serving, and mutation endpoints.
+
+```python
+from personacore import (
+    MESSAGES_FEATURE,
+    AdminPrivacyContext,
+    MessageConversation,
+    MessageSurfaceConfig,
+    MessageTranscriptItem,
+    OwnerPrivateScopePolicy,
+    render_message_surface,
+)
+
+policy = OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+context = AdminPrivacyContext(
+    access_tier="operator",
+    viewer_person_key="operator",
+    allowed_scopes=("public", "operator"),
+)
+
+html = render_message_surface(
+    MessageSurfaceConfig(
+        enabled=True,
+        conversations=[
+            MessageConversation(
+                "thread-1",
+                "Example thread",
+                summary="raw owner-private text",
+                safe_alternate="Operator-safe summary",
+                privacy_scope="owner_private",
+            )
+        ],
+        transcript=[
+            MessageTranscriptItem(
+                "Owner",
+                "raw owner-private message",
+                safe_alternate="Operator-safe message summary",
+                privacy_scope="owner_private",
+            )
+        ],
+    ),
+    features={MESSAGES_FEATURE: True},
+    privacy_policy=policy,
+    privacy_context=context,
+)
+```
+
+If a row or card declares a privacy scope and no policy is supplied,
+PersonaCore fails closed: it renders the safe alternate when present, otherwise
+a withheld placeholder, and it strips raw href/preview URLs from the shared
+HTML. This is a UI safeguard, not a substitute for server enforcement. Consumer
+HTML snapshots, JSON endpoints, database queries, and media/artifact byte
+routes must apply the same runtime policy before returning raw owner-private
+data.
+
 ## Consumer Integration Doctor
 
 After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.8
+PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.9
 ```
 
 The doctor verifies that `persona_console` and `personacore` import, report the
-same version, expose adapter-health, token-health, and owner-private helpers,
-and can render a generic shell plus redacted feature panels. It does not read runtime
-secrets, databases, private routes, or consumer settings. Filesystem paths are
-omitted from output unless `--show-paths` is explicitly passed for local
-diagnostics.
+same version, expose adapter-health, token-health, owner-private, and
+message/activity/media helpers, and can render a generic shell plus redacted
+feature panels. It does not read runtime secrets, databases, private routes, or
+consumer settings. Filesystem paths are omitted from output unless
+`--show-paths` is explicitly passed for local diagnostics.
 
 ## Dashboard Summary Cards
 

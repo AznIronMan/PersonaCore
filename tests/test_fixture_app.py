@@ -19,6 +19,12 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "pc-dashboard-overview" in html
     assert "Adapter health" in html
     assert "pc-adapter-health" in html
+    assert "pc-message-surface" in html
+    assert "pc-activity-surface" in html
+    assert "pc-media-surface" in html
+    assert "Owner-private reply summarized for operators." in html
+    assert "raw fixture owner private message" not in html
+    assert "/media/raw-private-fixture" not in html
     assert "Token Health" in html
     assert "Webhook verify token" in html
     assert "/static-fixture/persona-console.css" in html
