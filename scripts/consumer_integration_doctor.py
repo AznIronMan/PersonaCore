@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the PersonaCore consumer integration doctor."""
+"""Run the PersonaConsole consumer integration doctor."""
 
 from __future__ import annotations
 

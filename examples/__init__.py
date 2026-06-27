@@ -1,1 +1,1 @@
-"""Public-safe examples for PersonaCore."""
+"""Public-safe examples for PersonaConsole."""

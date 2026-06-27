@@ -223,7 +223,7 @@ def build_public_splash_config(*, static_base_url: str = "/persona-console/stati
         ),
         static_base_url=static_base_url,
         page_title="Example Persona Home",
-        meta_description="Generic public homepage fixture for PersonaCore.",
+        meta_description="Generic public homepage fixture for PersonaConsole.",
     )
 
 
@@ -1183,9 +1183,9 @@ def create_app():
         from fastapi import FastAPI
         from fastapi.responses import HTMLResponse
     except ImportError as exc:  # pragma: no cover - only hit without FastAPI.
-        raise RuntimeError("Install the PersonaCore FastAPI example dependencies first") from exc
+        raise RuntimeError("Install the PersonaConsole FastAPI example dependencies first") from exc
 
-    app = FastAPI(title="PersonaCore Fixture")
+    app = FastAPI(title="PersonaConsole Fixture")
     register_static_assets(app)
 
     @app.get("/", response_class=HTMLResponse)
@@ -1227,7 +1227,7 @@ def _default_static_base_for_output(output: Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Render the public-safe PersonaCore fixture page.")
+    parser = argparse.ArgumentParser(description="Render the public-safe PersonaConsole fixture page.")
     parser.add_argument("--output", type=Path, help="Write HTML to this file instead of stdout.")
     parser.add_argument("--static-base-url", help="Override the static asset base URL.")
     args = parser.parse_args()

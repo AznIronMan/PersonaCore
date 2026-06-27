@@ -39,7 +39,7 @@ def test_consumer_integration_doctor_text_is_public_safe_by_default():
     report = run_consumer_integration_doctor(expected_version="1.0.20")
     text = doctor_report_to_text(report)
 
-    assert "PersonaCore consumer integration doctor: ok" in text
+    assert "PersonaConsole consumer integration doctor: ok" in text
     assert "raw-doctor-secret" not in text
     assert "raw-doctor-private-message" not in text
     assert "raw-doctor-private-people-note" not in text

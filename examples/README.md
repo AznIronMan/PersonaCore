@@ -1,4 +1,4 @@
-# PersonaCore Fixture App
+# PersonaConsole Fixture App
 
 This directory contains a public-safe fixture admin console using generic data.
 It is intended for examples, browser smoke tests, and visual regression targets.
@@ -6,7 +6,7 @@ It is intended for examples, browser smoke tests, and visual regression targets.
 Render a static HTML file:
 
 ```bash
-PYTHONPATH=src python3 examples/fixture_app.py --output /tmp/personacore-fixture.html
+PYTHONPATH=src python3 examples/fixture_app.py --output /tmp/personaconsole-fixture.html
 ```
 
 Run as a FastAPI app when optional dependencies are installed:

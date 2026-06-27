@@ -1,6 +1,6 @@
 # Settled Direction And Open Questions
 
-These decisions set the direction for the first public PersonaCore baseline.
+These decisions set the direction for the first public PersonaConsole baseline.
 
 ## Settled Direction
 
@@ -14,7 +14,7 @@ These decisions set the direction for the first public PersonaCore baseline.
 3. Public GitHub should start from a fresh sanitized v1.0.1 baseline. The
    release note should state that prior private development was sanitized at
    operator direction on 2026-06-23 and that v1.0.1 marks the beginning of the
-   public PersonaCore history.
+	   public PersonaConsole history.
 4. Configuration should prioritize fastest and broadest runtime compatibility:
    typed Python dataclasses and plain dictionaries first, optional JSON loading
    through the standard library, and no mandatory YAML or heavy validation

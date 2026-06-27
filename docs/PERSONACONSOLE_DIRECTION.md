@@ -1,13 +1,13 @@
-# PersonaCore Direction
+# PersonaConsole Direction
 
-PersonaCore should become the shared admin distro for persona runtimes. The
+PersonaConsole should become the shared admin distro for persona runtimes. The
 central idea is that each runtime should not carry its own copied console.
-Instead, PersonaCore provides the common console implementation, and runtime
+Instead, PersonaConsole provides the common console implementation, and runtime
 settings decide which capabilities are visible and active.
 
 ## Product Shape
 
-PersonaCore should include reusable pieces for:
+PersonaConsole should include reusable pieces for:
 
 - Shell, navigation, responsive layout, theme tokens, and static assets.
 - Dashboards, status panels, health summaries, activity feeds, review queues,
@@ -40,7 +40,7 @@ come from settings rather than forked shell code.
 
 ## What Stays Out
 
-PersonaCore should not contain:
+PersonaConsole should not contain:
 
 - Private persona names, story/canon, relationships, or character-specific text.
 - Production credentials, hostnames, account IDs, local paths, or deployment
@@ -48,11 +48,11 @@ PersonaCore should not contain:
 - Runtime database logic that only belongs to one private app.
 - Auth decisions or permission policies that only belong to one private app.
 - Private owner-account mappings, private scope names, or runtime database
-  rules. PersonaCore can expose generic policy helpers, but consumers own the
+  rules. PersonaConsole can expose generic policy helpers, but consumers own the
   private mappings and enforcement points.
 - Public docs that describe private infrastructure.
 
-Private consumers should pass sanitized, generic data into PersonaCore or keep
+Private consumers should pass sanitized, generic data into PersonaConsole or keep
 private behavior inside their own repos.
 
 ## Migration Direction
@@ -71,7 +71,7 @@ private behavior inside their own repos.
 8. Publish only sanitized public source and docs.
 
 As private consumers migrate, their own `AGENTS.md` files should explain how
-PersonaCore updates are received, tested, and deployed. Their legacy hardcoded
+PersonaConsole updates are received, tested, and deployed. Their legacy hardcoded
 console implementations should be archived into ignored private folders before
 tracked source is removed.
 

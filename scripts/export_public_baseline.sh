@@ -6,7 +6,7 @@ usage() {
 Usage:
   scripts/export_public_baseline.sh OUTPUT_DIR
 
-Create a fresh public-safe PersonaCore working tree in OUTPUT_DIR.
+Create a fresh public-safe PersonaConsole working tree in OUTPUT_DIR.
 The script copies only allowlisted public distribution paths, then runs
 path and content checks. It does not copy git history and does not push.
 USAGE
@@ -119,9 +119,9 @@ Next steps:
   cd "$output_dir"
   git init
   git add .
-  git commit -m "Start sanitized PersonaCore public baseline"
+  git commit -m "Start sanitized PersonaConsole public baseline"
   git tag v$release_version
-  git remote add origin https://github.com/AznIronMan/PersonaCore.git
+  git remote add origin https://github.com/AznIronMan/PersonaConsole.git
 
 Push only after reviewing the exported tree.
 EOF

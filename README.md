@@ -1,26 +1,26 @@
-# PersonaCore
+# PersonaConsole
 
-PersonaCore is the public, reusable admin console distribution for persona
+PersonaConsole is the public, reusable admin console distribution for persona
 runtimes. It provides shared layout, navigation, theme tokens, live-refresh
 helpers, feature-ready CSS/JS, and rendering primitives so multiple persona
 admins can run from one configurable core instead of maintaining forked console
 copies.
 
-The current Python package is named `persona_console`. The broader project
-direction is PersonaCore: a complete admin distro where each runtime turns
-features on or off through settings and capability flags. A runtime may present
-as a focused, branded console, but the common implementation should stay here
-when the behavior is reusable.
+The public repository is named PersonaConsole. The current Python distribution
+and import compatibility still expose `personacore` and `persona_console` so
+existing v1.x consumers do not need a lockstep package rename. A runtime may
+present as a focused, branded console, but the common implementation should stay
+here when the behavior is reusable.
 
 Public repository:
 
 ```text
-https://github.com/AznIronMan/PersonaCore.git
+https://github.com/AznIronMan/PersonaConsole.git
 ```
 
 ## Core Model
 
-PersonaCore should grow toward a shared feature catalog:
+PersonaConsole should grow toward a shared feature catalog:
 
 - Admin shell, layout, navigation, status/user pills, and theme tokens.
 - Dashboard sections, health/status summaries, review queues, journal readers,
@@ -48,11 +48,11 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
 - `personacore.dashboard_metrics_from_counts(...)` and
   `personacore.render_dashboard_summary_grid(...)` turn consumer-owned count
   or status mappings into reusable dashboard summary cards without moving route,
-  database, or runtime ownership into PersonaCore.
+  database, or runtime ownership into PersonaConsole.
 - `personacore.TokenHealthConfig` and
   `personacore.build_token_health_report(...)` provide an opt-in, redacted
   credential health primitive for provider tokens and webhook secrets. Consumers
-  supply their own settings/env lookup and PersonaCore only reports configured,
+  supply their own settings/env lookup and PersonaConsole only reports configured,
   missing, required, and optional states. `personacore.TOKEN_HEALTH_FEATURE`
   and `personacore.token_health_config_for_providers(...)` give runtimes a
   common feature flag and public provider presets for integrations such as
@@ -89,7 +89,7 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   renderers `render_public_splash_page(...)`, `render_login_page(...)`,
   `render_chat_page(...)`, and `render_public_settings_surface(...)` provide
   reusable public-facing homepage, login, chat, connector-choice, media hero,
-  logo, social-link, legal-modal, and admin settings surfaces. PersonaCore
+  logo, social-link, legal-modal, and admin settings surfaces. PersonaConsole
   renders escaped generic choices only; consumers and PersonaEngine own
   connector capability truth, auth, OAuth callbacks, provider secrets, chat
   processing, persistence, uploads, and deployment wiring. These surfaces are
@@ -116,7 +116,7 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   helpers, operations helpers, shared controls, and generic render smokes.
 - `persona_console.register_static_assets(app, ...)` mounts shared CSS and JS
   assets in FastAPI apps.
-- `persona_console.configure_jinja_loader(templates)` adds PersonaCore
+- `persona_console.configure_jinja_loader(templates)` adds PersonaConsole
   templates/macros to a `Jinja2Templates` instance.
 
 ## Package Identity
@@ -142,7 +142,7 @@ buckets remain valid card content instead of breaking browser layout.
 agenda cards, publishing queue summaries, and owner-private safe-alternate
 rendering. `v1.0.15` adds a shared status-tab control for review queues and
 filtered list pages. `v1.0.16` adds shared flash/action banners, redirect
-query helpers, and PersonaCore class hooks for live-refresh controls.
+query helpers, and PersonaConsole class hooks for live-refresh controls.
 `v1.0.17` adds operations, persona runtime, continuity, bridge, and agent-ops
 surfaces. `v1.0.18` adds a shared themed journal reader with calendar
 navigation, paper-style default rendering, and owner-private safe alternates.
@@ -203,7 +203,7 @@ PYTHONPATH=src python3 scripts/visual_smoke.py
 Create a fresh public-safe tree with:
 
 ```bash
-scripts/export_public_baseline.sh /tmp/personacore-public-baseline
+scripts/export_public_baseline.sh /tmp/personaconsole-public-baseline
 ```
 
 Review the exported tree before creating fresh public git history. The export
@@ -211,7 +211,7 @@ script prints the tag matching the exported package version.
 
 ## Docs
 
-- [PersonaCore Direction](docs/PERSONACORE_DIRECTION.md)
+- [PersonaConsole Direction](docs/PERSONACONSOLE_DIRECTION.md)
 - [Configuration Model](docs/CONFIGURATION_MODEL.md)
 - [Feature Extraction Plan](docs/FEATURE_EXTRACTION_PLAN.md)
 - [Reference Admin Parity Spec](docs/REFERENCE_ADMIN_PARITY_SPEC.md)

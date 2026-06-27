@@ -190,7 +190,7 @@ def run_consumer_integration_doctor(
     expected_version: str = "",
     include_paths: bool = False,
 ) -> ConsumerIntegrationDoctorReport:
-    """Run public-safe PersonaCore integration checks for consumer runtimes."""
+    """Run public-safe PersonaConsole integration checks for consumer runtimes."""
 
     checks: list[DoctorCheck] = []
     persona_console = _module_snapshot("persona_console", include_paths=include_paths)
@@ -264,7 +264,7 @@ def run_consumer_integration_doctor(
 
 def doctor_report_to_text(report: ConsumerIntegrationDoctorReport, *, include_paths: bool = False) -> str:
     data = report.as_dict(include_paths=include_paths)
-    lines = [f"PersonaCore consumer integration doctor: {'ok' if report.ok else 'failed'}"]
+    lines = [f"PersonaConsole consumer integration doctor: {'ok' if report.ok else 'failed'}"]
     for module_key in ("persona_console", "personacore"):
         module = data[module_key]
         version = module.get("version") or "unknown"
@@ -281,8 +281,8 @@ def doctor_report_to_text(report: ConsumerIntegrationDoctorReport, *, include_pa
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Run PersonaCore consumer integration checks.")
-    parser.add_argument("--expected-version", default="", help="Expected PersonaCore runtime version.")
+    parser = argparse.ArgumentParser(description="Run PersonaConsole consumer integration checks.")
+    parser.add_argument("--expected-version", default="", help="Expected PersonaConsole runtime version.")
     parser.add_argument("--json", action="store_true", help="Print JSON instead of text.")
     parser.add_argument("--show-paths", action="store_true", help="Include imported module filesystem paths.")
     args = parser.parse_args(argv)

@@ -1,6 +1,6 @@
 # Visual QA
 
-PersonaCore includes an optional Playwright smoke for the public-safe fixture
+PersonaConsole includes an optional Playwright smoke for the public-safe fixture
 admin console. It verifies the shared shell, dashboard primitives, live
 controls, the shared people surface, journal surface, operations/persona/agent
 workflow surfaces, public presence settings, desktop navigation, mobile
@@ -28,7 +28,7 @@ build/visual-smoke/screenshots/
 
 The smoke uses only generic fixture data. Private runtime screenshots,
 credentials, authenticated sessions, and deployment paths must stay outside the
-public PersonaCore repo.
+public PersonaConsole repo.
 
 The fixture follows the public
 [Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md), so screenshots

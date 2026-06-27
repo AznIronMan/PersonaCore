@@ -165,7 +165,7 @@ def run_visual_smoke(output_dir: Path, *, headed: bool = False) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run PersonaCore fixture visual smoke checks.")
+    parser = argparse.ArgumentParser(description="Run PersonaConsole fixture visual smoke checks.")
     parser.add_argument(
         "--output-dir",
         type=Path,

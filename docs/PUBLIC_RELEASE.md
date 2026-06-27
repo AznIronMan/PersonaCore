@@ -3,10 +3,10 @@
 Public upstream:
 
 ```text
-https://github.com/AznIronMan/PersonaCore.git
+https://github.com/AznIronMan/PersonaConsole.git
 ```
 
-PersonaCore is intended to be public. Public release must be treated as a
+PersonaConsole is intended to be public. Public release must be treated as a
 sanitization boundary, not as a raw mirror of a local working folder.
 
 ## Do Not Publish
@@ -44,14 +44,14 @@ Safe options:
 The preferred path for the first public release is a fresh sanitized v1.0.1
 baseline. Its release note should say that prior private development was
 sanitized at operator direction on 2026-06-23 and that v1.0.1 marks the start
-of public PersonaCore history.
+of public PersonaConsole history.
 
 ## Fresh Baseline Export
 
 Use the allowlisted export script from this private/local working tree:
 
 ```bash
-scripts/export_public_baseline.sh /tmp/personacore-public-baseline
+scripts/export_public_baseline.sh /tmp/personaconsole-public-baseline
 ```
 
 The script copies only public distribution paths:
@@ -73,24 +73,24 @@ After export, review the generated tree manually, then create fresh public
 history from that export directory:
 
 ```bash
-cd /tmp/personacore-public-baseline
+cd /tmp/personaconsole-public-baseline
 git init
 git add .
-git commit -m "Start sanitized PersonaCore public baseline"
+git commit -m "Start sanitized PersonaConsole public baseline"
 git tag v1.0.3  # use the version printed by the export script
-git remote add origin https://github.com/AznIronMan/PersonaCore.git
+git remote add origin https://github.com/AznIronMan/PersonaConsole.git
 ```
 
 Push only after reviewing the export and confirming the release checklist.
 
 ## Deployment Model
 
-PersonaCore should be released through versioned Git or package installs, not
+PersonaConsole should be released through versioned Git or package installs, not
 raw workstation synchronization.
 
 Recommended host pattern:
 
-- Keep a local checkout of the public PersonaCore repository on each server or
+- Keep a local checkout of the public PersonaConsole repository on each server or
   build host.
 - Pull an explicit tag or commit, such as `v1.0.3`.
 - Install the package into the runtime environment, or mount/import its `src`
@@ -100,7 +100,7 @@ Recommended host pattern:
 
 Syncthing can still be useful for private runtime source trees that already
 depend on it, but it should not be the release mechanism for the public shared
-PersonaCore distro.
+PersonaConsole distro.
 
 ## Suggested Release Checklist
 

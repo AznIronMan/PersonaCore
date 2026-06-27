@@ -12,8 +12,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/AznIronMan/PersonaCore"
-Repository = "https://github.com/AznIronMan/PersonaCore"
+Homepage = "https://github.com/AznIronMan/PersonaConsole"
+Repository = "https://github.com/AznIronMan/PersonaConsole"
 
 [project.optional-dependencies]
 fastapi = [
