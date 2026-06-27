@@ -112,6 +112,8 @@ def test_live_controls_render_only_when_configured():
     assert render_live_controls(disabled) == ""
     assert 'data-default-interval="15"' in render_live_controls(enabled)
     assert 'data-storage-key="live:workers"' in render_live_controls(enabled)
+    assert 'class="live-pill pc-live-pill"' in render_live_controls(enabled)
+    assert 'class="live-pill-btn pc-live-toggle"' in render_live_controls(enabled)
 
 
 def test_shell_normalizes_static_url_and_live_target_attributes():
@@ -132,4 +134,6 @@ def test_shell_normalizes_static_url_and_live_target_attributes():
     assert 'src="/assets/persona-console.js"' in html
     assert 'id="live-target" data-live-url="/fragments/dashboard"' in html
     assert 'data-live-hold-when="[data-live-hold]"' in html
+    assert 'class="flash-stack pc-flash-stack"' in html
+    assert 'class="page-refresh-button pc-page-refresh-button"' in html
     assert "window.badnamealert = function" in html

@@ -220,18 +220,18 @@ def render_live_controls(config: PersonaConsoleConfig) -> str:
         return ""
     return f"""
 <div id="live-pill"
-     class="live-pill"
+     class="live-pill pc-live-pill"
      data-default-interval="{int(config.live_interval)}"
      data-storage-key="live:{escape(config.active)}"
      role="group"
      aria-label="Live refresh">
-  <button type="button" id="live-toggle" class="live-pill-btn" aria-pressed="false" title="Toggle live auto-refresh">
-    <span class="live-pill-dot" aria-hidden="true"></span>
-    <span class="live-pill-label">Paused</span>
+  <button type="button" id="live-toggle" class="live-pill-btn pc-live-toggle" aria-pressed="false" title="Toggle live auto-refresh">
+    <span class="live-pill-dot pc-live-dot" aria-hidden="true"></span>
+    <span class="live-pill-label pc-live-label">Paused</span>
   </button>
-  <label class="live-pill-interval" title="Auto-refresh interval (seconds)">
-    <span class="live-pill-interval-prefix" aria-hidden="true">every</span>
-    <select id="live-interval" class="live-pill-select" aria-label="Refresh interval (seconds)">
+  <label class="live-pill-interval pc-live-interval" title="Auto-refresh interval (seconds)">
+    <span class="live-pill-interval-prefix pc-live-interval-prefix" aria-hidden="true">every</span>
+    <select id="live-interval" class="live-pill-select pc-live-select" aria-label="Refresh interval (seconds)">
       <option value="5">5s</option>
       <option value="15">15s</option>
       <option value="30">30s</option>
@@ -264,9 +264,9 @@ def render_shell_html(
     refresh = ""
     if config.include_refresh:
         refresh = (
-            '<span id="page-refresh-status" class="page-refresh-status">'
+            '<span id="page-refresh-status" class="page-refresh-status pc-page-refresh-status">'
             f"{escape(config.updated_label)}</span>"
-            '<button type="button" id="page-refresh-button" class="page-refresh-button" '
+            '<button type="button" id="page-refresh-button" class="page-refresh-button pc-page-refresh-button" '
             'aria-label="Refresh page"><span aria-hidden="true">&#10227;</span></button>'
         )
     live_target_open = ""
@@ -331,7 +331,7 @@ def render_shell_html(
       </div>
       <div class="page-actions">{refresh}{render_live_controls(config)}</div>
     </section>
-    {'<div id="flash-stack" class="flash-stack" aria-live="polite"></div>' if flash_container else ''}
+    {'<div id="flash-stack" class="flash-stack pc-flash-stack" aria-live="polite"></div>' if flash_container else ''}
     {live_target_open}
     {body_html}
     {live_target_close}

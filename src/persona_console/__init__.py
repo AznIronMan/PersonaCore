@@ -44,6 +44,7 @@ from .models import (
     DashboardQueueRow,
     DashboardRouteCard,
     DashboardSparkBucket,
+    FlashBanner,
     MediaArtifactCard,
     MediaSurfaceConfig,
     MessageAttachment,
@@ -79,7 +80,7 @@ from .render import (
     render_status_pill,
     render_user_pill,
 )
-from .controls import render_status_tabs
+from .controls import flash_query_params, flash_url, render_flash_banners, render_status_tabs
 from .token_health import (
     TOKEN_HEALTH_FEATURE,
     build_token_health_report,
@@ -159,6 +160,7 @@ __all__ = [
     "DashboardQueueRow",
     "DashboardRouteCard",
     "DashboardSparkBucket",
+    "FlashBanner",
     "MEDIA_FEATURE",
     "MESSAGES_FEATURE",
     "MediaArtifactCard",
@@ -208,6 +210,8 @@ __all__ = [
     "doctor_report_to_text",
     "feature_enabled",
     "format_dashboard_metric_value",
+    "flash_query_params",
+    "flash_url",
     "media_surface_feature_enabled",
     "message_surface_feature_enabled",
     "people_surface_feature_enabled",
@@ -228,6 +232,7 @@ __all__ = [
     "render_dashboard_sections",
     "render_dashboard_summary_grid",
     "render_adapter_health_panel",
+    "render_flash_banners",
     "render_live_controls",
     "render_media_surface",
     "render_message_surface",
@@ -249,7 +254,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.15"
+__version__ = "1.0.16"
 
 
 def configure_jinja_loader(*args, **kwargs):

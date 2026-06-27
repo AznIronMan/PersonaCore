@@ -82,6 +82,9 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
 - `personacore.StatusTab` and `personacore.render_status_tabs(...)` provide a
   shared dense tab control for queue/list status filters while leaving URL
   construction, counts, and filtering semantics in the consuming runtime.
+- `personacore.FlashBanner`, `personacore.render_flash_banners(...)`, and
+  `personacore.flash_url(...)` provide shared flash/action banner markup and
+  redirect query helpers while leaving action routes in the consuming runtime.
 - `personacore.run_consumer_integration_doctor(...)` verifies consumer installs
   or source mounts by checking version alignment, required shared exports,
   owner-private helpers, token-health helpers, adapter-health helpers,
@@ -114,8 +117,10 @@ buckets remain valid card content instead of breaking browser layout.
 `v1.0.14` adds a shared review-board surface for operator-gated decision rows,
 agenda cards, publishing queue summaries, and owner-private safe-alternate
 rendering. `v1.0.15` adds a shared status-tab control for review queues and
-filtered list pages. The existing `persona_console` Python package remains in
-the source tree as a compatibility implementation path for v1.x consumers.
+filtered list pages. `v1.0.16` adds shared flash/action banners, redirect
+query helpers, and PersonaCore class hooks for live-refresh controls. The
+existing `persona_console` Python package remains in the source tree as a
+compatibility implementation path for v1.x consumers.
 
 ## Public Safety
 
@@ -148,7 +153,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.15
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.16
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -194,6 +199,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.13](docs/RELEASE_1.0.13.md)
 - [Release 1.0.14](docs/RELEASE_1.0.14.md)
 - [Release 1.0.15](docs/RELEASE_1.0.15.md)
+- [Release 1.0.16](docs/RELEASE_1.0.16.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

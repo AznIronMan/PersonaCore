@@ -23,19 +23,22 @@
   const flashParams = new URLSearchParams(window.location.search);
   const flashText = flashParams.get("flash");
   if (flashText) {
-    const stack = document.getElementById("flash-stack");
-    if (stack) {
-      const level = flashParams.get("flash_level") || "good";
-      const safeLevel = ["good", "warn", "bad"].includes(level) ? level : "good";
-      const banner = document.createElement("div");
-      banner.className = "flash-banner flash-" + safeLevel;
-      const message = document.createElement("span");
-      message.textContent = flashText;
-      const close = document.createElement("button");
-      close.type = "button";
-      close.textContent = "Dismiss";
-      close.addEventListener("click", function () { banner.remove(); });
-      banner.append(message, close);
+      const stack = document.getElementById("flash-stack");
+      if (stack) {
+        const level = flashParams.get("flash_level") || "good";
+        const safeLevel = ["good", "warn", "bad", "info", "neutral"].includes(level) ? level : "good";
+        const banner = document.createElement("div");
+        banner.className = "flash-banner pc-flash-banner flash-" + safeLevel + " pc-flash-" + safeLevel;
+        const message = document.createElement("span");
+        message.className = "flash-message pc-flash-message";
+        message.textContent = flashText;
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "flash-dismiss pc-flash-dismiss";
+        close.setAttribute("data-dismiss-flash", "");
+        close.textContent = "Dismiss";
+        close.addEventListener("click", function () { banner.remove(); });
+        banner.append(message, close);
       stack.appendChild(banner);
     }
     flashParams.delete("flash");
@@ -44,6 +47,12 @@
     const cleanQuery = flashParams.toString();
     window.history.replaceState(null, "", window.location.pathname + (cleanQuery ? "?" + cleanQuery : "") + window.location.hash);
   }
+  document.addEventListener("click", function (event) {
+    const button = event.target.closest("[data-dismiss-flash]");
+    if (!button) return;
+    const banner = button.closest(".flash-banner");
+    if (banner) banner.remove();
+  });
 
   function setRefreshStatus(message, state) {
     const status = document.getElementById("page-refresh-status");

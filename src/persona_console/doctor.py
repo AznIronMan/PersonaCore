@@ -77,7 +77,11 @@ _RENDER_EXPORTS = (
     "render_shell_html",
 )
 _CONTROL_EXPORTS = (
+    "FlashBanner",
     "StatusTab",
+    "flash_query_params",
+    "flash_url",
+    "render_flash_banners",
     "render_status_tabs",
 )
 
@@ -311,23 +315,40 @@ def _adapter_health_render_check(module: Any) -> DoctorCheck:
 
 def _controls_render_check(module: Any) -> DoctorCheck:
     try:
-        html = module.render_status_tabs(
+        tabs_html = module.render_status_tabs(
             [
                 module.StatusTab("All", "/review", 8, active=True),
                 module.StatusTab("Pending", "/review?status=pending", 3, tone="warn"),
             ],
         )
+        flash_html = module.render_flash_banners(
+            [
+                module.FlashBanner(
+                    "Saved",
+                    tone="good",
+                    action_label="View",
+                    action_href="/review?saved=1",
+                )
+            ],
+        )
+        flash_href = module.flash_url("/review?tab=all#queue", "Saved", level="warn", timestamp=123)
     except Exception as exc:
         return _check(False, "controls_render", "shared controls render failed", f"{exc.__class__.__name__}: {exc}")
     ok = (
-        "pc-status-tabs" in html
-        and "status-tabs" in html
-        and "pc-status-tab" in html
-        and "status-tab-count" in html
-        and "/review?status=pending" in html
-        and "Pending" in html
+        "pc-status-tabs" in tabs_html
+        and "status-tabs" in tabs_html
+        and "pc-status-tab" in tabs_html
+        and "status-tab-count" in tabs_html
+        and "/review?status=pending" in tabs_html
+        and "Pending" in tabs_html
+        and "pc-flash-stack" in flash_html
+        and "pc-flash-banner" in flash_html
+        and "pc-flash-action" in flash_html
+        and "flash_level=warn" in flash_href
+        and "flash_ts=123" in flash_href
+        and flash_href.endswith("#queue")
     )
-    return _check(ok, "controls_render", "shared controls render status tabs")
+    return _check(ok, "controls_render", "shared controls render status tabs and flash banners")
 
 
 def _surface_render_check(module: Any) -> DoctorCheck:

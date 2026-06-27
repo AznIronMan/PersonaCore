@@ -424,8 +424,8 @@ summary::-webkit-details-marker { display: none; }
   color: var(--pc-text);
 }
 
-.flash-stack { display: grid; gap: 8px; margin: 0 0 16px; }
-.flash-banner {
+.flash-stack, .pc-flash-stack { display: grid; gap: 8px; margin: 0 0 16px; }
+.flash-banner, .pc-flash-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -435,6 +435,43 @@ summary::-webkit-details-marker { display: none; }
   border-radius: 8px;
   padding: 10px 12px;
   background: var(--pc-surface);
+}
+.flash-good, .pc-flash-good { border-left-color: var(--pc-success); }
+.flash-warn, .pc-flash-warn { border-left-color: var(--pc-warning); }
+.flash-bad, .pc-flash-bad { border-left-color: var(--pc-danger); }
+.flash-info, .pc-flash-info { border-left-color: var(--pc-info); }
+.flash-neutral, .pc-flash-neutral { border-left-color: var(--pc-muted); }
+.flash-message, .pc-flash-message {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.flash-actions, .pc-flash-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.flash-action, .pc-flash-action,
+.flash-dismiss, .pc-flash-dismiss {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--pc-border) 82%, transparent);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--pc-surface-muted) 82%, transparent);
+  color: var(--pc-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+.flash-action:hover, .pc-flash-action:hover,
+.flash-dismiss:hover, .pc-flash-dismiss:hover {
+  border-color: color-mix(in srgb, var(--pc-accent) 52%, var(--pc-border));
 }
 
 .panel, .card, .metric-card, .attention-card, .route-card,

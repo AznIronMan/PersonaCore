@@ -477,13 +477,36 @@ html = render_status_tabs(
 hooks (`status-tabs`, `status-tab`, `status-tab-count`) so consumers can migrate
 page by page without breaking existing admin tests or styles.
 
+Flash and action banners share the same incremental migration approach:
+
+```python
+from personacore import FlashBanner, flash_url, render_flash_banners
+
+html = render_flash_banners(
+    [
+        FlashBanner(
+            "Settings saved.",
+            tone="good",
+            action_label="Review changes",
+            action_href="/settings?tab=audit",
+        )
+    ]
+)
+redirect_to = flash_url("/settings#runtime", "Settings saved.", level="good")
+```
+
+`render_flash_banners(...)` emits `pc-flash-*` classes alongside the legacy
+`flash-*` hooks. `flash_url(...)` only appends the shared `flash`,
+`flash_level`, and `flash_ts` query parameters; consumers still own redirects,
+mutations, permissions, and action targets.
+
 ## Consumer Integration Doctor
 
 After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.15
+PYTHONPATH=/path/to/personacore/src python3 /path/to/personacore/scripts/consumer_integration_doctor.py --expected-version 1.0.16
 ```
 
 The doctor verifies that `persona_console` and `personacore` import, report the

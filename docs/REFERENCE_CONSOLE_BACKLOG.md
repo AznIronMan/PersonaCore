@@ -51,8 +51,11 @@ screenshots, data, and runtime policy stay outside the public repo.
 ## Shell Modules
 
 - Footer status region with live refresh.
-- Restart/update banner slot.
+- Restart/update banner slot. Flash/action banner primitives shipped in
+  PersonaCore `1.0.16`; lifecycle semantics remain runtime-owned.
 - Page refresh and live-refresh controls as configurable shell primitives.
+  PersonaCore `1.0.16` adds `pc-*` class hooks to the existing live-refresh
+  shell controls.
 - Account menu extension point.
 - Runtime lifecycle control slot for private/local deployments.
 

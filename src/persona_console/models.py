@@ -276,6 +276,17 @@ class StatusTab:
 
 
 @dataclass(frozen=True)
+class FlashBanner:
+    message: str
+    tone: str = "good"
+    title: str = ""
+    action_label: str = ""
+    action_href: str = ""
+    dismissible: bool = True
+    dismiss_label: str = "Dismiss"
+
+
+@dataclass(frozen=True)
 class PersonTag:
     label: str
     href: str = ""

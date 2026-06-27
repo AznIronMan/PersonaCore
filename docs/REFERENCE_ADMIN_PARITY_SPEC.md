@@ -94,6 +94,10 @@ PersonaCore should supply reusable primitives for common module surfaces:
   primitives. PersonaCore `1.0.15` supplies the shared status-tab control for
   filtered queue/list pages; consumers still own queries, auth, mutations, and
   private scope mapping.
+- `flash`: transient success/warning/error banners and optional action links.
+  PersonaCore `1.0.16` supplies shared flash/action banner markup plus redirect
+  query helpers; consumers still own POST handlers, permissions, and target
+  routes.
 - `tasks`: task status tables and operator next actions.
 - `workers`: queue latency, retry state, and adapter/runtime cards.
 - `logs`: sanitized runtime events and warning summaries.

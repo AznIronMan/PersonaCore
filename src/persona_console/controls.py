@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict, fields, is_dataclass
 from html import escape
+from time import time
 from typing import Any, Mapping, Sequence, TypeVar
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from .models import StatusTab
+from .models import FlashBanner, StatusTab
 
 T = TypeVar("T")
 
@@ -98,3 +100,90 @@ def _status_tab_html(tab: StatusTab) -> str:
     if tab.href:
         return f'<a {attrs} href="{escape(str(tab.href), quote=True)}">{label}{count_html}</a>'
     return f"<span {attrs}>{label}{count_html}</span>"
+
+
+def flash_query_params(
+    message: object,
+    *,
+    level: object = "good",
+    timestamp: object | None = None,
+) -> dict[str, str]:
+    """Build the shared flash-message query parameters used by the shell JS."""
+
+    stamp = int(time()) if timestamp is None else timestamp
+    return {
+        "flash": str(message or ""),
+        "flash_level": _flash_tone(level),
+        "flash_ts": str(stamp),
+    }
+
+
+def flash_url(
+    href: str,
+    message: object,
+    *,
+    level: object = "good",
+    timestamp: object | None = None,
+) -> str:
+    """Append shared flash query parameters while preserving query and fragment."""
+
+    parts = urlsplit(str(href or ""))
+    query = [
+        (key, value)
+        for key, value in parse_qsl(parts.query, keep_blank_values=True)
+        if key not in {"flash", "flash_level", "flash_ts"}
+    ]
+    query.extend(flash_query_params(message, level=level, timestamp=timestamp).items())
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def render_flash_banners(
+    banners: Sequence[FlashBanner | Mapping[str, object] | str],
+    *,
+    aria_live: str = "polite",
+) -> str:
+    """Render action-capable flash banners with legacy and PersonaCore hooks."""
+
+    body = "".join(_flash_banner_html(_coerce_flash(banner)) for banner in banners)
+    if not body:
+        return ""
+    return (
+        f'<div class="flash-stack pc-flash-stack" aria-live="{escape(str(aria_live), quote=True)}">'
+        f"{body}</div>"
+    )
+
+
+def _coerce_flash(value: FlashBanner | Mapping[str, object] | str) -> FlashBanner:
+    if isinstance(value, str):
+        return FlashBanner(value)
+    return _coerce(value, FlashBanner)
+
+
+def _flash_tone(value: object) -> str:
+    tone = _tone(value)
+    return tone if tone in {"good", "warn", "bad", "info", "neutral"} else "good"
+
+
+def _flash_banner_html(banner: FlashBanner) -> str:
+    tone = _flash_tone(banner.tone)
+    classes = ["flash-banner", "pc-flash-banner", f"flash-{tone}", f"pc-flash-{tone}"]
+    attrs = f'class="{" ".join(classes)}"'
+    if banner.title:
+        attrs += f' title="{escape(str(banner.title), quote=True)}"'
+    message = f'<span class="flash-message pc-flash-message">{escape(str(banner.message or ""))}</span>'
+    actions: list[str] = []
+    if banner.action_label and banner.action_href:
+        actions.append(
+            '<a class="flash-action pc-flash-action" '
+            f'href="{escape(str(banner.action_href), quote=True)}">'
+            f"{escape(str(banner.action_label))}</a>"
+        )
+    if banner.dismissible:
+        actions.append(
+            '<button type="button" class="flash-dismiss pc-flash-dismiss" data-dismiss-flash>'
+            f"{escape(str(banner.dismiss_label or 'Dismiss'))}</button>"
+        )
+    action_html = ""
+    if actions:
+        action_html = '<span class="flash-actions pc-flash-actions">' + "".join(actions) + "</span>"
+    return f"<div {attrs}>{message}{action_html}</div>"
