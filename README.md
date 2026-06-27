@@ -92,7 +92,10 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   logo, social-link, legal-modal, and admin settings surfaces. PersonaCore
   renders escaped generic choices only; consumers and PersonaEngine own
   connector capability truth, auth, OAuth callbacks, provider secrets, chat
-  processing, persistence, uploads, and deployment wiring.
+  processing, persistence, uploads, and deployment wiring. These surfaces are
+  deployment-agnostic: a consumer can export the splash page to a static host
+  or CDN while rendering login and chat from separate runtime-owned app
+  servers.
 - `personacore.OperationsSurfaceConfig`,
   `personacore.PersonaRuntimeSurfaceConfig`,
   `personacore.AgentOpsSurfaceConfig`, and
@@ -145,7 +148,8 @@ surfaces. `v1.0.18` adds a shared themed journal reader with calendar
 navigation, paper-style default rendering, and owner-private safe alternates.
 `v1.0.19` adds reusable public presence surfaces for branded splash, login,
 chat, connector choices, configurable media heroes, and the admin settings
-form.
+form. `v1.0.20` polishes public presence visual defaults for connector
+buttons, fallback logos, and split static/app-server deployments.
 The existing `persona_console` Python package remains in the source tree as a
 compatibility implementation path for v1.x consumers.
 
@@ -180,7 +184,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.19
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.20
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -230,6 +234,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.17](docs/RELEASE_1.0.17.md)
 - [Release 1.0.18](docs/RELEASE_1.0.18.md)
 - [Release 1.0.19](docs/RELEASE_1.0.19.md)
+- [Release 1.0.20](docs/RELEASE_1.0.20.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

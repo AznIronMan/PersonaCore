@@ -155,6 +155,19 @@ def test_public_settings_surface_is_feature_gated_and_renders_forms():
     assert not any(host in html for host in PRIVATE_HOSTS)
 
 
+def test_public_css_keeps_connector_buttons_and_fallback_logos_stable():
+    css = (
+        __import__("pathlib")
+        .Path("src/persona_console/static/persona-public.css")
+        .read_text(encoding="utf-8")
+    )
+
+    assert ".pc-public-brand-logo-fallback.pc-public-brand-logo-large" in css
+    assert ".pc-public-page .pc-connector-option" in css
+    assert "cursor: default" in css
+    assert ".pc-public-page .pc-connector-option[data-connector-action]" in css
+
+
 def test_admin_shell_uses_brand_assets_without_breaking_icon_fallback():
     html = personacore.render_shell_html(
         personacore.PersonaCoreConfig(

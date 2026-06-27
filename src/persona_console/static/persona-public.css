@@ -69,6 +69,12 @@ html.pc-public-root,
   height: 54px;
 }
 
+.pc-public-brand-logo-fallback.pc-public-brand-logo-large,
+.pc-public-brand-logo-fallback.pc-public-brand-logo-wordmark {
+  width: 54px;
+  max-width: 54px;
+}
+
 .pc-public-brand-logo-fallback {
   display: grid;
   place-items: center;
@@ -380,6 +386,7 @@ html.pc-public-root,
   gap: 10px;
 }
 
+.pc-public-page .pc-connector-option,
 .pc-connector-option {
   width: 100%;
   min-height: 58px;
@@ -392,7 +399,14 @@ html.pc-public-root,
   padding: 10px;
   background: white;
   color: var(--pc-public-ink);
+  font-weight: 700;
   text-align: left;
+  cursor: default;
+}
+
+.pc-public-page a.pc-connector-option,
+.pc-public-page .pc-connector-option[data-connector-action] {
+  cursor: pointer;
 }
 
 .pc-connector-icon {

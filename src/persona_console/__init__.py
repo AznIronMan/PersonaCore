@@ -376,7 +376,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.19"
+__version__ = "1.0.20"
 
 
 def configure_jinja_loader(*args, **kwargs):
