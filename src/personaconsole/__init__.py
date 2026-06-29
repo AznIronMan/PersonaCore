@@ -16,6 +16,11 @@ from .admin_list import (
     admin_list_surface_feature_enabled,
     render_admin_list_surface,
 )
+from .detail_dossier import (
+    DETAIL_DOSSIER_FEATURE,
+    detail_dossier_surface_feature_enabled,
+    render_detail_dossier_surface,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -87,6 +92,19 @@ from .models import (
     DashboardQueueRow,
     DashboardRouteCard,
     DashboardSparkBucket,
+    DetailDossierActionSlot,
+    DetailDossierAuditRow,
+    DetailDossierField,
+    DetailDossierHeader,
+    DetailDossierMetric,
+    DetailDossierRelatedLink,
+    DetailDossierSection,
+    DetailDossierSourceTable,
+    DetailDossierSurfaceConfig,
+    DetailDossierTableCell,
+    DetailDossierTableColumn,
+    DetailDossierTableRow,
+    DetailDossierTimelineEvent,
     FlashBanner,
     JournalCalendarDay,
     JournalDetail,
@@ -351,6 +369,20 @@ __all__ = [
     "DashboardQueueRow",
     "DashboardRouteCard",
     "DashboardSparkBucket",
+    "DETAIL_DOSSIER_FEATURE",
+    "DetailDossierActionSlot",
+    "DetailDossierAuditRow",
+    "DetailDossierField",
+    "DetailDossierHeader",
+    "DetailDossierMetric",
+    "DetailDossierRelatedLink",
+    "DetailDossierSection",
+    "DetailDossierSourceTable",
+    "DetailDossierSurfaceConfig",
+    "DetailDossierTableCell",
+    "DetailDossierTableColumn",
+    "DetailDossierTableRow",
+    "DetailDossierTimelineEvent",
     "FlashBanner",
     "JOURNAL_FEATURE",
     "JOURNAL_THEME_KEYS",
@@ -460,6 +492,7 @@ __all__ = [
     "command_intake_feature_enabled",
     "configure_jinja_loader",
     "dashboard_metrics_from_counts",
+    "detail_dossier_surface_feature_enabled",
     "doctor_report_to_text",
     "feature_enabled",
     "format_dashboard_metric_value",
@@ -501,6 +534,7 @@ __all__ = [
     "render_chat_page",
     "render_command_intake_surface",
     "render_connector_groups",
+    "render_detail_dossier_surface",
     "render_flash_banners",
     "render_journal_surface",
     "render_login_page",
@@ -538,7 +572,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.29"
+__version__ = "1.0.30"
 
 
 def configure_jinja_loader(*args, **kwargs):

@@ -49,6 +49,24 @@ _ADMIN_LIST_EXPORTS = (
     "admin_list_surface_feature_enabled",
     "render_admin_list_surface",
 )
+_DETAIL_DOSSIER_EXPORTS = (
+    "DETAIL_DOSSIER_FEATURE",
+    "DetailDossierActionSlot",
+    "DetailDossierAuditRow",
+    "DetailDossierField",
+    "DetailDossierHeader",
+    "DetailDossierMetric",
+    "DetailDossierRelatedLink",
+    "DetailDossierSection",
+    "DetailDossierSourceTable",
+    "DetailDossierSurfaceConfig",
+    "DetailDossierTableCell",
+    "DetailDossierTableColumn",
+    "DetailDossierTableRow",
+    "DetailDossierTimelineEvent",
+    "detail_dossier_surface_feature_enabled",
+    "render_detail_dossier_surface",
+)
 _SURFACE_EXPORTS = (
     "ACTIVITY_FEATURE",
     "MEDIA_FEATURE",
@@ -338,6 +356,7 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "adapter_health_exports", _ADAPTER_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "availability_monitor_exports", _AVAILABILITY_MONITOR_EXPORTS))
         checks.extend(_export_checks(module, "admin_list_exports", _ADMIN_LIST_EXPORTS))
+        checks.extend(_export_checks(module, "detail_dossier_exports", _DETAIL_DOSSIER_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "surface_exports", _SURFACE_EXPORTS))
         checks.extend(_export_checks(module, "people_exports", _PEOPLE_EXPORTS))
@@ -355,6 +374,7 @@ def run_consumer_integration_doctor(
         checks.append(_adapter_health_render_check(module))
         checks.append(_availability_monitor_render_check(module))
         checks.append(_admin_list_render_check(module))
+        checks.append(_detail_dossier_render_check(module))
         checks.append(_token_health_render_check(module))
         checks.append(_controls_render_check(module))
         checks.append(_surface_render_check(module))
@@ -669,6 +689,110 @@ def _admin_list_render_check(module: Any) -> DoctorCheck:
         and raw_url not in html
     )
     return _check(ok, "admin_list_render", "generic admin list renders controls, rows, cards, and redaction")
+
+
+def _detail_dossier_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-detail-dossier"
+    raw_url = "/doctor/private-detail-dossier"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_detail_dossier_surface(
+            module.DetailDossierSurfaceConfig(
+                enabled=True,
+                key="detail-dossier-doctor",
+                header=module.DetailDossierHeader(
+                    title="Example Detail",
+                    subtitle="Doctor smoke",
+                    entity_type="Runtime Entity",
+                    status="ready",
+                    tone="good",
+                ),
+                fields=[
+                    module.DetailDossierField("key", "Key", "example", mono=True),
+                    module.DetailDossierField(
+                        "private",
+                        "Private",
+                        raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe detail value",
+                    ),
+                ],
+                metrics=[module.DetailDossierMetric("events", "Events", 3, "recent", tone="info")],
+                sections=[
+                    module.DetailDossierSection(
+                        "overview",
+                        "Overview",
+                        body="Public overview",
+                    )
+                ],
+                source_tables=[
+                    module.DetailDossierSourceTable(
+                        "sources",
+                        "Sources",
+                        columns=["kind", "summary"],
+                        rows=[
+                            module.DetailDossierTableRow(
+                                "private",
+                                cells=[
+                                    module.DetailDossierTableCell("kind", "note"),
+                                    module.DetailDossierTableCell(
+                                        "summary",
+                                        raw_value,
+                                        href=raw_url,
+                                        privacy_scope="owner_private",
+                                        safe_alternate="safe table value",
+                                    ),
+                                ],
+                            )
+                        ],
+                    )
+                ],
+                timeline=[
+                    module.DetailDossierTimelineEvent(
+                        "private",
+                        "Private",
+                        "now",
+                        raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe timeline value",
+                    )
+                ],
+                related_links=[module.DetailDossierRelatedLink("open", "Open", "/detail/open", "related")],
+                audit_rows=[
+                    module.DetailDossierAuditRow(
+                        "private",
+                        "Private Audit",
+                        raw_value,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe audit value",
+                    )
+                ],
+                action_slots=[module.DetailDossierActionSlot("actions", "Actions", body="Operator actions")],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "detail_dossier_render", "detail dossier surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-detail-dossier-surface" in html
+        and "Example Detail" in html
+        and "pc-detail-dossier-table" in html
+        and "safe detail value" in html
+        and "safe table value" in html
+        and "safe timeline value" in html
+        and "safe audit value" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "detail_dossier_render", "detail dossier renders fields, tables, timeline, audit, slots, and redaction")
 
 
 def _controls_render_check(module: Any) -> DoctorCheck:

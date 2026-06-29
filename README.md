@@ -78,6 +78,16 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   `personaconsole.render_people_surface(...)` provide the shared dense people
   table, filter bar, tag chips, relationship summary, notes preview, and
   owner-private note redaction hooks used by consumer-owned people pages.
+- `personaconsole.AdminListSurfaceConfig` and
+  `personaconsole.render_admin_list_surface(...)` provide reusable dense
+  list/table pages with status tabs, filter fields, metric cards, sortable
+  headers, row actions, pagination, mobile cards, and owner-private cell
+  fallbacks.
+- `personaconsole.DetailDossierSurfaceConfig` and
+  `personaconsole.render_detail_dossier_surface(...)` provide reusable
+  entity-detail pages with headers, metadata fields, metrics, sections, source
+  tables, related links, timeline events, audit rows, and runtime-owned action
+  slots.
 - `personaconsole.ReviewSurfaceConfig` and
   `personaconsole.render_review_surface(...)` provide a shared review-board
   surface for operator-gated decision rows, agenda cards, publishing queue
@@ -141,8 +151,8 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   owner-private helpers, token-health helpers, adapter-health helpers,
   availability-monitor helpers, message/media/activity helpers, people helpers,
   review helpers, journal helpers, operations/bridge/persona-editor/
-  command-intake helpers, settings/system-health helpers, shared controls, and
-  generic render smokes.
+  command-intake helpers, settings/system-health helpers, admin-list and
+  detail-dossier helpers, shared controls, and generic render smokes.
 - `personaconsole.register_static_assets(app, ...)` mounts shared CSS and JS
   assets in FastAPI apps.
 - `personaconsole.configure_jinja_loader(templates)` adds PersonaConsole
@@ -194,7 +204,9 @@ webhooks, queues, heartbeats, capabilities, and delivery claims. `v1.0.27`
 adds a command intake preview surface for parsed commands, target candidates,
 risk checks, confirmation gates, queue posture, and sanitized history.
 `v1.0.28` adds an availability monitor surface for schedule windows, live
-checks, policy posture, scenario QA, and sanitized monitor events.
+checks, policy posture, scenario QA, and sanitized monitor events. `v1.0.29`
+adds a generic admin-list/table surface for dense filtered list pages.
+`v1.0.30` adds a detail/dossier surface for reusable entity detail pages.
 
 ## Public Safety
 
@@ -227,7 +239,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.28
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.30
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -286,6 +298,8 @@ script prints the tag matching the exported package version.
 - [Release 1.0.26](docs/RELEASE_1.0.26.md)
 - [Release 1.0.27](docs/RELEASE_1.0.27.md)
 - [Release 1.0.28](docs/RELEASE_1.0.28.md)
+- [Release 1.0.29](docs/RELEASE_1.0.29.md)
+- [Release 1.0.30](docs/RELEASE_1.0.30.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

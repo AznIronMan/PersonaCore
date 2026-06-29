@@ -51,6 +51,21 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "raw fixture private admin-list summary" not in html
     assert "raw fixture private admin-list card summary" not in html
     assert "/lists/private-raw" not in html
+    assert "pc-detail-dossier-surface" in html
+    assert "Example Detail" in html
+    assert "Owner-private dossier field summarized for operators." in html
+    assert "Owner-private context is summarized without raw prose." in html
+    assert "Owner-private table row summarized for operators." in html
+    assert "Owner-private timeline event summarized for operators." in html
+    assert "Owner-private audit value summarized." in html
+    assert "raw fixture private detail dossier field" not in html
+    assert "raw fixture private detail dossier section" not in html
+    assert "raw fixture private detail dossier table" not in html
+    assert "raw fixture private detail dossier timeline" not in html
+    assert "raw fixture private detail dossier audit" not in html
+    assert "/detail/raw-private" not in html
+    assert "/detail/source/raw-private" not in html
+    assert "/detail/timeline/raw-private" not in html
     assert "pc-people-surface" in html
     assert "Example Consumer" in html
     assert "Owner-private notes are summarized for operators." in html

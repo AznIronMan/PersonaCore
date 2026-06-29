@@ -77,6 +77,19 @@ from personaconsole import (
     DashboardQueueRow,
     DashboardRouteCard,
     DashboardSparkBucket,
+    DetailDossierActionSlot,
+    DetailDossierAuditRow,
+    DetailDossierField,
+    DetailDossierHeader,
+    DetailDossierMetric,
+    DetailDossierRelatedLink,
+    DetailDossierSection,
+    DetailDossierSourceTable,
+    DetailDossierSurfaceConfig,
+    DetailDossierTableCell,
+    DetailDossierTableColumn,
+    DetailDossierTableRow,
+    DetailDossierTimelineEvent,
     JournalDetail,
     JournalEntry,
     JournalMarker,
@@ -154,6 +167,7 @@ from personaconsole import (
     render_availability_monitor_surface,
     render_admin_list_surface,
     render_dashboard_sections,
+    render_detail_dossier_surface,
     render_journal_surface,
     render_login_page,
     render_people_surface,
@@ -442,7 +456,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.29-fixture",
+        app_version="v1.0.30-fixture",
         brand_assets=fixture_public_brand(),
         static_base_url=static_base_url,
         theme=ThemeTokens(
@@ -700,6 +714,144 @@ def render_dashboard_fragment() -> str:
             mobile_card_secondary_key="status",
         ),
         features={ADMIN_LIST_FEATURE: True},
+        privacy_policy=privacy_policy,
+        privacy_context=operator_context,
+    )
+    detail_dossier_surface = render_detail_dossier_surface(
+        DetailDossierSurfaceConfig(
+            enabled=True,
+            key="generic-detail",
+            header=DetailDossierHeader(
+                title="Example Detail",
+                subtitle="Shared dossier renderer for consumer-owned profile, record, and source detail pages.",
+                entity_type="Record",
+                eyebrow="Detail",
+                status="ready",
+                tone="good",
+                href="/detail/example",
+                initials="ED",
+                badges=["shared", SurfaceBadge("privacy-aware", tone="info")],
+                actions=[SurfaceAction("Open record", "/detail/example", "good")],
+            ),
+            fields=[
+                DetailDossierField("handle", "Handle", "@example", href="/detail/example", mono=True),
+                DetailDossierField("status", "Status", "ready", tone="good"),
+                DetailDossierField("owner", "Owner", "operator", detail="runtime-owned metadata"),
+                DetailDossierField(
+                    "private_context",
+                    "Private Context",
+                    "raw fixture private detail dossier field",
+                    href="/detail/raw-private",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private dossier field summarized for operators.",
+                    wide=True,
+                ),
+            ],
+            metrics=[
+                DetailDossierMetric("messages", "Messages", 12, "last 7 days", href="/messages?detail=example", tone="info"),
+                DetailDossierMetric("risk", "Risk", "low", "current assessment", tone="good"),
+                DetailDossierMetric("reviews", "Reviews", 3, "queued", tone="warn"),
+            ],
+            sections=[
+                DetailDossierSection(
+                    "summary",
+                    "Summary",
+                    "Operator-readable context for the selected record.",
+                    body="This public-safe fixture summary is rendered by the shared dossier surface.",
+                    fields=[
+                        DetailDossierField("source", "Source", "runtime"),
+                        DetailDossierField("updated", "Updated", "1m ago", mono=True),
+                    ],
+                    badges=[SurfaceBadge("generic", tone="info")],
+                ),
+                DetailDossierSection(
+                    "private-notes",
+                    "Private Notes",
+                    "Safe alternate text is shown when the operator cannot view owner-private content.",
+                    body="raw fixture private detail dossier section",
+                    body_privacy_scope="owner_private",
+                    body_safe_alternate="Owner-private context is summarized without raw prose.",
+                    tone="warn",
+                ),
+            ],
+            source_tables=[
+                DetailDossierSourceTable(
+                    "sources",
+                    "Source Rows",
+                    "Rows from a consumer-owned backing store.",
+                    columns=[
+                        DetailDossierTableColumn("kind", "Kind"),
+                        DetailDossierTableColumn("summary", "Summary"),
+                        DetailDossierTableColumn("count", "Count", align="right", hidden_mobile=True),
+                    ],
+                    rows=[
+                        DetailDossierTableRow(
+                            "public-source",
+                            cells=[
+                                DetailDossierTableCell("kind", "message", mono=True),
+                                DetailDossierTableCell("summary", "Public-safe source summary.", href="/detail/source/public"),
+                                DetailDossierTableCell("count", 3, numeric=True),
+                            ],
+                            actions=[SurfaceAction("Open", "/detail/source/public")],
+                        ),
+                        DetailDossierTableRow(
+                            "private-source",
+                            cells=[
+                                DetailDossierTableCell("kind", "note", mono=True),
+                                DetailDossierTableCell(
+                                    "summary",
+                                    "raw fixture private detail dossier table",
+                                    href="/detail/source/raw-private",
+                                    privacy_scope="owner_private",
+                                    safe_alternate="Owner-private table row summarized for operators.",
+                                ),
+                                DetailDossierTableCell("count", 1, numeric=True),
+                            ],
+                            tone="warn",
+                        ),
+                    ],
+                )
+            ],
+            timeline=[
+                DetailDossierTimelineEvent("created", "Created", "09:00", "Record created", actor="runtime"),
+                DetailDossierTimelineEvent(
+                    "private-update",
+                    "Private update",
+                    "09:22",
+                    "raw fixture private detail dossier timeline",
+                    href="/detail/timeline/raw-private",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private timeline event summarized for operators.",
+                    tone="warn",
+                ),
+            ],
+            related_links=[
+                DetailDossierRelatedLink("messages", "Messages", "/messages?detail=example", "12 rows", tone="info"),
+                DetailDossierRelatedLink("review", "Review queue", "/review?detail=example", "3 items", tone="warn"),
+            ],
+            audit_rows=[
+                DetailDossierAuditRow("updated", "Updated", "1m ago", actor="runtime", when="09:42"),
+                DetailDossierAuditRow(
+                    "private-audit",
+                    "Private Audit",
+                    "raw fixture private detail dossier audit",
+                    actor="runtime",
+                    when="09:37",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private audit value summarized.",
+                    tone="warn",
+                ),
+            ],
+            action_slots=[
+                DetailDossierActionSlot(
+                    "actions",
+                    "Runtime Actions",
+                    body="Consumer runtimes own form handlers and authorization.",
+                    body_html='<form action="/review/example" method="post"><button type="submit">Queue Review</button></form>',
+                    actions=[SurfaceAction("Review", "/review?detail=example", "warn")],
+                )
+            ],
+        ),
         privacy_policy=privacy_policy,
         privacy_context=operator_context,
     )
@@ -1852,6 +2004,7 @@ def render_dashboard_fragment() -> str:
     return (
         render_dashboard_sections(dashboard)
         + admin_list_surface
+        + detail_dossier_surface
         + people_surface
         + review_surface
         + journal_surface

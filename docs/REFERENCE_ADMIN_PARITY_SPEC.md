@@ -99,6 +99,11 @@ PersonaConsole should supply reusable primitives for common module surfaces:
   cards, and owner-private cell fallbacks. PersonaConsole `1.0.29` supplies the
   typed renderer; consumers still own data queries, auth, pagination semantics,
   mutations, and private scope mapping.
+- `detail_dossier`: reusable detail pages for entity headers, metadata fields,
+  summary metrics, narrative sections, source tables, related links, timeline
+  events, audit rows, and runtime-owned action slots. PersonaConsole `1.0.30`
+  supplies the typed renderer; consumers still own record lookups, auth,
+  mutation routes, form handlers, source storage, and private scope mapping.
 - `journal`: calendar-driven continuity reader, paper-style default page,
   selectable themes, markers, provenance details, and owner-private safe
   alternates. PersonaConsole `1.0.18` supplies the typed journal surface and
@@ -205,6 +210,8 @@ the shared composition target with generic labels and fake data:
 - Message, activity, and media surfaces with owner-private safe alternates.
 - People surface with tags, relationship summary, and owner-private note
   fallback.
+- Generic admin-list and detail/dossier surfaces with owner-private safe
+  alternates.
 - Journal surface with a calendar rail, default paper reader, theme catalog,
   and owner-private entry fallback.
 - Public presence settings plus fixture splash, login, and chat pages using

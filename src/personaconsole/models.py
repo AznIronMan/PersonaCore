@@ -561,6 +561,179 @@ class AdminListSurfaceConfig:
 
 
 @dataclass(frozen=True)
+class DetailDossierHeader:
+    title: str = ""
+    subtitle: str = ""
+    entity_type: str = ""
+    eyebrow: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    href: str = ""
+    avatar_url: str = ""
+    avatar_alt: str = ""
+    initials: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+
+
+@dataclass(frozen=True)
+class DetailDossierField:
+    key: str
+    label: str = ""
+    value: Any = ""
+    detail: str = ""
+    href: str = ""
+    tone: str = "neutral"
+    title: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    mono: bool = False
+    numeric: bool = False
+    muted: bool = False
+    wide: bool = False
+
+
+@dataclass(frozen=True)
+class DetailDossierMetric:
+    key: str
+    label: str
+    value: Any = ""
+    detail: str = ""
+    href: str = ""
+    tone: str = "neutral"
+
+
+@dataclass(frozen=True)
+class DetailDossierTableColumn:
+    key: str
+    label: str = ""
+    align: str = "left"
+    title: str = ""
+    hidden_mobile: bool = False
+
+
+@dataclass(frozen=True)
+class DetailDossierTableCell:
+    key: str
+    value: Any = ""
+    label: str = ""
+    href: str = ""
+    tone: str = "neutral"
+    detail: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    mono: bool = False
+    numeric: bool = False
+    muted: bool = False
+
+
+@dataclass(frozen=True)
+class DetailDossierTableRow:
+    key: str
+    cells: Sequence[DetailDossierTableCell | Mapping[str, object]] = field(default_factory=tuple)
+    tone: str = "neutral"
+    title: str = ""
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class DetailDossierSourceTable:
+    key: str
+    title: str = ""
+    subtitle: str = ""
+    columns: Sequence[DetailDossierTableColumn | Mapping[str, object] | str] = field(default_factory=tuple)
+    rows: Sequence[DetailDossierTableRow | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No source rows."
+
+
+@dataclass(frozen=True)
+class DetailDossierSection:
+    key: str
+    title: str = ""
+    subtitle: str = ""
+    fields: Sequence[DetailDossierField | Mapping[str, object]] = field(default_factory=tuple)
+    body: str = ""
+    body_html: str = ""
+    body_privacy_scope: str = ""
+    body_safe_alternate: str = ""
+    tone: str = "neutral"
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    table: DetailDossierSourceTable | Mapping[str, object] | None = None
+
+
+@dataclass(frozen=True)
+class DetailDossierTimelineEvent:
+    key: str
+    title: str
+    when: str = ""
+    summary: str = ""
+    detail: str = ""
+    actor: str = ""
+    href: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class DetailDossierRelatedLink:
+    key: str
+    label: str
+    href: str = ""
+    summary: str = ""
+    tone: str = "neutral"
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class DetailDossierAuditRow:
+    key: str
+    label: str
+    value: Any = ""
+    actor: str = ""
+    when: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+
+
+@dataclass(frozen=True)
+class DetailDossierActionSlot:
+    key: str
+    label: str
+    body: str = ""
+    body_html: str = ""
+    description: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class DetailDossierSurfaceConfig:
+    enabled: bool = False
+    feature: str = "detail_dossier"
+    key: str = "detail-dossier"
+    header: DetailDossierHeader | Mapping[str, object] | None = None
+    fields: Sequence[DetailDossierField | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DetailDossierMetric | Mapping[str, object]] = field(default_factory=tuple)
+    sections: Sequence[DetailDossierSection | Mapping[str, object]] = field(default_factory=tuple)
+    source_tables: Sequence[DetailDossierSourceTable | Mapping[str, object]] = field(default_factory=tuple)
+    timeline: Sequence[DetailDossierTimelineEvent | Mapping[str, object]] = field(default_factory=tuple)
+    related_links: Sequence[DetailDossierRelatedLink | Mapping[str, object]] = field(default_factory=tuple)
+    audit_rows: Sequence[DetailDossierAuditRow | Mapping[str, object]] = field(default_factory=tuple)
+    action_slots: Sequence[DetailDossierActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No detail data."
+
+
+@dataclass(frozen=True)
 class SettingsValidationMessage:
     message: str
     field_key: str = ""

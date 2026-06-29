@@ -397,6 +397,99 @@ messages, media, people, and system audit rows. Operators receive safe
 alternates or withheld placeholders, and raw cell hrefs are stripped unless the
 viewer can see the private scope.
 
+## Detail/Dossier Surface
+
+The detail/dossier surface is a shared, opt-in renderer for entity profile and
+record detail pages. It handles the common page shape: a header, metadata
+fields, metric strip, narrative sections, source tables, related links,
+timeline, audit rows, and runtime-owned action slots. The consuming runtime
+owns record lookup, forms, mutations, auth, route policy, and persistence.
+
+```python
+from personaconsole import (
+    DETAIL_DOSSIER_FEATURE,
+    AdminPrivacyContext,
+    DetailDossierAuditRow,
+    DetailDossierField,
+    DetailDossierHeader,
+    DetailDossierMetric,
+    DetailDossierSection,
+    DetailDossierSourceTable,
+    DetailDossierSurfaceConfig,
+    DetailDossierTableCell,
+    DetailDossierTableColumn,
+    DetailDossierTableRow,
+    DetailDossierTimelineEvent,
+    OwnerPrivateScopePolicy,
+    SurfaceAction,
+    render_detail_dossier_surface,
+)
+
+policy = OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+context = AdminPrivacyContext(access_tier="operator", viewer_person_key="operator")
+
+html = render_detail_dossier_surface(
+    DetailDossierSurfaceConfig(
+        enabled=True,
+        header=DetailDossierHeader(
+            title="Example Record",
+            subtitle="Runtime-owned source data rendered by PersonaConsole.",
+            status="ready",
+            tone="good",
+        ),
+        fields=[
+            DetailDossierField("handle", "Handle", "@example", mono=True),
+            DetailDossierField(
+                "private_note",
+                "Private Note",
+                "raw note text",
+                privacy_scope="owner_private",
+                safe_alternate="Owner-private note summarized for operators.",
+            ),
+        ],
+        metrics=[DetailDossierMetric("messages", "Messages", 12, "last 7 days")],
+        sections=[
+            DetailDossierSection(
+                "summary",
+                "Summary",
+                body="Operator-visible summary supplied by the runtime.",
+            )
+        ],
+        source_tables=[
+            DetailDossierSourceTable(
+                "sources",
+                "Source Rows",
+                columns=[
+                    DetailDossierTableColumn("kind", "Kind"),
+                    DetailDossierTableColumn("summary", "Summary"),
+                ],
+                rows=[
+                    DetailDossierTableRow(
+                        "source-1",
+                        cells=[
+                            DetailDossierTableCell("kind", "message"),
+                            DetailDossierTableCell("summary", "Safe source summary."),
+                        ],
+                        actions=[SurfaceAction("Open", "/records/source-1")],
+                    )
+                ],
+            )
+        ],
+        timeline=[DetailDossierTimelineEvent("created", "Created", "09:00")],
+        audit_rows=[DetailDossierAuditRow("updated", "Updated", "1m ago")],
+    ),
+    features={DETAIL_DOSSIER_FEATURE: True},
+    privacy_policy=policy,
+    privacy_context=context,
+)
+```
+
+Text content is escaped by default. `body_html` fields and action-slot HTML are
+trusted extension points for consumer-owned forms or controls, so runtimes
+should only pass HTML they generate themselves after their own authorization
+checks. Owner-private fields, sections, rows, timeline entries, and audit values
+render safe alternates for non-owner contexts and suppress raw private hrefs.
+
 ## People Surface
 
 The people surface is a shared, opt-in module for canonical person lists,
@@ -1117,16 +1210,16 @@ After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.29
+PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.30
 ```
 
 The doctor verifies that `personaconsole` and its legacy compatibility shims
-import, report the same version, expose adapter-health, availability-monitor, admin-list, token-health,
-owner-private, message/activity/media/people/review/journal/operations/bridge/
-terminal/persona-editor/command-intake/settings-editor/system-health helpers
-plus shared controls, and can render a generic shell plus redacted feature
-panels. It does not read runtime secrets, databases, private routes, or
-consumer settings.
+import, report the same version, expose adapter-health, availability-monitor,
+admin-list, detail-dossier, token-health, owner-private,
+message/activity/media/people/review/journal/operations/bridge/terminal/
+persona-editor/command-intake/settings-editor/system-health helpers plus shared
+controls, and can render a generic shell plus redacted feature panels. It does
+not read runtime secrets, databases, private routes, or consumer settings.
 Filesystem paths are omitted from output unless `--show-paths` is explicitly
 passed for local diagnostics.
 
