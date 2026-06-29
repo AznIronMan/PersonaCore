@@ -67,6 +67,15 @@ _DETAIL_DOSSIER_EXPORTS = (
     "detail_dossier_surface_feature_enabled",
     "render_detail_dossier_surface",
 )
+_MEDIA_LIBRARY_EXPORTS = (
+    "MEDIA_LIBRARY_FEATURE",
+    "MediaLibraryActionSlot",
+    "MediaLibraryItem",
+    "MediaLibraryMetadata",
+    "MediaLibrarySurfaceConfig",
+    "media_library_surface_feature_enabled",
+    "render_media_library_surface",
+)
 _SURFACE_EXPORTS = (
     "ACTIVITY_FEATURE",
     "MEDIA_FEATURE",
@@ -357,6 +366,7 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "availability_monitor_exports", _AVAILABILITY_MONITOR_EXPORTS))
         checks.extend(_export_checks(module, "admin_list_exports", _ADMIN_LIST_EXPORTS))
         checks.extend(_export_checks(module, "detail_dossier_exports", _DETAIL_DOSSIER_EXPORTS))
+        checks.extend(_export_checks(module, "media_library_exports", _MEDIA_LIBRARY_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "surface_exports", _SURFACE_EXPORTS))
         checks.extend(_export_checks(module, "people_exports", _PEOPLE_EXPORTS))
@@ -375,6 +385,7 @@ def run_consumer_integration_doctor(
         checks.append(_availability_monitor_render_check(module))
         checks.append(_admin_list_render_check(module))
         checks.append(_detail_dossier_render_check(module))
+        checks.append(_media_library_render_check(module))
         checks.append(_token_health_render_check(module))
         checks.append(_controls_render_check(module))
         checks.append(_surface_render_check(module))
@@ -793,6 +804,92 @@ def _detail_dossier_render_check(module: Any) -> DoctorCheck:
         and raw_url not in html
     )
     return _check(ok, "detail_dossier_render", "detail dossier renders fields, tables, timeline, audit, slots, and redaction")
+
+
+def _media_library_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-media-library"
+    raw_url = "/doctor/private-media-library"
+    unsafe_url = "https://private.example/media-library"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_media_library_surface(
+            module.MediaLibrarySurfaceConfig(
+                enabled=True,
+                title="Media Library",
+                view="grid",
+                status_tabs=[module.StatusTab("All", "/media", 2, active=True)],
+                filters=[module.DashboardFilter("Images", "/media?type=image", key="images", active=True)],
+                view_options=[
+                    module.DashboardFilter("Grid", "/media?view=grid", key="grid"),
+                    module.DashboardFilter("List", "/media?view=list", key="list"),
+                ],
+                metrics=[module.DashboardMetric("Assets", 2, "/media", "visible")],
+                actions=[module.SurfaceAction("Upload", "/media/upload")],
+                action_slots=[
+                    module.MediaLibraryActionSlot(
+                        "import",
+                        "Import",
+                        "Consumer-owned import route",
+                        actions=[module.SurfaceAction("Import file", "/media/import")],
+                    )
+                ],
+                items=[
+                    module.MediaLibraryItem(
+                        "public",
+                        "Public artifact",
+                        href="/media/public",
+                        preview_url="/media/public.jpg",
+                        media_type="image",
+                        status="ready",
+                        review_status="approved",
+                        safety="safe",
+                        sendability="sendable",
+                        source="upload",
+                    ),
+                    module.MediaLibraryItem(
+                        "private",
+                        raw_value,
+                        href=raw_url,
+                        preview_url=raw_url,
+                        media_type="image",
+                        detail=raw_value,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe media library summary",
+                        metadata=[
+                            module.MediaLibraryMetadata(
+                                "note",
+                                "Note",
+                                raw_value,
+                                privacy_scope="owner_private",
+                                safe_alternate="safe media metadata",
+                            )
+                        ],
+                        actions=[module.SurfaceAction("Unsafe", unsafe_url)],
+                    ),
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "media_library_render", "media library surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-media-library-surface" in html
+        and "pc-media-library-grid" in html
+        and "pc-media-library-dialog" in html
+        and "pc-media-library-action-slot" in html
+        and "safe media library summary" in html
+        and "safe media metadata" in html
+        and raw_value not in html
+        and raw_url not in html
+        and unsafe_url not in html
+    )
+    return _check(ok, "media_library_render", "media library renders gallery controls, action slots, previews, and redaction")
 
 
 def _controls_render_check(module: Any) -> DoctorCheck:

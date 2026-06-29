@@ -334,6 +334,59 @@ HTML snapshots, JSON endpoints, database queries, and media/artifact byte
 routes must apply the same runtime policy before returning raw owner-private
 data.
 
+## Media Library Surface
+
+The media-library surface is a richer shared renderer for asset galleries,
+received media, generated artifacts, reference anchors, and review queues. It
+adds grid/list view options, preview dialogs, metadata chips, safety and
+sendability flags, non-image fallback states, source labels, and action slots
+for runtime-owned upload/import/regenerate controls.
+
+```python
+from personaconsole import (
+    MEDIA_LIBRARY_FEATURE,
+    MediaLibraryActionSlot,
+    MediaLibraryItem,
+    MediaLibraryMetadata,
+    MediaLibrarySurfaceConfig,
+    SurfaceAction,
+    render_media_library_surface,
+)
+
+html = render_media_library_surface(
+    MediaLibrarySurfaceConfig(
+        enabled=True,
+        title="Media Library",
+        action_slots=[
+            MediaLibraryActionSlot(
+                "Import",
+                actions=[SurfaceAction("Upload", "/media/upload")],
+            )
+        ],
+        items=[
+            MediaLibraryItem(
+                "asset-1",
+                "Reference image",
+                kind="image",
+                preview_src="/media/reference-1/preview",
+                detail_href="/media/reference-1",
+                status="review",
+                safety_label="review needed",
+                sendability_label="blocked",
+                metadata=[MediaLibraryMetadata("Source", "operator upload")],
+            )
+        ],
+    ),
+    features={MEDIA_LIBRARY_FEATURE: True},
+)
+```
+
+PersonaConsole only renders supplied, escaped metadata and safe root-relative
+URLs. Consumers own storage, upload validation, byte serving, provider
+generation, moderation policy, mutations, auth, and retention. Owner-private
+items use the same safe-alternate behavior as the other shared surfaces and raw
+preview/detail URLs are stripped unless the viewer can see the matching scope.
+
 ## Generic Admin List Surface
 
 The admin-list surface is a shared, opt-in renderer for dense runtime tables:
@@ -1210,12 +1263,12 @@ After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.30
+PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.31
 ```
 
 The doctor verifies that `personaconsole` and its legacy compatibility shims
 import, report the same version, expose adapter-health, availability-monitor,
-admin-list, detail-dossier, token-health, owner-private,
+admin-list, detail-dossier, media-library, token-health, owner-private,
 message/activity/media/people/review/journal/operations/bridge/terminal/
 persona-editor/command-intake/settings-editor/system-health helpers plus shared
 controls, and can render a generic shell plus redacted feature panels. It does

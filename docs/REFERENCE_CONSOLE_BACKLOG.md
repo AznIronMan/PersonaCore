@@ -30,7 +30,8 @@ screenshots, data, and runtime policy stay outside the public repo.
   `1.0.26`; the command intake preview surface shipped in PersonaConsole
   `1.0.27`; the availability/live monitor surface shipped in PersonaConsole
   `1.0.28`; the generic admin-list/table surface shipped in PersonaConsole
-  `1.0.29`; the detail/dossier surface shipped in PersonaConsole `1.0.30`.
+  `1.0.29`; the detail/dossier surface shipped in PersonaConsole `1.0.30`;
+  the richer media/artifact library surface shipped in PersonaConsole `1.0.31`.
 
 ## First Dashboard Modules
 
@@ -96,7 +97,10 @@ screenshots, data, and runtime policy stay outside the public repo.
   policy, and scenario/status QA. Initial typed renderer shipped in
   PersonaConsole `1.0.28`.
 - Media/artifact cards for generated or uploaded assets with preview,
-  classification, sendable status, and action slots.
+  classification, sendable status, and action slots. Initial card primitives
+  shipped in PersonaConsole `1.0.9`; the richer grid/list library with preview
+  dialogs, metadata chips, safety/sendability flags, non-image fallbacks, and
+  import/upload action slots shipped in PersonaConsole `1.0.31`.
 - Generic task, log, and settings posture panels for reference-console parity.
   Initial public-safe fixture examples shipped in PersonaConsole `1.0.10`; typed
   operations/settings/log renderers shipped in PersonaConsole `1.0.17`.

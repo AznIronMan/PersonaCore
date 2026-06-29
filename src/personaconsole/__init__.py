@@ -21,6 +21,11 @@ from .detail_dossier import (
     detail_dossier_surface_feature_enabled,
     render_detail_dossier_surface,
 )
+from .media_library import (
+    MEDIA_LIBRARY_FEATURE,
+    media_library_surface_feature_enabled,
+    render_media_library_surface,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -115,6 +120,10 @@ from .models import (
     LegalNotice,
     LoginPageConfig,
     MediaArtifactCard,
+    MediaLibraryActionSlot,
+    MediaLibraryItem,
+    MediaLibraryMetadata,
+    MediaLibrarySurfaceConfig,
     MediaSurfaceConfig,
     MessageAttachment,
     MessageConversation,
@@ -395,8 +404,13 @@ __all__ = [
     "LegalNotice",
     "LoginPageConfig",
     "MEDIA_FEATURE",
+    "MEDIA_LIBRARY_FEATURE",
     "MESSAGES_FEATURE",
     "MediaArtifactCard",
+    "MediaLibraryActionSlot",
+    "MediaLibraryItem",
+    "MediaLibraryMetadata",
+    "MediaLibrarySurfaceConfig",
     "MediaSurfaceConfig",
     "MessageAttachment",
     "MessageConversation",
@@ -499,6 +513,7 @@ __all__ = [
     "flash_query_params",
     "flash_url",
     "media_surface_feature_enabled",
+    "media_library_surface_feature_enabled",
     "message_surface_feature_enabled",
     "journal_surface_feature_enabled",
     "journal_theme_key",
@@ -540,6 +555,7 @@ __all__ = [
     "render_login_page",
     "render_live_controls",
     "render_media_surface",
+    "render_media_library_surface",
     "render_message_surface",
     "render_nav_groups",
     "render_operations_surface",
@@ -572,7 +588,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.30"
+__version__ = "1.0.31"
 
 
 def configure_jinja_loader(*args, **kwargs):

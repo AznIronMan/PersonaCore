@@ -12,6 +12,7 @@ from personaconsole import (
     AGENT_OPS_FEATURE,
     AVAILABILITY_MONITOR_FEATURE,
     JOURNAL_FEATURE,
+    MEDIA_LIBRARY_FEATURE,
     MEDIA_FEATURE,
     MESSAGES_FEATURE,
     OPERATIONS_FEATURE,
@@ -97,6 +98,10 @@ from personaconsole import (
     LegalNotice,
     LoginPageConfig,
     MediaArtifactCard,
+    MediaLibraryActionSlot,
+    MediaLibraryItem,
+    MediaLibraryMetadata,
+    MediaLibrarySurfaceConfig,
     MediaSurfaceConfig,
     MessageAttachment,
     MessageConversation,
@@ -170,6 +175,7 @@ from personaconsole import (
     render_detail_dossier_surface,
     render_journal_surface,
     render_login_page,
+    render_media_library_surface,
     render_people_surface,
     render_persona_editor,
     render_public_settings_surface,
@@ -456,7 +462,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.30-fixture",
+        app_version="v1.0.31-fixture",
         brand_assets=fixture_public_brand(),
         static_base_url=static_base_url,
         theme=ThemeTokens(
@@ -1997,6 +2003,112 @@ def render_dashboard_fragment() -> str:
         privacy_policy=privacy_policy,
         privacy_context=operator_context,
     )
+    media_library_surface = render_media_library_surface(
+        MediaLibrarySurfaceConfig(
+            enabled=True,
+            title="Media Library",
+            subtitle="Reusable gallery, upload/import slots, and review posture.",
+            status_tabs=[
+                StatusTab("All", "/media/library", 4, active=True),
+                StatusTab("Review", "/media/library?status=review", 1, tone="warn"),
+            ],
+            filters=[
+                DashboardFilter("Images", "/media/library?type=image", key="images", active=True, color="rgb(45 212 191)"),
+                DashboardFilter("Jobs", "/media/library?type=jobs", key="jobs", color="rgb(251 191 36)"),
+            ],
+            view_options=[
+                DashboardFilter("Grid", "/media/library?view=grid", key="grid", active=True),
+                DashboardFilter("List", "/media/library?view=list", key="list"),
+            ],
+            metrics=[
+                DashboardMetric("Assets", 4, "/media/library", "visible", tone="info"),
+                DashboardMetric("Sendable", 2, "/media/library?sendable=1", "ready", tone="good"),
+            ],
+            actions=[SurfaceAction("Upload", "/media/upload", tone="good")],
+            action_slots=[
+                MediaLibraryActionSlot(
+                    "import",
+                    "Import Media",
+                    "Consumer runtimes own file validation and storage.",
+                    actions=[
+                        SurfaceAction("Import file", "/media/import", tone="info"),
+                        SurfaceAction("Regenerate", "/media/jobs/regenerate", method="post", tone="warn"),
+                    ],
+                )
+            ],
+            items=[
+                MediaLibraryItem(
+                    "portrait",
+                    "Example portrait anchor",
+                    href="/media/library/portrait",
+                    preview_url="/media/library/portrait.jpg",
+                    media_type="image",
+                    status="approved",
+                    review_status="approved",
+                    safety="safe",
+                    sendability="sendable",
+                    heat="low",
+                    shareability="ready",
+                    owner="example-persona",
+                    source="upload",
+                    detail="Public-safe reference card.",
+                    badges=[SurfaceBadge("reference", "info")],
+                    metadata=[
+                        MediaLibraryMetadata("ratio", "Ratio", "4:5"),
+                        MediaLibraryMetadata("quality", "Quality", "curated", tone="good"),
+                    ],
+                    actions=[SurfaceAction("Open", "/media/library/portrait")],
+                    selected=True,
+                ),
+                MediaLibraryItem(
+                    "voice",
+                    "Voice note",
+                    href="/media/library/voice",
+                    preview_url="/media/library/voice.mp3",
+                    media_type="audio",
+                    status="review",
+                    review_status="review",
+                    safety="review",
+                    sendability="manual",
+                    source="received",
+                    detail="Audio preview with local runtime-owned bytes.",
+                ),
+                MediaLibraryItem(
+                    "file",
+                    "Reference document",
+                    href="/media/library/reference",
+                    media_type="pdf",
+                    status="stored",
+                    source="import",
+                    detail="Non-image fallback state.",
+                ),
+                MediaLibraryItem(
+                    "private",
+                    "raw fixture private media library title",
+                    href="/media/raw-private-library",
+                    preview_url="/media/raw-private-library-preview",
+                    media_type="image",
+                    status="private",
+                    detail="raw fixture private media library detail",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private library item summarized for operators.",
+                    metadata=[
+                        MediaLibraryMetadata(
+                            "note",
+                            "Note",
+                            "raw fixture private media library metadata",
+                            privacy_scope="owner_private",
+                            safe_alternate="Safe media library metadata.",
+                        )
+                    ],
+                    actions=[SurfaceAction("Unsafe callback", "/oauth/callback")],
+                ),
+            ],
+        ),
+        features={MEDIA_LIBRARY_FEATURE: True},
+        privacy_policy=privacy_policy,
+        privacy_context=operator_context,
+    )
     public_settings_surface = render_public_settings_surface(
         build_public_settings_surface_config(),
         features={PUBLIC_PRESENCE_FEATURE: True},
@@ -2016,6 +2128,7 @@ def render_dashboard_fragment() -> str:
         + settings_editor
         + system_health_surface
         + public_settings_surface
+        + media_library_surface
         + surfaces
         + hold_form
     )

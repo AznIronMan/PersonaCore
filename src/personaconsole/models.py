@@ -1955,6 +1955,77 @@ class MediaSurfaceConfig:
 
 
 @dataclass(frozen=True)
+class MediaLibraryMetadata:
+    key: str
+    label: str
+    value: object = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+
+
+@dataclass(frozen=True)
+class MediaLibraryItem:
+    key: str
+    label: str
+    href: str = ""
+    preview_url: str = ""
+    preview_alt: str = ""
+    media_type: str = ""
+    status: str = ""
+    review_status: str = ""
+    safety: str = ""
+    sendability: str = ""
+    heat: str = ""
+    shareability: str = ""
+    owner: str = ""
+    source: str = ""
+    timestamp: str = ""
+    detail: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    blur_sensitive: bool = False
+    selected: bool = False
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    metadata: Sequence[MediaLibraryMetadata | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class MediaLibraryActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class MediaLibrarySurfaceConfig:
+    enabled: bool = False
+    feature: str = "media_library"
+    key: str = "media-library"
+    title: str = "Media Library"
+    subtitle: str = "Artifacts, uploads, and reference media"
+    view: str = "grid"
+    filters: Sequence[DashboardFilter | Mapping[str, object]] = field(default_factory=tuple)
+    view_options: Sequence[DashboardFilter | Mapping[str, object]] = field(default_factory=tuple)
+    status_tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    action_slots: Sequence[MediaLibraryActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    items: Sequence[MediaLibraryItem | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No media items found."
+    grid_label: str = "Media grid"
+    list_label: str = "Media list"
+
+
+@dataclass(frozen=True)
 class DashboardFlowSegment:
     label: str
     percent: int | float

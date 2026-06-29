@@ -85,7 +85,11 @@ PersonaConsole should supply reusable primitives for common module surfaces:
   lookups, auth, pagination, and private scope mapping.
 - `activity`: public/group/social activity rows and timeline events.
 - `media`: artifact cards, preview placeholders, status labels, and redacted
-  owner-private fallbacks.
+  owner-private fallbacks. PersonaConsole `1.0.31` supplies the richer
+  media-library surface for grid/list galleries, preview dialogs, metadata
+  chips, safety/sendability flags, review state, non-image fallbacks, and
+  runtime-owned upload/import action slots; consumers still own storage, byte
+  serving, generation, moderation policy, auth, and mutations.
 - `people`: profile and relationship summaries rendered from consumer-owned
   data. PersonaConsole `1.0.11` supplies the typed filter/table/notes surface;
   consumers still own lookups, auth, edits, and private scope mapping.

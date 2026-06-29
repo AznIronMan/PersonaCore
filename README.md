@@ -74,6 +74,11 @@ secrets, provider credentials, deployment files, and runtime-specific behavior.
   while rendering safe alternates or withheld placeholders for non-owner
   admins; consumers must still enforce the same policy in their HTML, JSON,
   query, snapshot, and file routes.
+- `personaconsole.MediaLibrarySurfaceConfig` and
+  `personaconsole.render_media_library_surface(...)` provide a richer
+  media/artifact library for grid/list views, preview dialogs, metadata chips,
+  safety/sendability flags, review state, non-image fallbacks, and
+  runtime-owned upload/import action slots.
 - `personaconsole.PeopleSurfaceConfig` and
   `personaconsole.render_people_surface(...)` provide the shared dense people
   table, filter bar, tag chips, relationship summary, notes preview, and
@@ -207,6 +212,9 @@ risk checks, confirmation gates, queue posture, and sanitized history.
 checks, policy posture, scenario QA, and sanitized monitor events. `v1.0.29`
 adds a generic admin-list/table surface for dense filtered list pages.
 `v1.0.30` adds a detail/dossier surface for reusable entity detail pages.
+`v1.0.31` adds a media/artifact library surface for reusable asset galleries,
+review queues, metadata chips, preview dialogs, and runtime-owned import
+actions.
 
 ## Public Safety
 
@@ -239,7 +247,7 @@ verification, and deployment rules.
 Consumer integration doctor:
 
 ```bash
-PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.30
+PYTHONPATH=src python3 scripts/consumer_integration_doctor.py --expected-version 1.0.31
 ```
 
 Use `--json` for automation. Imported module filesystem paths are hidden unless
@@ -300,6 +308,7 @@ script prints the tag matching the exported package version.
 - [Release 1.0.28](docs/RELEASE_1.0.28.md)
 - [Release 1.0.29](docs/RELEASE_1.0.29.md)
 - [Release 1.0.30](docs/RELEASE_1.0.30.md)
+- [Release 1.0.31](docs/RELEASE_1.0.31.md)
 - [Visual QA](docs/VISUAL_QA.md)
 - [Public Release And Sanitization](docs/PUBLIC_RELEASE.md)
 - [Settled Direction And Open Questions](docs/OPEN_QUESTIONS.md)

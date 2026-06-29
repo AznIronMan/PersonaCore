@@ -183,9 +183,22 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Selected conversation" in html
     assert "pc-activity-surface" in html
     assert "pc-media-surface" in html
+    assert "pc-media-library-surface" in html
+    assert "Media Library" in html
+    assert "Import Media" in html
+    assert "Example portrait anchor" in html
+    assert "Voice note" in html
+    assert "Reference document" in html
+    assert "Owner-private library item summarized for operators." in html
+    assert "Safe media library metadata." in html
     assert "Owner-private reply summarized for operators." in html
     assert "raw fixture owner private message" not in html
+    assert "raw fixture private media library title" not in html
+    assert "raw fixture private media library detail" not in html
+    assert "raw fixture private media library metadata" not in html
+    assert "/media/raw-private-library" not in html
     assert "/media/raw-private-fixture" not in html
+    assert "/oauth/callback" not in html
     assert "Token Health" in html
     assert "Webhook verify token" in html
     assert "/static-fixture/persona-console.css" in html
