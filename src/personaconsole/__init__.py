@@ -11,6 +11,11 @@ from .availability_monitor import (
     availability_monitor_feature_enabled,
     render_availability_monitor_surface,
 )
+from .admin_list import (
+    ADMIN_LIST_FEATURE,
+    admin_list_surface_feature_enabled,
+    render_admin_list_surface,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -32,6 +37,12 @@ from .models import (
     AdapterHealthSparkBucket,
     ActivityEvent,
     ActivitySurfaceConfig,
+    AdminListCell,
+    AdminListColumn,
+    AdminListFilterField,
+    AdminListPagination,
+    AdminListRow,
+    AdminListSurfaceConfig,
     AvailabilityEventRow,
     AvailabilityMonitorRow,
     AvailabilityMonitorSurfaceConfig,
@@ -281,11 +292,18 @@ __all__ = [
     "ACTIVITY_FEATURE",
     "ADAPTER_HEALTH_FEATURE",
     "AGENT_OPS_FEATURE",
+    "ADMIN_LIST_FEATURE",
     "AdapterHealthCard",
     "AdapterHealthConfig",
     "AdapterHealthSparkBucket",
     "ActivityEvent",
     "ActivitySurfaceConfig",
+    "AdminListCell",
+    "AdminListColumn",
+    "AdminListFilterField",
+    "AdminListPagination",
+    "AdminListRow",
+    "AdminListSurfaceConfig",
     "AVAILABILITY_MONITOR_FEATURE",
     "AvailabilityEventRow",
     "AvailabilityMonitorRow",
@@ -430,6 +448,7 @@ __all__ = [
     "WITHHELD_PRIVATE_TEXT",
     "active_nav_label",
     "activity_surface_feature_enabled",
+    "admin_list_surface_feature_enabled",
     "adapter_health_feature_enabled",
     "availability_monitor_feature_enabled",
     "agent_ops_surface_feature_enabled",
@@ -462,6 +481,7 @@ __all__ = [
     "privacy_render_mode",
     "register_static_assets",
     "render_activity_surface",
+    "render_admin_list_surface",
     "render_agent_ops_surface",
     "render_availability_monitor_surface",
     "render_dashboard_activity",
@@ -518,7 +538,7 @@ __all__ = [
     "token_health_provider_keys",
 ]
 
-__version__ = "1.0.28"
+__version__ = "1.0.29"
 
 
 def configure_jinja_loader(*args, **kwargs):

@@ -94,6 +94,11 @@ PersonaConsole should supply reusable primitives for common module surfaces:
   primitives. PersonaConsole `1.0.15` supplies the shared status-tab control for
   filtered queue/list pages; consumers still own queries, auth, mutations, and
   private scope mapping.
+- `admin_list`: reusable dense list/table pages with status tabs, filter form
+  fields, metric cards, sortable column links, row actions, pagination, mobile
+  cards, and owner-private cell fallbacks. PersonaConsole `1.0.29` supplies the
+  typed renderer; consumers still own data queries, auth, pagination semantics,
+  mutations, and private scope mapping.
 - `journal`: calendar-driven continuity reader, paper-style default page,
   selectable themes, markers, provenance details, and owner-private safe
   alternates. PersonaConsole `1.0.18` supplies the typed journal surface and

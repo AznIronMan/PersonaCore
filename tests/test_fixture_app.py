@@ -17,7 +17,9 @@ def test_fixture_uses_public_personaconsole_config_name():
     assert config.brand_name == "Example Persona"
     assert config.nav_badges["review"] == 4
     assert config.nav_badges["people"] == 3
+    assert config.nav_badges["lists"] == 2
     assert config.features["people"] is True
+    assert config.features["admin_list"] is True
     assert config.features["operations"] is True
     assert config.features["bridge_ops"] is True
     assert config.features["command_intake"] is True
@@ -41,6 +43,14 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Example Persona" in html
     assert "pc-dashboard-overview" in html
     assert "Operator Attention" in html
+    assert "pc-admin-list-surface" in html
+    assert "Generic List" in html
+    assert "Example public row" in html
+    assert "Owner-private list cell summarized for operators." in html
+    assert "Owner-private list card summarized for operators." in html
+    assert "raw fixture private admin-list summary" not in html
+    assert "raw fixture private admin-list card summary" not in html
+    assert "/lists/private-raw" not in html
     assert "pc-people-surface" in html
     assert "Example Consumer" in html
     assert "Owner-private notes are summarized for operators." in html

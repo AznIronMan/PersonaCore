@@ -8,6 +8,7 @@ from pathlib import Path
 
 from personaconsole import (
     ACTIVITY_FEATURE,
+    ADMIN_LIST_FEATURE,
     AGENT_OPS_FEATURE,
     AVAILABILITY_MONITOR_FEATURE,
     JOURNAL_FEATURE,
@@ -28,6 +29,12 @@ from personaconsole import (
     ActivitySurfaceConfig,
     AgentOpsSurfaceConfig,
     AgentSessionRow,
+    AdminListCell,
+    AdminListColumn,
+    AdminListFilterField,
+    AdminListPagination,
+    AdminListRow,
+    AdminListSurfaceConfig,
     AdminPrivacyContext,
     AvailabilityEventRow,
     AvailabilityMonitorRow,
@@ -145,6 +152,7 @@ from personaconsole import (
     render_chat_page,
     render_command_intake_surface,
     render_availability_monitor_surface,
+    render_admin_list_surface,
     render_dashboard_sections,
     render_journal_surface,
     render_login_page,
@@ -348,6 +356,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             MESSAGES_FEATURE: True,
             ACTIVITY_FEATURE: True,
             MEDIA_FEATURE: True,
+            ADMIN_LIST_FEATURE: True,
             PEOPLE_FEATURE: True,
             REVIEW_FEATURE: True,
             JOURNAL_FEATURE: True,
@@ -376,6 +385,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
                 "Conversations",
                 [
                     NavItem("Messages", "/messages", active="messages", badge="messages", feature=MESSAGES_FEATURE),
+                    NavItem("Generic List", "/lists", active="lists", badge="lists", feature=ADMIN_LIST_FEATURE),
                     NavItem("People", "/people", active="people", badge="people", feature=PEOPLE_FEATURE),
                     NavItem("Media", "/media", active="media", badge="media", feature=MEDIA_FEATURE),
                 ],
@@ -408,6 +418,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
         ],
         nav_badges={
             "messages": 12,
+            "lists": 2,
             "people": 3,
             "media": 9,
             "review": 4,
@@ -431,7 +442,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.28-fixture",
+        app_version="v1.0.29-fixture",
         brand_assets=fixture_public_brand(),
         static_base_url=static_base_url,
         theme=ThemeTokens(
@@ -622,6 +633,75 @@ def render_dashboard_fragment() -> str:
             DashboardActivityItem("Workers", "Latency warning", "/workers", "09:31", "One worker is above target.", tone="bad"),
             DashboardActivityItem("Media", "Assets ready", "/media", "09:26", "Three generated assets are ready for inspection.", tone="good"),
         ],
+    )
+    admin_list_surface = render_admin_list_surface(
+        AdminListSurfaceConfig(
+            enabled=True,
+            key="generic-list",
+            title="Generic List",
+            subtitle="Shared list/table renderer for consumer-owned rows and actions.",
+            columns=[
+                AdminListColumn("name", "Name", href="/lists?sort=name", sortable=True, active=True, direction="asc"),
+                AdminListColumn("status", "Status", align="center"),
+                AdminListColumn("summary", "Summary"),
+                AdminListColumn("updated", "Updated", align="right", hidden_mobile=True),
+            ],
+            status_tabs=[
+                StatusTab("All", "/lists", 2, active=True),
+                StatusTab("Held", "/lists?status=held", 1, tone="warn"),
+            ],
+            filters=[
+                DashboardFilter("Ready", "/lists?status=ready", key="ready", active=True),
+                DashboardFilter("Held", "/lists?status=held", key="held", color="rgb(251 191 36)"),
+            ],
+            filter_fields=[
+                AdminListFilterField("q", "Search", "example", "search", placeholder="Find rows"),
+                AdminListFilterField("status", "Status", "ready", "select", options=["ready", "held", "archived"]),
+            ],
+            filter_action="/lists",
+            reset_href="/lists",
+            metrics=[
+                DashboardMetric("Visible", 2, "/lists", "active filter", tone="good"),
+                DashboardMetric("Held", 1, "/lists?status=held", "safe alternate shown", tone="warn"),
+            ],
+            actions=[SurfaceAction("New row", "/lists/new", "good")],
+            rows=[
+                AdminListRow(
+                    "public",
+                    cells=[
+                        AdminListCell("name", "Example public row", href="/lists/public"),
+                        AdminListCell("status", "ready", tone="good", badges=["configured"]),
+                        AdminListCell("summary", "Consumer-owned summary rendered by PersonaConsole."),
+                        AdminListCell("updated", "1m ago", mono=True, nowrap=True),
+                    ],
+                    actions=[SurfaceAction("Open", "/lists/public")],
+                ),
+                AdminListRow(
+                    "owner-private",
+                    cells=[
+                        AdminListCell("name", "Owner-private row"),
+                        AdminListCell("status", "held", tone="warn"),
+                        AdminListCell(
+                            "summary",
+                            "raw fixture private admin-list summary",
+                            href="/lists/private-raw",
+                            privacy_scope="owner_private",
+                            safe_alternate="Owner-private list cell summarized for operators.",
+                        ),
+                        AdminListCell("updated", "2m ago", mono=True, nowrap=True),
+                    ],
+                    summary="raw fixture private admin-list card summary",
+                    summary_privacy_scope="owner_private",
+                    summary_safe_alternate="Owner-private list card summarized for operators.",
+                ),
+            ],
+            pagination=AdminListPagination(count=2, page=1, page_count=1),
+            mobile_card_primary_key="name",
+            mobile_card_secondary_key="status",
+        ),
+        features={ADMIN_LIST_FEATURE: True},
+        privacy_policy=privacy_policy,
+        privacy_context=operator_context,
     )
     people_surface = render_people_surface(
         PeopleSurfaceConfig(
@@ -1771,6 +1851,7 @@ def render_dashboard_fragment() -> str:
     )
     return (
         render_dashboard_sections(dashboard)
+        + admin_list_surface
         + people_surface
         + review_surface
         + journal_surface

@@ -29,7 +29,8 @@ screenshots, data, and runtime policy stay outside the public repo.
   PersonaConsole `1.0.25`; bridge operation panels shipped in PersonaConsole
   `1.0.26`; the command intake preview surface shipped in PersonaConsole
   `1.0.27`; the availability/live monitor surface shipped in PersonaConsole
-  `1.0.28`.
+  `1.0.28`; the generic admin-list/table surface shipped in PersonaConsole
+  `1.0.29`.
 
 ## First Dashboard Modules
 
@@ -79,6 +80,10 @@ screenshots, data, and runtime policy stay outside the public repo.
 - Conversation transcript table for forensic/admin views.
 - Review queue cards and tables with summary metrics, tags, decision actions,
   and pending-change integration hooks.
+- Generic admin list/table surface with status tabs, filter form fields,
+  metric cards, sortable column links, row actions, pagination, mobile cards,
+  and owner-private cell fallbacks. Initial typed renderer shipped in
+  PersonaConsole `1.0.29`.
 - Plain-language command preview panel with parsed result, risk tags,
   candidates, confirmation states, queue button, and history list. Initial
   typed renderer shipped in PersonaConsole `1.0.27`.

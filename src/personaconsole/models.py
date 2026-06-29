@@ -464,6 +464,103 @@ class SettingsOption:
 
 
 @dataclass(frozen=True)
+class AdminListColumn:
+    key: str
+    label: str = ""
+    href: str = ""
+    sortable: bool = False
+    active: bool = False
+    direction: str = ""
+    align: str = "left"
+    width: str = ""
+    priority: int = 0
+    hidden_mobile: bool = False
+    title: str = ""
+
+
+@dataclass(frozen=True)
+class AdminListCell:
+    key: str
+    value: Any = ""
+    label: str = ""
+    href: str = ""
+    tone: str = "neutral"
+    title: str = ""
+    detail: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    mono: bool = False
+    nowrap: bool = False
+    numeric: bool = False
+    muted: bool = False
+
+
+@dataclass(frozen=True)
+class AdminListRow:
+    key: str
+    cells: Sequence[AdminListCell | Mapping[str, object]] = field(default_factory=tuple)
+    href: str = ""
+    tone: str = "neutral"
+    title: str = ""
+    summary: str = ""
+    summary_privacy_scope: str = ""
+    summary_safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminListFilterField:
+    name: str
+    label: str = ""
+    value: Any = ""
+    kind: str = "text"
+    placeholder: str = ""
+    options: Sequence[SettingsOption | Mapping[str, object] | str] = field(default_factory=tuple)
+    hidden: bool = False
+
+
+@dataclass(frozen=True)
+class AdminListPagination:
+    count: str | int = ""
+    page: str | int = ""
+    page_count: str | int = ""
+    previous_href: str = ""
+    next_href: str = ""
+    previous_label: str = "Previous"
+    next_label: str = "Next"
+    summary: str = ""
+
+
+@dataclass(frozen=True)
+class AdminListSurfaceConfig:
+    enabled: bool = False
+    feature: str = "admin_list"
+    key: str = "admin-list"
+    title: str = "Admin List"
+    subtitle: str = ""
+    columns: Sequence[AdminListColumn | Mapping[str, object] | str] = field(default_factory=tuple)
+    rows: Sequence[AdminListRow | Mapping[str, object]] = field(default_factory=tuple)
+    filters: Sequence[DashboardFilter | Mapping[str, object]] = field(default_factory=tuple)
+    filter_fields: Sequence[AdminListFilterField | Mapping[str, object]] = field(default_factory=tuple)
+    filter_action: str = ""
+    filter_method: str = "get"
+    filter_submit_label: str = "Filter"
+    reset_href: str = ""
+    status_tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    pagination: AdminListPagination | Mapping[str, object] | None = None
+    empty_label: str = "No rows found."
+    row_label: str = "row"
+    table_label: str = ""
+    card_label: str = ""
+    mobile_card_primary_key: str = ""
+    mobile_card_secondary_key: str = ""
+
+
+@dataclass(frozen=True)
 class SettingsValidationMessage:
     message: str
     field_key: str = ""

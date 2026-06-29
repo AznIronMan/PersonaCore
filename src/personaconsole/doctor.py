@@ -38,6 +38,17 @@ _AVAILABILITY_MONITOR_EXPORTS = (
     "availability_monitor_feature_enabled",
     "render_availability_monitor_surface",
 )
+_ADMIN_LIST_EXPORTS = (
+    "ADMIN_LIST_FEATURE",
+    "AdminListCell",
+    "AdminListColumn",
+    "AdminListFilterField",
+    "AdminListPagination",
+    "AdminListRow",
+    "AdminListSurfaceConfig",
+    "admin_list_surface_feature_enabled",
+    "render_admin_list_surface",
+)
 _SURFACE_EXPORTS = (
     "ACTIVITY_FEATURE",
     "MEDIA_FEATURE",
@@ -326,6 +337,7 @@ def run_consumer_integration_doctor(
         module = importlib.import_module("personaconsole")
         checks.extend(_export_checks(module, "adapter_health_exports", _ADAPTER_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "availability_monitor_exports", _AVAILABILITY_MONITOR_EXPORTS))
+        checks.extend(_export_checks(module, "admin_list_exports", _ADMIN_LIST_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "surface_exports", _SURFACE_EXPORTS))
         checks.extend(_export_checks(module, "people_exports", _PEOPLE_EXPORTS))
@@ -342,6 +354,7 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "control_exports", _CONTROL_EXPORTS))
         checks.append(_adapter_health_render_check(module))
         checks.append(_availability_monitor_render_check(module))
+        checks.append(_admin_list_render_check(module))
         checks.append(_token_health_render_check(module))
         checks.append(_controls_render_check(module))
         checks.append(_surface_render_check(module))
@@ -580,6 +593,82 @@ def _availability_monitor_render_check(module: Any) -> DoctorCheck:
         and raw_url not in html
     )
     return _check(ok, "availability_monitor_render", "availability monitor renders schedule, policy, scenario, and redaction")
+
+
+def _admin_list_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-admin-list"
+    raw_url = "/doctor/private-admin-list"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_admin_list_surface(
+            module.AdminListSurfaceConfig(
+                enabled=True,
+                key="admin-list-doctor",
+                title="Generic List",
+                subtitle="Doctor smoke",
+                columns=[
+                    module.AdminListColumn("name", "Name", href="/list?sort=name", sortable=True, active=True, direction="asc"),
+                    module.AdminListColumn("status", "Status"),
+                    module.AdminListColumn("summary", "Summary"),
+                ],
+                status_tabs=[module.StatusTab("All", "/list", 2, active=True)],
+                filters=[module.DashboardFilter("Ready", "/list?status=ready", key="ready", active=True)],
+                filter_fields=[
+                    module.AdminListFilterField("q", "Search", "example", "search"),
+                    module.AdminListFilterField("status", "Status", "ready", "select", options=["ready", "held"]),
+                ],
+                filter_action="/list",
+                metrics=[module.DashboardMetric("Rows", 2, "/list", "visible", tone="good")],
+                actions=[module.SurfaceAction("Create", "/list/new", "good")],
+                rows=[
+                    module.AdminListRow(
+                        "public",
+                        cells=[
+                            module.AdminListCell("name", "Example row", href="/list/public"),
+                            module.AdminListCell("status", "ready", tone="good", badges=["configured"]),
+                            module.AdminListCell("summary", "Public row summary"),
+                        ],
+                        actions=[module.SurfaceAction("Open", "/list/public")],
+                    ),
+                    module.AdminListRow(
+                        "private",
+                        cells=[
+                            module.AdminListCell("name", "Private row"),
+                            module.AdminListCell("status", "held", tone="warn"),
+                            module.AdminListCell(
+                                "summary",
+                                raw_value,
+                                href=raw_url,
+                                privacy_scope="owner_private",
+                                safe_alternate="safe admin list summary",
+                            ),
+                        ],
+                    ),
+                ],
+                pagination=module.AdminListPagination(count=2, page=1, page_count=1),
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "admin_list_render", "admin list surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-admin-list-surface" in html
+        and "Generic List" in html
+        and "pc-admin-list-filter-form" in html
+        and "pc-admin-list-table" in html
+        and "pc-admin-list-cards" in html
+        and "safe admin list summary" in html
+        and "Page 1 of 1" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "admin_list_render", "generic admin list renders controls, rows, cards, and redaction")
 
 
 def _controls_render_check(module: Any) -> DoctorCheck:

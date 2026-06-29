@@ -334,6 +334,69 @@ HTML snapshots, JSON endpoints, database queries, and media/artifact byte
 routes must apply the same runtime policy before returning raw owner-private
 data.
 
+## Generic Admin List Surface
+
+The admin-list surface is a shared, opt-in renderer for dense runtime tables:
+filters, status tabs, metrics, sortable column links, row action slots,
+pagination, and mobile cards. The consuming runtime owns queries, auth, routes,
+mutations, persistence, and any private data policy.
+
+```python
+from personaconsole import (
+    ADMIN_LIST_FEATURE,
+    AdminListCell,
+    AdminListColumn,
+    AdminListFilterField,
+    AdminListPagination,
+    AdminListRow,
+    AdminListSurfaceConfig,
+    AdminPrivacyContext,
+    DashboardMetric,
+    OwnerPrivateScopePolicy,
+    StatusTab,
+    SurfaceAction,
+    render_admin_list_surface,
+)
+
+policy = OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+context = AdminPrivacyContext(access_tier="operator", viewer_person_key="operator")
+
+html = render_admin_list_surface(
+    AdminListSurfaceConfig(
+        enabled=True,
+        title="Runtime Rows",
+        columns=[
+            AdminListColumn("name", "Name", href="/items?sort=name", sortable=True),
+            AdminListColumn("status", "Status", align="center"),
+            AdminListColumn("summary", "Summary"),
+        ],
+        status_tabs=[StatusTab("All", "/items", 12, active=True)],
+        filter_fields=[AdminListFilterField("q", "Search", "", "search")],
+        metrics=[DashboardMetric("Visible", 12, "/items", "active filter")],
+        rows=[
+            AdminListRow(
+                "item-1",
+                cells=[
+                    AdminListCell("name", "Example row", href="/items/item-1"),
+                    AdminListCell("status", "ready", tone="good"),
+                    AdminListCell("summary", "Operator-visible summary"),
+                ],
+                actions=[SurfaceAction("Open", "/items/item-1")],
+            )
+        ],
+        pagination=AdminListPagination(count=12, page=1, page_count=2),
+    ),
+    features={ADMIN_LIST_FEATURE: True},
+    privacy_policy=policy,
+    privacy_context=context,
+)
+```
+
+Cells with `privacy_scope` use the same owner-private rendering contract as
+messages, media, people, and system audit rows. Operators receive safe
+alternates or withheld placeholders, and raw cell hrefs are stripped unless the
+viewer can see the private scope.
+
 ## People Surface
 
 The people surface is a shared, opt-in module for canonical person lists,
@@ -1054,11 +1117,11 @@ After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.28
+PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.29
 ```
 
 The doctor verifies that `personaconsole` and its legacy compatibility shims
-import, report the same version, expose adapter-health, availability-monitor, token-health,
+import, report the same version, expose adapter-health, availability-monitor, admin-list, token-health,
 owner-private, message/activity/media/people/review/journal/operations/bridge/
 terminal/persona-editor/command-intake/settings-editor/system-health helpers
 plus shared controls, and can render a generic shell plus redacted feature
