@@ -1246,13 +1246,17 @@ remediation policy.
 from personaconsole import (
     DashboardMetric,
     StatusTab,
+    SystemAuditFilterState,
     SystemAuditRow,
     SystemDatabaseCard,
     SystemHealthCheck,
     SystemHealthGroup,
     SystemHealthSurfaceConfig,
+    SystemPaginationState,
     SystemReadinessProbe,
     SystemSecretCoverageRow,
+    SystemSecretFilterState,
+    SystemSecretInventoryRow,
     SystemTableSummary,
     render_system_health_surface,
 )
@@ -1271,7 +1275,35 @@ html = render_system_health_surface(
         ],
         databases=[SystemDatabaseCard("runtime-db", "Runtime database", "degraded", database="runtime_db")],
         tables=[SystemTableSummary("audit_events", "stale", tone="warn", rows=41)],
-        secret_coverage=[SystemSecretCoverageRow("webhooks", "Webhook secrets", "missing", tone="warn", missing=1)],
+        secret_coverage=[
+            SystemSecretCoverageRow(
+                "webhooks",
+                "Webhook secrets",
+                "missing",
+                tone="warn",
+                missing=1,
+                section="webhooks",
+                source="runtime",
+                import_status="needs import",
+                last_checked="1m ago",
+            )
+        ],
+        secret_filters=SystemSecretFilterState(query="webhook", result_count=1, total_count=4, clear_href="/health/secrets"),
+        secret_rows=[
+            SystemSecretInventoryRow(
+                "webhook-token",
+                "Webhook token",
+                section="webhooks",
+                source="runtime",
+                status="missing",
+                tone="warn",
+                value_kind="secret",
+                present=False,
+                active=True,
+                summary="Key name and status only.",
+            )
+        ],
+        secret_pagination=SystemPaginationState(page=1, page_count=1, total=1, limit=25),
         readiness=[SystemReadinessProbe("launch", "Launch preflight", "ready", checked_at="09:00")],
         audit_rows=[
             SystemAuditRow(
@@ -1280,8 +1312,22 @@ html = render_system_health_surface(
                 summary="raw private audit text",
                 privacy_scope="owner_private",
                 safe_alternate="safe audit summary",
+                entity="runtime_settings",
+                source="admin_console",
             )
         ],
+        audit_filters=SystemAuditFilterState(
+            query="settings",
+            actor="operator",
+            action="update",
+            entity="runtime_settings",
+            source="admin_console",
+            status="held",
+            result_count=1,
+            total_count=12,
+            clear_href="/health/audit",
+        ),
+        audit_pagination=SystemPaginationState(page=1, page_count=2, total=12, limit=10, next_href="/health/audit?page=2"),
     ),
     privacy_policy=owner_private_policy,
     privacy_context=current_admin_context,
@@ -1292,6 +1338,12 @@ Consumers own the database inspection queries, migration checks, service probes,
 secret inventory, audit retention, remediation actions, and authorization. Pass
 only display-safe summaries unless owner-private redaction policy and safe
 alternates are supplied.
+
+Audit and secret filters are rendered as a public-safe summary of filters the
+consumer already applied. PersonaConsole does not parse query strings, fetch
+additional rows, read secret values, import credentials, or decide whether a
+secret can be revealed. Secret rows should carry key names, coverage status,
+source/import labels, and safe actions only.
 
 ## Shared Controls
 

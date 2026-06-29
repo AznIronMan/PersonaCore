@@ -183,13 +183,17 @@ from .models import (
     SettingsGroup,
     SettingsOption,
     SettingsValidationMessage,
+    SystemAuditFilterState,
     SystemAuditRow,
     SystemDatabaseCard,
     SystemHealthCheck,
     SystemHealthGroup,
     SystemHealthSurfaceConfig,
+    SystemPaginationState,
     SystemReadinessProbe,
     SystemSecretCoverageRow,
+    SystemSecretFilterState,
+    SystemSecretInventoryRow,
     SystemTableSummary,
     StatusTab,
     StatusPill,
@@ -502,13 +506,17 @@ __all__ = [
     "SettingsOption",
     "SettingsValidationMessage",
     "SYSTEM_HEALTH_FEATURE",
+    "SystemAuditFilterState",
     "SystemAuditRow",
     "SystemDatabaseCard",
     "SystemHealthCheck",
     "SystemHealthGroup",
     "SystemHealthSurfaceConfig",
+    "SystemPaginationState",
     "SystemReadinessProbe",
     "SystemSecretCoverageRow",
+    "SystemSecretFilterState",
+    "SystemSecretInventoryRow",
     "SystemTableSummary",
     "StatusTab",
     "StatusPill",
@@ -636,7 +644,7 @@ __all__ = [
     "WorkerScheduleRow",
 ]
 
-__version__ = "1.0.34"
+__version__ = "1.0.35"
 
 
 def configure_jinja_loader(*args, **kwargs):

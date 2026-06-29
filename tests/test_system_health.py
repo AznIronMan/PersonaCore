@@ -6,13 +6,17 @@ from personaconsole import (
     StatusTab,
     SurfaceAction,
     SurfaceBadge,
+    SystemAuditFilterState,
     SystemAuditRow,
     SystemDatabaseCard,
     SystemHealthCheck,
     SystemHealthGroup,
     SystemHealthSurfaceConfig,
+    SystemPaginationState,
     SystemReadinessProbe,
     SystemSecretCoverageRow,
+    SystemSecretFilterState,
+    SystemSecretInventoryRow,
     SystemTableSummary,
     render_system_health_surface,
     system_health_surface_feature_enabled,
@@ -89,15 +93,93 @@ def _config() -> SystemHealthSurfaceConfig:
             SystemTableSummary("audit_events", "stale", "warn", "current", 41, "admin", "1h ago", "freshness threshold exceeded"),
         ],
         secret_coverage=[
-            SystemSecretCoverageRow("providers", "Provider secrets", "configured", "good", present=3, missing=0, required=3),
-            SystemSecretCoverageRow("webhooks", "Webhook secrets", "missing", "warn", present=2, missing=1, required=2, optional=2),
+            SystemSecretCoverageRow(
+                "providers",
+                "Provider secrets",
+                "configured",
+                "good",
+                section="providers",
+                source="runtime",
+                configured=3,
+                present=3,
+                missing=0,
+                required=3,
+                import_status="imported",
+                last_checked="1m ago",
+            ),
+            SystemSecretCoverageRow(
+                "webhooks",
+                "Webhook secrets",
+                "missing",
+                "warn",
+                section="webhooks",
+                source="private file",
+                present=2,
+                missing=1,
+                required=2,
+                optional=2,
+                import_status="needs import",
+                last_checked="4m ago",
+            ),
         ],
+        secret_filters=SystemSecretFilterState(
+            query="provider",
+            section="providers",
+            source="runtime",
+            present="true",
+            result_count=1,
+            total_count=2,
+            clear_href="/health/secrets",
+            summary="Secret values stay out of the shared surface.",
+        ),
+        secret_rows=[
+            SystemSecretInventoryRow(
+                "provider-token",
+                "Provider token",
+                section="providers",
+                source="runtime",
+                status="configured",
+                tone="good",
+                value_kind="secret",
+                present=True,
+                active=True,
+                import_status="imported",
+                last_checked="1m ago",
+                summary="Key name only.",
+                href="/health/secrets?scope=providers",
+            ),
+            SystemSecretInventoryRow(
+                "webhook-token",
+                "Webhook token",
+                section="webhooks",
+                source="private file",
+                status="missing",
+                tone="warn",
+                value_kind="secret",
+                present=False,
+                active=True,
+                import_status="pending",
+                last_checked="4m ago",
+            ),
+        ],
+        secret_pagination=SystemPaginationState(page=1, page_count=2, total=2, limit=1, next_href="/health/secrets?page=2"),
         readiness=[
             SystemReadinessProbe("launch", "Launch preflight", "ready", "good", "Required checks passed.", checked_at="09:00"),
             SystemReadinessProbe("token-scan", "Token scan", "blocked", "bad", "Manual pass required.", checked_at="09:05"),
         ],
         audit_rows=[
-            SystemAuditRow("normal", "Settings update", "changed", "operator", "applied", "09:10", "Interval changed.", tone="info"),
+            SystemAuditRow(
+                "normal",
+                "Settings update",
+                "changed",
+                "operator",
+                "applied",
+                "09:10",
+                "Interval changed.",
+                tone="info",
+                entity="persona_state",
+                source="admin_console",
+            ),
             SystemAuditRow(
                 "private-audit",
                 "Owner-private audit",
@@ -110,8 +192,25 @@ def _config() -> SystemHealthSurfaceConfig:
                 href="/audit/private-raw",
                 privacy_scope="owner_private",
                 safe_alternate="safe system audit summary",
+                entity="owner-private-state",
+                source="admin_console",
             ),
         ],
+        audit_filters=SystemAuditFilterState(
+            query="settings",
+            actor="operator",
+            action="changed",
+            entity="persona_state",
+            source="admin_console",
+            status="applied",
+            date_from="2026-06-01",
+            date_to="2026-06-29",
+            result_count=2,
+            total_count=41,
+            clear_href="/health/audit",
+            summary="Payload values stay hidden.",
+        ),
+        audit_pagination=SystemPaginationState(page=1, page_count=3, total=41, limit=20, next_href="/health/audit?page=2"),
         actions=[SurfaceAction("Refresh", "/health/refresh", "info", method="post")],
     )
 
@@ -136,9 +235,17 @@ def test_system_health_surface_renders_dense_public_safe_posture():
     assert "audit_events" in html
     assert "Secret Coverage" in html
     assert "Webhook secrets" in html
+    assert "Values are never rendered here." in html
+    assert "Secret Rows" in html
+    assert "Provider token" in html
+    assert "Showing 1 of 2 secret rows" in html
     assert "Readiness" in html
     assert "Token scan" in html
     assert "Audit Events" in html
+    assert "persona_state" in html
+    assert "Showing 2 of 41 audit events" in html
+    assert "Payload values stay hidden." in html
+    assert "pc-system-mobile-cards" in html
     assert "safe system audit summary" in html
     assert "raw private system audit" not in html
     assert "/audit/private-raw" not in html

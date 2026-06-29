@@ -37,6 +37,10 @@ def test_personaconsole_is_canonical_api():
     assert personaconsole.TERMINAL_STREAM_FEATURE == "terminal_stream"
     assert personaconsole.SETTINGS_EDITOR_FEATURE == "settings_editor"
     assert personaconsole.SYSTEM_HEALTH_FEATURE == "system_health"
+    assert personaconsole.SystemAuditFilterState
+    assert personaconsole.SystemSecretFilterState
+    assert personaconsole.SystemSecretInventoryRow
+    assert personaconsole.SystemPaginationState
     assert "PersonaConsoleConfig" in personaconsole.__all__
     assert "PersonaCoreConfig" in personaconsole.__all__
     assert "render_public_splash_page" in personaconsole.__all__
@@ -84,6 +88,10 @@ def test_legacy_import_shims_reexport_canonical_api():
         assert legacy.render_terminal_stream is personaconsole.render_terminal_stream
         assert legacy.render_settings_editor is personaconsole.render_settings_editor
         assert legacy.render_system_health_surface is personaconsole.render_system_health_surface
+        assert legacy.SystemAuditFilterState is personaconsole.SystemAuditFilterState
+        assert legacy.SystemSecretFilterState is personaconsole.SystemSecretFilterState
+        assert legacy.SystemSecretInventoryRow is personaconsole.SystemSecretInventoryRow
+        assert legacy.SystemPaginationState is personaconsole.SystemPaginationState
         assert legacy.render_private_text is personaconsole.render_private_text
 
 
@@ -140,4 +148,4 @@ def test_public_package_metadata_matches_runtime_version():
     pyproject = tomllib.loads(Path("pyproject.toml").read_text())
 
     assert pyproject["project"]["name"] == "personaconsole"
-    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.34"
+    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.35"

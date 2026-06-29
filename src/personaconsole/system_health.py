@@ -10,13 +10,17 @@ from .models import (
     StatusTab,
     SurfaceAction,
     SurfaceBadge,
+    SystemAuditFilterState,
     SystemAuditRow,
     SystemDatabaseCard,
     SystemHealthCheck,
     SystemHealthGroup,
     SystemHealthSurfaceConfig,
+    SystemPaginationState,
     SystemReadinessProbe,
     SystemSecretCoverageRow,
+    SystemSecretFilterState,
+    SystemSecretInventoryRow,
     SystemTableSummary,
 )
 from .privacy import (
@@ -189,6 +193,127 @@ def _actions_html(actions: Sequence[SurfaceAction | Mapping[str, object]]) -> st
     return f'<div class="pc-system-actions">{body}</div>' if body else ""
 
 
+def _filter_chip_html(label: str, value: object) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return (
+        '<span class="pc-system-filter-chip">'
+        f'<b>{escape(str(label))}</b><span>{escape(text)}</span></span>'
+    )
+
+
+def _filter_count_html(result_count: object, total_count: object, item_label: str) -> str:
+    has_result = result_count not in (None, "")
+    has_total = total_count not in (None, "")
+    if not has_result and not has_total:
+        return ""
+    result = str(result_count if has_result else total_count)
+    total = str(total_count if has_total else result_count)
+    if has_result and has_total:
+        text = f"Showing {result} of {total} {item_label}"
+    else:
+        text = f"{result} {item_label}"
+    return f'<strong>{escape(text)}</strong>'
+
+
+def _audit_filter_summary_html(raw_filters: SystemAuditFilterState | Mapping[str, object] | None) -> str:
+    if not raw_filters:
+        return ""
+    filters = _coerce(raw_filters, SystemAuditFilterState)
+    chips = "".join(
+        _filter_chip_html(label, value)
+        for label, value in (
+            ("Search", filters.query),
+            ("Actor", filters.actor),
+            ("Action", filters.action),
+            ("Entity", filters.entity),
+            ("Source", filters.source),
+            ("Status", filters.status),
+            ("From", filters.date_from),
+            ("To", filters.date_to),
+        )
+    )
+    count = _filter_count_html(filters.result_count, filters.total_count, "audit events")
+    summary = f'<p>{escape(str(filters.summary))}</p>' if filters.summary else ""
+    clear = (
+        f'<a class="pc-system-action" href="{escape(str(filters.clear_href), quote=True)}">Clear</a>'
+        if filters.clear_href
+        else ""
+    )
+    if not any((chips, count, summary, clear)):
+        return ""
+    return (
+        '<div class="pc-system-filter-summary" data-system-filter="audit">'
+        f'<div>{count}{summary}<div class="pc-system-filter-chips">{chips}</div></div>{clear}</div>'
+    )
+
+
+def _secret_filter_summary_html(raw_filters: SystemSecretFilterState | Mapping[str, object] | None) -> str:
+    if not raw_filters:
+        return ""
+    filters = _coerce(raw_filters, SystemSecretFilterState)
+    chips = "".join(
+        _filter_chip_html(label, value)
+        for label, value in (
+            ("Search", filters.query),
+            ("Section", filters.section),
+            ("Source", filters.source),
+            ("Status", filters.status),
+            ("Import", filters.import_status),
+            ("Present", filters.present),
+            ("Active", filters.active),
+        )
+    )
+    count = _filter_count_html(filters.result_count, filters.total_count, "secret rows")
+    summary = f'<p>{escape(str(filters.summary))}</p>' if filters.summary else ""
+    clear = (
+        f'<a class="pc-system-action" href="{escape(str(filters.clear_href), quote=True)}">Clear</a>'
+        if filters.clear_href
+        else ""
+    )
+    if not any((chips, count, summary, clear)):
+        return ""
+    return (
+        '<div class="pc-system-filter-summary" data-system-filter="secrets">'
+        f'<div>{count}{summary}<div class="pc-system-filter-chips">{chips}</div></div>{clear}</div>'
+    )
+
+
+def _pagination_html(raw_pagination: SystemPaginationState | Mapping[str, object] | None, default_label: str) -> str:
+    if not raw_pagination:
+        return ""
+    pagination = _coerce(raw_pagination, SystemPaginationState)
+    page_bits = []
+    if pagination.page not in (None, ""):
+        if pagination.page_count not in (None, ""):
+            page_bits.append(f"Page {pagination.page} of {pagination.page_count}")
+        else:
+            page_bits.append(f"Page {pagination.page}")
+    if pagination.total not in (None, ""):
+        page_bits.append(f"{pagination.total} total")
+    if pagination.limit not in (None, ""):
+        page_bits.append(f"{pagination.limit} per page")
+    label = str(pagination.label or default_label)
+    summary = " · ".join(str(bit) for bit in page_bits if str(bit).strip())
+    if not any((summary, pagination.previous_href, pagination.next_href)):
+        return ""
+    previous = (
+        f'<a class="pc-system-action" href="{escape(str(pagination.previous_href), quote=True)}">Previous</a>'
+        if pagination.previous_href
+        else '<span class="pc-system-action is-disabled" aria-disabled="true">Previous</span>'
+    )
+    next_link = (
+        f'<a class="pc-system-action" href="{escape(str(pagination.next_href), quote=True)}">Next</a>'
+        if pagination.next_href
+        else '<span class="pc-system-action is-disabled" aria-disabled="true">Next</span>'
+    )
+    return (
+        f'<nav class="pc-system-pagination" aria-label="{escape(label, quote=True)}">'
+        f'<span>{escape(summary)}</span><div class="pc-system-actions">{previous}{next_link}</div></nav>'
+    )
+
+
 def system_health_surface_feature_enabled(
     config: SystemHealthSurfaceConfig | Mapping[str, object],
     features: Mapping[str, bool] | None = None,
@@ -311,27 +436,141 @@ def _table_html(rows: Sequence[SystemTableSummary | Mapping[str, object]]) -> st
     )
 
 
+def _secret_metric_value(row: SystemSecretCoverageRow, field_name: str) -> object:
+    value = getattr(row, field_name)
+    if field_name == "configured" and value == "":
+        return row.present
+    return value
+
+
+def _secret_group_key(row: SystemSecretCoverageRow) -> str:
+    section = str(row.section or "").strip()
+    source = str(row.source or "").strip()
+    if section and source:
+        return f"{section} / {source}"
+    return section or source or "Coverage"
+
+
+def _secret_coverage_card_html(raw_row: SystemSecretCoverageRow | Mapping[str, object]) -> str:
+    row = _coerce(raw_row, SystemSecretCoverageRow, {"key": "secret", "label": "Secret coverage"})
+    tone = _tone(row.tone or row.status)
+    metrics = "".join(
+        f'<span><b>{label}</b>{escape(str(value))}</span>'
+        for label, value in (
+            ("Configured", _secret_metric_value(row, "configured")),
+            ("Missing", row.missing),
+            ("Required", row.required),
+            ("Optional", row.optional),
+        )
+        if value != ""
+    )
+    meta = "".join(
+        f'<span><b>{label}</b>{escape(str(value))}</span>'
+        for label, value in (
+            ("Section", row.section),
+            ("Source", row.source),
+            ("Import", row.import_status),
+            ("Checked", row.last_checked),
+        )
+        if value != ""
+    )
+    meta_html = f'<div class="pc-system-card-grid pc-system-card-meta">{meta}</div>' if meta else ""
+    no_reveal = (
+        f'<small class="pc-system-no-reveal">{escape(str(row.no_reveal_label))}</small>'
+        if row.no_reveal_label
+        else ""
+    )
+    body = (
+        '<div class="pc-system-card-head">'
+        f'<strong>{escape(str(row.label))}</strong>'
+        f'<span class="pc-surface-status pc-dashboard-tone-{tone}">{escape(str(row.status))}</span></div>'
+        f'<p>{escape(str(row.summary))}</p><div class="pc-system-card-grid">{metrics}</div>{meta_html}{no_reveal}'
+        f'{_badges_html(row.badges)}{_actions_html(row.actions)}'
+    )
+    cls = f"pc-system-card pc-system-secret pc-dashboard-tone-{tone}"
+    return f'<a class="{cls}" href="{escape(row.href, quote=True)}">{body}</a>' if row.href else f'<article class="{cls}">{body}</article>'
+
+
 def _secret_html(rows: Sequence[SystemSecretCoverageRow | Mapping[str, object]]) -> str:
     if not rows:
         return ""
-    cards = []
+    groups: dict[str, list[str]] = {}
     for raw_row in rows:
         row = _coerce(raw_row, SystemSecretCoverageRow, {"key": "secret", "label": "Secret coverage"})
+        groups.setdefault(_secret_group_key(row), []).append(_secret_coverage_card_html(row))
+    grouped = ""
+    for group_label, cards in groups.items():
+        title = "" if group_label == "Coverage" and len(groups) == 1 else f'<div class="pc-system-group-label">{escape(group_label)}</div>'
+        grouped += f'<div class="pc-system-secret-group">{title}<div class="pc-system-card-grid-wrap">{"".join(cards)}</div></div>'
+    return f'<section class="pc-system-section"><div class="pc-dashboard-section-title">Secret Coverage</div>{grouped}</section>'
+
+
+def _state_label(value: object, *, true_label: str, false_label: str) -> str:
+    if isinstance(value, bool):
+        return true_label if value else false_label
+    raw = str(value or "").strip()
+    if raw.lower() in {"true", "yes", "1"}:
+        return true_label
+    if raw.lower() in {"false", "no", "0"}:
+        return false_label
+    return raw
+
+
+def _secret_inventory_summary(row: SystemSecretInventoryRow) -> str:
+    parts = [str(part).strip() for part in (row.summary, row.import_status, row.last_checked) if str(part or "").strip()]
+    return " · ".join(parts)
+
+
+def _secret_rows_html(
+    rows: Sequence[SystemSecretInventoryRow | Mapping[str, object]],
+    *,
+    filters: SystemSecretFilterState | Mapping[str, object] | None,
+    pagination: SystemPaginationState | Mapping[str, object] | None,
+) -> str:
+    if not rows and not filters and not pagination:
+        return ""
+    body = ""
+    cards = ""
+    for raw_row in rows:
+        row = _coerce(raw_row, SystemSecretInventoryRow, {"key": "secret"})
         tone = _tone(row.tone or row.status)
-        metrics = "".join(
-            f'<span><b>{label}</b>{escape(str(value))}</span>'
-            for label, value in (("Present", row.present), ("Missing", row.missing), ("Required", row.required), ("Optional", row.optional))
-            if value != ""
+        label = row.label or row.key
+        name = f'<a href="{escape(row.href, quote=True)}">{escape(str(label))}</a>' if row.href else escape(str(label))
+        present = _state_label(row.present, true_label="present", false_label="missing")
+        active = _state_label(row.active, true_label="active", false_label="inactive")
+        summary = _secret_inventory_summary(row)
+        body += (
+            f'<tr class="pc-dashboard-tone-{tone}"><td>{name}</td><td>{escape(str(row.section))}</td>'
+            f'<td>{escape(str(row.source))}</td><td>{escape(str(row.status))}</td><td>{escape(str(row.value_kind))}</td>'
+            f'<td>{escape(present)}</td><td>{escape(active)}</td><td>{escape(str(row.import_status))}</td>'
+            f'<td>{escape(str(row.last_checked))}</td><td>{escape(summary)}{_badges_html(row.badges)}{_actions_html(row.actions)}</td></tr>'
         )
-        body = (
-            '<div class="pc-system-card-head">'
-            f'<strong>{escape(str(row.label))}</strong>'
-            f'<span class="pc-surface-status pc-dashboard-tone-{tone}">{escape(str(row.status))}</span></div>'
-            f'<p>{escape(str(row.summary))}</p><div class="pc-system-card-grid">{metrics}</div>{_badges_html(row.badges)}{_actions_html(row.actions)}'
+        cards += (
+            f'<article class="pc-system-compact-card pc-dashboard-tone-{tone}">'
+            f'<div class="pc-system-card-head"><strong>{name}</strong><span class="pc-surface-status pc-dashboard-tone-{tone}">{escape(str(row.status))}</span></div>'
+            '<dl>'
+            f'<div><dt>Section</dt><dd>{escape(str(row.section))}</dd></div>'
+            f'<div><dt>Source</dt><dd>{escape(str(row.source))}</dd></div>'
+            f'<div><dt>Kind</dt><dd>{escape(str(row.value_kind))}</dd></div>'
+            f'<div><dt>Present</dt><dd>{escape(present)}</dd></div>'
+            f'<div><dt>Active</dt><dd>{escape(active)}</dd></div>'
+            f'<div><dt>Checked</dt><dd>{escape(str(row.last_checked))}</dd></div>'
+            '</dl>'
+            f'<p>{escape(summary)}</p>{_badges_html(row.badges)}{_actions_html(row.actions)}'
+            '</article>'
         )
-        cls = f"pc-system-card pc-system-secret pc-dashboard-tone-{tone}"
-        cards.append(f'<a class="{cls}" href="{escape(row.href, quote=True)}">{body}</a>' if row.href else f'<article class="{cls}">{body}</article>')
-    return f'<section class="pc-system-section"><div class="pc-dashboard-section-title">Secret Coverage</div><div class="pc-system-card-grid-wrap">{"".join(cards)}</div></section>'
+    if not body:
+        body = '<tr><td colspan="10">No secret rows matched.</td></tr>'
+    table = (
+        '<div class="pc-system-table-wrap is-compactable"><table class="pc-system-table">'
+        '<thead><tr><th>Secret</th><th>Section</th><th>Source</th><th>Status</th><th>Kind</th><th>Present</th><th>Active</th><th>Import</th><th>Checked</th><th>Summary</th></tr></thead>'
+        f'<tbody>{body}</tbody></table></div>'
+    )
+    cards_html = f'<div class="pc-system-mobile-cards">{cards}</div>' if cards else ""
+    return (
+        '<section class="pc-system-section"><div class="pc-dashboard-section-title">Secret Rows</div>'
+        f'{_secret_filter_summary_html(filters)}{table}{cards_html}{_pagination_html(pagination, "Secret rows pagination")}</section>'
+    )
 
 
 def _readiness_html(rows: Sequence[SystemReadinessProbe | Mapping[str, object]]) -> str:
@@ -355,12 +594,15 @@ def _readiness_html(rows: Sequence[SystemReadinessProbe | Mapping[str, object]])
 def _audit_html(
     rows: Sequence[SystemAuditRow | Mapping[str, object]],
     *,
+    filters: SystemAuditFilterState | Mapping[str, object] | None,
+    pagination: SystemPaginationState | Mapping[str, object] | None,
     policy: OwnerPrivateScopePolicy | None,
     context: AdminPrivacyContext | Mapping[str, Any] | None,
 ) -> str:
-    if not rows:
+    if not rows and not filters and not pagination:
         return ""
     body = ""
+    cards = ""
     for raw_row in rows:
         row = _coerce(raw_row, SystemAuditRow, {"key": "audit", "label": "Audit"})
         tone = _tone(row.tone or row.status)
@@ -370,14 +612,32 @@ def _audit_html(
         label = f'<a href="{escape(href, quote=True)}">{escape(str(row.label))}</a>' if href else escape(str(row.label))
         body += (
             f'<tr class="pc-dashboard-tone-{tone}{private}"><td>{label}</td><td>{escape(str(row.action))}</td>'
-            f'<td>{escape(str(row.actor))}</td><td>{escape(str(row.status))}</td><td>{escape(str(row.timestamp))}</td>'
+            f'<td>{escape(str(row.actor))}</td><td>{escape(str(row.entity))}</td><td>{escape(str(row.source))}</td>'
+            f'<td>{escape(str(row.status))}</td><td>{escape(str(row.timestamp))}</td>'
             f'<td>{escape(summary)}{_badges_html(row.badges)}{_actions_html(row.actions)}</td></tr>'
         )
+        cards += (
+            f'<article class="pc-system-compact-card pc-dashboard-tone-{tone}{private}">'
+            f'<div class="pc-system-card-head"><strong>{label}</strong><span class="pc-surface-status pc-dashboard-tone-{tone}">{escape(str(row.status))}</span></div>'
+            '<dl>'
+            f'<div><dt>Action</dt><dd>{escape(str(row.action))}</dd></div>'
+            f'<div><dt>Actor</dt><dd>{escape(str(row.actor))}</dd></div>'
+            f'<div><dt>Entity</dt><dd>{escape(str(row.entity))}</dd></div>'
+            f'<div><dt>Source</dt><dd>{escape(str(row.source))}</dd></div>'
+            f'<div><dt>Time</dt><dd>{escape(str(row.timestamp))}</dd></div>'
+            '</dl>'
+            f'<p>{escape(summary)}</p>{_badges_html(row.badges)}{_actions_html(row.actions)}'
+            '</article>'
+        )
+    if not body:
+        body = '<tr><td colspan="8">No audit rows matched.</td></tr>'
+    cards_html = f'<div class="pc-system-mobile-cards">{cards}</div>' if cards else ""
     return (
         '<section class="pc-system-section"><div class="pc-dashboard-section-title">Audit Events</div>'
-        '<div class="pc-system-table-wrap"><table class="pc-system-table">'
-        '<thead><tr><th>Event</th><th>Action</th><th>Actor</th><th>Status</th><th>Time</th><th>Summary</th></tr></thead>'
-        f'<tbody>{body}</tbody></table></div></section>'
+        f'{_audit_filter_summary_html(filters)}'
+        '<div class="pc-system-table-wrap is-compactable"><table class="pc-system-table">'
+        '<thead><tr><th>Event</th><th>Action</th><th>Actor</th><th>Entity</th><th>Source</th><th>Status</th><th>Time</th><th>Summary</th></tr></thead>'
+        f'<tbody>{body}</tbody></table></div>{cards_html}{_pagination_html(pagination, "Audit events pagination")}</section>'
     )
 
 
@@ -404,8 +664,9 @@ def render_system_health_surface(
             _database_cards_html(model.databases),
             _table_html(model.tables),
             _secret_html(model.secret_coverage),
+            _secret_rows_html(model.secret_rows, filters=model.secret_filters, pagination=model.secret_pagination),
             _readiness_html(model.readiness),
-            _audit_html(model.audit_rows, policy=privacy_policy, context=privacy_context),
+            _audit_html(model.audit_rows, filters=model.audit_filters, pagination=model.audit_pagination, policy=privacy_policy, context=privacy_context),
         ]
     )
     if not body:

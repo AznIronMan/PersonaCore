@@ -1006,6 +1006,8 @@ class SystemAuditRow:
     safe_alternate: str = ""
     badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
     actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    entity: str = ""
+    source: str = ""
 
 
 @dataclass(frozen=True)
@@ -1022,6 +1024,73 @@ class SystemSecretCoverageRow:
     href: str = ""
     badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
     actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    section: str = ""
+    source: str = ""
+    configured: str | int = ""
+    import_status: str = ""
+    last_checked: str = ""
+    no_reveal_label: str = "Values are never rendered here."
+
+
+@dataclass(frozen=True)
+class SystemSecretInventoryRow:
+    key: str
+    label: str = ""
+    section: str = ""
+    source: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    value_kind: str = ""
+    present: str | bool = ""
+    active: str | bool = ""
+    import_status: str = ""
+    last_checked: str = ""
+    summary: str = ""
+    href: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class SystemAuditFilterState:
+    query: str = ""
+    actor: str = ""
+    action: str = ""
+    entity: str = ""
+    source: str = ""
+    status: str = ""
+    date_from: str = ""
+    date_to: str = ""
+    result_count: str | int = ""
+    total_count: str | int = ""
+    clear_href: str = ""
+    summary: str = ""
+
+
+@dataclass(frozen=True)
+class SystemSecretFilterState:
+    query: str = ""
+    section: str = ""
+    source: str = ""
+    status: str = ""
+    import_status: str = ""
+    present: str = ""
+    active: str = ""
+    result_count: str | int = ""
+    total_count: str | int = ""
+    clear_href: str = ""
+    summary: str = ""
+
+
+@dataclass(frozen=True)
+class SystemPaginationState:
+    page: str | int = ""
+    page_count: str | int = ""
+    total: str | int = ""
+    limit: str | int = ""
+    previous_href: str = ""
+    next_href: str = ""
+    label: str = ""
 
 
 @dataclass(frozen=True)
@@ -1052,7 +1121,12 @@ class SystemHealthSurfaceConfig:
     databases: Sequence[SystemDatabaseCard | Mapping[str, object]] = field(default_factory=tuple)
     tables: Sequence[SystemTableSummary | Mapping[str, object]] = field(default_factory=tuple)
     audit_rows: Sequence[SystemAuditRow | Mapping[str, object]] = field(default_factory=tuple)
+    audit_filters: SystemAuditFilterState | Mapping[str, object] | None = None
+    audit_pagination: SystemPaginationState | Mapping[str, object] | None = None
     secret_coverage: Sequence[SystemSecretCoverageRow | Mapping[str, object]] = field(default_factory=tuple)
+    secret_rows: Sequence[SystemSecretInventoryRow | Mapping[str, object]] = field(default_factory=tuple)
+    secret_filters: SystemSecretFilterState | Mapping[str, object] | None = None
+    secret_pagination: SystemPaginationState | Mapping[str, object] | None = None
     readiness: Sequence[SystemReadinessProbe | Mapping[str, object]] = field(default_factory=tuple)
     actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
     empty_label: str = "No system posture data configured."

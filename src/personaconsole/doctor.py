@@ -247,13 +247,17 @@ _SETTINGS_EDITOR_EXPORTS = (
 )
 _SYSTEM_HEALTH_EXPORTS = (
     "SYSTEM_HEALTH_FEATURE",
+    "SystemAuditFilterState",
     "SystemAuditRow",
     "SystemDatabaseCard",
     "SystemHealthCheck",
     "SystemHealthGroup",
     "SystemHealthSurfaceConfig",
+    "SystemPaginationState",
     "SystemReadinessProbe",
     "SystemSecretCoverageRow",
+    "SystemSecretFilterState",
+    "SystemSecretInventoryRow",
     "SystemTableSummary",
     "render_system_health_surface",
     "system_health_surface_feature_enabled",
@@ -2023,8 +2027,37 @@ def _system_health_render_check(module: Any) -> DoctorCheck:
                     module.SystemTableSummary("audit_events", "stale", tone="warn", schema="current", rows=41, owner="admin", updated="1h ago"),
                 ],
                 secret_coverage=[
-                    module.SystemSecretCoverageRow("providers", "Provider secrets", "missing", tone="warn", present=3, missing=1, required=4),
+                    module.SystemSecretCoverageRow(
+                        "providers",
+                        "Provider secrets",
+                        "missing",
+                        tone="warn",
+                        present=3,
+                        missing=1,
+                        required=4,
+                        section="providers",
+                        source="runtime",
+                        import_status="needs import",
+                        last_checked="1m ago",
+                    ),
                 ],
+                secret_filters=module.SystemSecretFilterState(query="provider", section="providers", result_count=1, total_count=2, clear_href="/system/secrets"),
+                secret_rows=[
+                    module.SystemSecretInventoryRow(
+                        "provider-token",
+                        "Provider token",
+                        section="providers",
+                        source="runtime",
+                        status="configured",
+                        tone="good",
+                        value_kind="secret",
+                        present=True,
+                        active=True,
+                        import_status="imported",
+                        last_checked="1m ago",
+                    )
+                ],
+                secret_pagination=module.SystemPaginationState(page=1, page_count=2, total=2, limit=1, next_href="/system/secrets?page=2"),
                 readiness=[
                     module.SystemReadinessProbe("schema", "Schema migration", "ready", checked_at="09:00"),
                     module.SystemReadinessProbe("token-scan", "Token scan", "blocked", tone="bad", summary="manual pass required", checked_at="09:01"),
@@ -2041,8 +2074,22 @@ def _system_health_render_check(module: Any) -> DoctorCheck:
                         href=raw_url,
                         privacy_scope="owner_private",
                         safe_alternate="safe system audit summary",
+                        entity="settings",
+                        source="admin_console",
                     )
                 ],
+                audit_filters=module.SystemAuditFilterState(
+                    query="private",
+                    actor="operator",
+                    action="update",
+                    entity="settings",
+                    source="admin_console",
+                    status="held",
+                    result_count=1,
+                    total_count=4,
+                    clear_href="/system/audit",
+                ),
+                audit_pagination=module.SystemPaginationState(page=1, page_count=1, total=1, limit=20),
             ),
             privacy_policy=policy,
             privacy_context=operator,
@@ -2053,8 +2100,12 @@ def _system_health_render_check(module: Any) -> DoctorCheck:
         "pc-system-health-surface" in html
         and "Runtime database" in html
         and "Secret Coverage" in html
+        and "Values are never rendered here." in html
+        and "Secret Rows" in html
+        and "Showing 1 of 2 secret rows" in html
         and "Schema And Tables" in html
         and "Readiness" in html
+        and "Showing 1 of 4 audit events" in html
         and "safe system audit summary" in html
         and raw_value not in html
         and raw_url not in html

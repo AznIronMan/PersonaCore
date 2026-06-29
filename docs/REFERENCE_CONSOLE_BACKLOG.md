@@ -119,7 +119,9 @@ screenshots, data, and runtime policy stay outside the public repo.
   Initial typed renderer shipped in PersonaConsole `1.0.23`.
 - System health/database/audit surface with runtime check groups, database
   cards, table summaries, secret coverage, readiness probes, and owner-private
-  audit rows. Initial typed renderer shipped in PersonaConsole `1.0.24`.
+  audit rows. Initial typed renderer shipped in PersonaConsole `1.0.24`;
+  audit/secret filter summaries, pagination, grouped secret coverage, import
+  labels, and compact mobile cards shipped in PersonaConsole `1.0.35`.
 - Persona runtime, continuity, bridge, and agent-session posture panels.
   Initial typed public-safe renderers shipped in PersonaConsole `1.0.17`.
 - Persona profile, trait, rule, mutable-state, proposal, and change-history

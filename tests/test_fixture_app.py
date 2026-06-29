@@ -183,6 +183,10 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "System Health" in html
     assert "Runtime database" in html
     assert "Secret Coverage" in html
+    assert "Secret Rows" in html
+    assert "Showing 1 of 2 secret rows" in html
+    assert "Showing 2 of 41 audit events" in html
+    assert "Audit payload values are summarized before rendering." in html
     assert "Readiness" in html
     assert "Owner-private system audit summarized for operators." in html
     assert "raw fixture private system audit" not in html
