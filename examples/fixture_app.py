@@ -26,6 +26,7 @@ from personaconsole import (
     SETTINGS_EDITOR_FEATURE,
     SYSTEM_HEALTH_FEATURE,
     TERMINAL_STREAM_FEATURE,
+    WORKER_OPERATIONS_FEATURE,
     ActivityEvent,
     ActivitySurfaceConfig,
     AgentOpsSurfaceConfig,
@@ -162,6 +163,15 @@ from personaconsole import (
     TokenHealthCheck,
     TokenHealthConfig,
     UserPill,
+    WorkerControlActionSlot,
+    WorkerDeadLetterRow,
+    WorkerDryRunCandidate,
+    WorkerOperationsSurfaceConfig,
+    WorkerProcessEvent,
+    WorkerReadinessRow,
+    WorkerRollbackCandidate,
+    WorkerRunTelemetryRow,
+    WorkerScheduleRow,
     build_journal_calendar,
     journal_theme_options,
     public_theme_options,
@@ -186,6 +196,7 @@ from personaconsole import (
     render_status_tabs,
     render_surface_sections,
     render_system_health_surface,
+    render_worker_operations_surface,
     render_workflow_sections,
 )
 
@@ -391,6 +402,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             SETTINGS_EDITOR_FEATURE: True,
             SYSTEM_HEALTH_FEATURE: True,
             PUBLIC_PRESENCE_FEATURE: True,
+            WORKER_OPERATIONS_FEATURE: True,
         },
         nav_groups=[
             NavGroup(
@@ -418,6 +430,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
                     NavItem("Journal", "/journal", active="journal", badge="journal", feature=JOURNAL_FEATURE),
                     NavItem("Availability", "/availability", active="availability", badge="availability", feature=AVAILABILITY_MONITOR_FEATURE),
                     NavItem("Operations", "/operations", active="operations", badge="tasks", feature=OPERATIONS_FEATURE),
+                    NavItem("Workers", "/workers", active="workers", badge="workers", feature=WORKER_OPERATIONS_FEATURE),
                     NavItem("Commands", "/commands", active="commands", badge="commands", feature=COMMAND_INTAKE_FEATURE),
                     NavItem("Persona", "/persona", active="persona", badge="persona", feature=PERSONA_RUNTIME_FEATURE),
                     NavItem("Persona Editor", "/persona/editor", active="persona-editor", feature=PERSONA_EDITOR_FEATURE),
@@ -445,6 +458,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             "journal": 5,
             "availability": 2,
             "tasks": 6,
+            "workers": 2,
             "commands": 3,
             "persona": 2,
             "agent_ops": 3,
@@ -462,7 +476,7 @@ def build_fixture_config(*, static_base_url: str = "/persona-console/static") ->
             tier="admin",
             source="fixture",
         ),
-        app_version="v1.0.31-fixture",
+        app_version="v1.0.32-fixture",
         brand_assets=fixture_public_brand(),
         static_base_url=static_base_url,
         theme=ThemeTokens(
@@ -1325,6 +1339,132 @@ def render_dashboard_fragment() -> str:
         privacy_policy=privacy_policy,
         privacy_context=operator_context,
     )
+    worker_operations_surface = render_worker_operations_surface(
+        WorkerOperationsSurfaceConfig(
+            enabled=True,
+            title="Worker Operations",
+            subtitle="Readiness, schedules, dead letters, rollback candidates, and review-first controls.",
+            status_tabs=[
+                StatusTab("All", "/workers", 6, active=True),
+                StatusTab("Review", "/workers?status=review", 2, tone="warn"),
+            ],
+            metrics=[
+                DashboardMetric("Ready", 5, "/workers?status=ready", "enabled workers", tone="good"),
+                DashboardMetric("Degraded", 1, "/workers?status=degraded", "needs operator review", tone="warn"),
+                DashboardMetric("Dead Letters", 1, "/workers#dead-letters", "open retry item", tone="bad"),
+            ],
+            readiness=[
+                WorkerReadinessRow(
+                    "reflection",
+                    "Reflection worker",
+                    "ready",
+                    "good",
+                    control_state="resume",
+                    schedule_status="due soon",
+                    next_run="2m",
+                    last_run="13m",
+                    summary="Keeps continuity summaries fresh without direct sends.",
+                    href="/workers/reflection",
+                ),
+                WorkerReadinessRow(
+                    "media",
+                    "Media worker",
+                    "degraded",
+                    "warn",
+                    control_state="dry_run",
+                    schedule_status="paused",
+                    next_run="held",
+                    last_run="41m",
+                    failures=1,
+                    pending_controls=2,
+                    summary="Review-first posture is active while provider health is checked.",
+                    href="/workers/media",
+                    badges=[SurfaceBadge("review-first", "warn")],
+                    actions=[SurfaceAction("Inspect", "/workers/media", "warn")],
+                ),
+            ],
+            schedules=[
+                WorkerScheduleRow("reflection-schedule", "reflection", "Reflection schedule", status="enabled", cadence="15m", next_run="2m", last_run="13m"),
+                WorkerScheduleRow("media-schedule", "media", "Media schedule", enabled=False, status="paused", tone="warn", cadence="30m", next_run="held", last_run="41m"),
+            ],
+            runs=[
+                WorkerRunTelemetryRow("run-1", "reflection", "succeeded", "due", "09:40", duration="320ms", attempts=1, output="2 summaries refreshed", tone="good"),
+                WorkerRunTelemetryRow(
+                    "run-private",
+                    "media",
+                    "failed",
+                    "dry_run",
+                    "09:31",
+                    attempts=2,
+                    error="raw fixture private worker failure",
+                    href="/workers/raw-private-run",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private worker failure summarized for operators.",
+                    tone="bad",
+                ),
+            ],
+            dead_letters=[
+                WorkerDeadLetterRow(
+                    "dead-private",
+                    "media",
+                    "open",
+                    "provider",
+                    "raw fixture private worker dead letter",
+                    retries=2,
+                    last_retry="09:20",
+                    href="/workers/raw-private-dead-letter",
+                    privacy_scope="owner_private",
+                    safe_alternate="Owner-private dead letter summarized for operators.",
+                )
+            ],
+            rollback_candidates=[
+                WorkerRollbackCandidate("rollback-media", "media", "dry_run", "resume", "resume", 42, "operator", "09:22", "Queue a reviewed rollback after provider recovery."),
+            ],
+            dry_run_candidates=[
+                WorkerDryRunCandidate(
+                    "dry-private",
+                    "self_learn",
+                    "worker_dry_run",
+                    "reflection",
+                    "recorded",
+                    "hold",
+                    "raw fixture private worker dry-run candidate",
+                    "09:18",
+                    "warn",
+                    "/workers/raw-private-dry-run",
+                    "owner_private",
+                    "Owner-private dry-run candidate summarized for operators.",
+                )
+            ],
+            process_events=[
+                WorkerProcessEvent("evt-1", "reflection", "run", "succeeded", "Reflection worker completed a due tick.", "09:40", "good", "/workers/reflection/runs/1"),
+                WorkerProcessEvent(
+                    "evt-private",
+                    "media",
+                    "dead_letter",
+                    "open",
+                    "raw fixture private worker process event",
+                    "09:31",
+                    "bad",
+                    "/workers/raw-private-process",
+                    "owner_private",
+                    "Owner-private worker process event summarized for operators.",
+                ),
+            ],
+            action_slots=[
+                WorkerControlActionSlot(
+                    "control-proposal",
+                    "Queue Control Proposal",
+                    "Consumer runtime owns proposal persistence and review.",
+                    '<form action="/workers/proposals" method="post"><button type="submit">Queue Proposal</button></form>',
+                )
+            ],
+            actions=[SurfaceAction("Open Workers", "/workers")],
+        ),
+        features={WORKER_OPERATIONS_FEATURE: True},
+        privacy_policy=privacy_policy,
+        privacy_context=operator_context,
+    )
     bridge_ops_surface = render_bridge_ops_surface(
         BridgeOpsSurfaceConfig(
             enabled=True,
@@ -2121,6 +2261,7 @@ def render_dashboard_fragment() -> str:
         + review_surface
         + journal_surface
         + workflow_surfaces
+        + worker_operations_surface
         + bridge_ops_surface
         + command_intake_surface
         + availability_monitor_surface

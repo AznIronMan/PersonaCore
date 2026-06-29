@@ -1384,6 +1384,172 @@ class OpsSettingItem:
 
 
 @dataclass(frozen=True)
+class WorkerReadinessRow:
+    key: str
+    label: str
+    status: str = ""
+    tone: str = "neutral"
+    enabled: bool = True
+    control_state: str = ""
+    schedule_status: str = ""
+    next_run: str = ""
+    last_run: str = ""
+    failures: int | str = 0
+    pending_controls: int | str = 0
+    summary: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerScheduleRow:
+    key: str
+    worker: str
+    label: str = ""
+    enabled: bool = True
+    status: str = ""
+    tone: str = "neutral"
+    cadence: str = ""
+    next_run: str = ""
+    last_run: str = ""
+    detail: str = ""
+    href: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerRunTelemetryRow:
+    key: str
+    worker: str
+    status: str = ""
+    run_kind: str = ""
+    timestamp: str = ""
+    duration: str = ""
+    attempts: int | str = ""
+    output: str = ""
+    error: str = ""
+    heartbeat: str = ""
+    control_state: str = ""
+    tone: str = "neutral"
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerDeadLetterRow:
+    key: str
+    worker: str
+    status: str = ""
+    source: str = ""
+    reason: str = ""
+    retries: int | str = ""
+    last_retry: str = ""
+    timestamp: str = ""
+    tone: str = "warn"
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerRollbackCandidate:
+    key: str
+    worker: str
+    current_state: str = ""
+    rollback_state: str = ""
+    prior_state: str = ""
+    audit_id: str | int = ""
+    actor: str = ""
+    timestamp: str = ""
+    reason: str = ""
+    tone: str = "warn"
+    href: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerDryRunCandidate:
+    key: str
+    worker: str
+    proposal_type: str = ""
+    source_kind: str = ""
+    status: str = ""
+    decision: str = ""
+    summary: str = ""
+    timestamp: str = ""
+    tone: str = "neutral"
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerProcessEvent:
+    key: str
+    worker: str
+    kind: str = ""
+    status: str = ""
+    summary: str = ""
+    timestamp: str = ""
+    tone: str = "neutral"
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerControlActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class WorkerOperationsSurfaceConfig:
+    enabled: bool = False
+    feature: str = "worker_operations"
+    key: str = "worker-operations"
+    title: str = "Worker Operations"
+    subtitle: str = "Worker readiness, schedules, run telemetry, and reviewed controls"
+    status_tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    readiness: Sequence[WorkerReadinessRow | Mapping[str, object]] = field(default_factory=tuple)
+    schedules: Sequence[WorkerScheduleRow | Mapping[str, object]] = field(default_factory=tuple)
+    runs: Sequence[WorkerRunTelemetryRow | Mapping[str, object]] = field(default_factory=tuple)
+    dead_letters: Sequence[WorkerDeadLetterRow | Mapping[str, object]] = field(default_factory=tuple)
+    rollback_candidates: Sequence[WorkerRollbackCandidate | Mapping[str, object]] = field(default_factory=tuple)
+    dry_run_candidates: Sequence[WorkerDryRunCandidate | Mapping[str, object]] = field(default_factory=tuple)
+    process_events: Sequence[WorkerProcessEvent | Mapping[str, object]] = field(default_factory=tuple)
+    action_slots: Sequence[WorkerControlActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    readiness_title: str = "Worker Readiness"
+    schedules_title: str = "Schedules"
+    runs_title: str = "Run Telemetry"
+    dead_letters_title: str = "Dead Letters"
+    rollback_title: str = "Rollback Candidates"
+    dry_run_title: str = "Dry-Run Candidates"
+    process_feed_title: str = "Process Feed"
+    empty_label: str = "No worker operation items configured."
+
+
+@dataclass(frozen=True)
 class OperationsSurfaceConfig:
     enabled: bool = False
     feature: str = "operations"

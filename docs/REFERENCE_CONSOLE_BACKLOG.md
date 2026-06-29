@@ -31,7 +31,8 @@ screenshots, data, and runtime policy stay outside the public repo.
   `1.0.27`; the availability/live monitor surface shipped in PersonaConsole
   `1.0.28`; the generic admin-list/table surface shipped in PersonaConsole
   `1.0.29`; the detail/dossier surface shipped in PersonaConsole `1.0.30`;
-  the richer media/artifact library surface shipped in PersonaConsole `1.0.31`.
+  the richer media/artifact library surface shipped in PersonaConsole `1.0.31`;
+  the worker/process operations surface shipped in PersonaConsole `1.0.32`.
 
 ## First Dashboard Modules
 
@@ -104,6 +105,12 @@ screenshots, data, and runtime policy stay outside the public repo.
 - Generic task, log, and settings posture panels for reference-console parity.
   Initial public-safe fixture examples shipped in PersonaConsole `1.0.10`; typed
   operations/settings/log renderers shipped in PersonaConsole `1.0.17`.
+- Worker/process operations surface for readiness, schedules, run telemetry,
+  dead letters, rollback candidates, dry-run candidates, process feed events,
+  and review-first action slots. Initial typed renderer shipped in
+  PersonaConsole `1.0.32`; consumers still own execution, service managers,
+  queue/dead-letter mutations, rollback proposals, database writes, auth, and
+  deployment behavior.
 - Grouped settings editor with redacted values, validation summaries,
   pending-change preview, restart markers, and runtime-owned action slots.
   Initial typed renderer shipped in PersonaConsole `1.0.23`.

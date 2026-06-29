@@ -188,6 +188,20 @@ _OPERATIONS_EXPORTS = (
     "render_workflow_sections",
     "terminal_stream_feature_enabled",
 )
+_WORKER_OPERATIONS_EXPORTS = (
+    "WORKER_OPERATIONS_FEATURE",
+    "WorkerControlActionSlot",
+    "WorkerDeadLetterRow",
+    "WorkerDryRunCandidate",
+    "WorkerOperationsSurfaceConfig",
+    "WorkerProcessEvent",
+    "WorkerReadinessRow",
+    "WorkerRollbackCandidate",
+    "WorkerRunTelemetryRow",
+    "WorkerScheduleRow",
+    "render_worker_operations_surface",
+    "worker_operations_surface_feature_enabled",
+)
 _BRIDGE_OPS_EXPORTS = (
     "BRIDGE_OPS_FEATURE",
     "BridgeDeliveryRow",
@@ -374,6 +388,7 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "journal_exports", _JOURNAL_EXPORTS))
         checks.extend(_export_checks(module, "public_presence_exports", _PUBLIC_PRESENCE_EXPORTS))
         checks.extend(_export_checks(module, "operations_exports", _OPERATIONS_EXPORTS))
+        checks.extend(_export_checks(module, "worker_operations_exports", _WORKER_OPERATIONS_EXPORTS))
         checks.extend(_export_checks(module, "bridge_ops_exports", _BRIDGE_OPS_EXPORTS))
         checks.extend(_export_checks(module, "command_intake_exports", _COMMAND_INTAKE_EXPORTS))
         checks.extend(_export_checks(module, "settings_editor_exports", _SETTINGS_EDITOR_EXPORTS))
@@ -394,6 +409,7 @@ def run_consumer_integration_doctor(
         checks.append(_journal_render_check(module))
         checks.append(_public_presence_render_check(module))
         checks.append(_operations_render_check(module))
+        checks.append(_worker_operations_render_check(module))
         checks.append(_persona_editor_render_check(module))
         checks.append(_bridge_ops_render_check(module))
         checks.append(_command_intake_render_check(module))
@@ -1408,6 +1424,114 @@ def _operations_render_check(module: Any) -> DoctorCheck:
         and raw_url not in html
     )
     return _check(ok, "operations_render", "operations/persona/agent surfaces render with safe alternates")
+
+
+def _worker_operations_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-worker-ops"
+    raw_url = "/doctor/raw-private-worker-ops"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_worker_operations_surface(
+            module.WorkerOperationsSurfaceConfig(
+                enabled=True,
+                metrics=[module.DashboardMetric("Workers", 2, detail="doctor fixture", tone="warn")],
+                readiness=[
+                    module.WorkerReadinessRow(
+                        "reflection",
+                        "Reflection worker",
+                        "ready",
+                        "good",
+                        schedule_status="due soon",
+                        next_run="2m",
+                    )
+                ],
+                schedules=[module.WorkerScheduleRow("reflection-schedule", "reflection", "Reflection schedule", status="enabled", cadence="15m")],
+                runs=[
+                    module.WorkerRunTelemetryRow(
+                        "run-private",
+                        "reflection",
+                        "failed",
+                        "due",
+                        "09:00",
+                        error=raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe worker run failure",
+                    )
+                ],
+                dead_letters=[
+                    module.WorkerDeadLetterRow(
+                        "dead-private",
+                        "media",
+                        "open",
+                        "provider",
+                        raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe dead letter reason",
+                    )
+                ],
+                rollback_candidates=[
+                    module.WorkerRollbackCandidate("rollback", "media", "dry_run", "resume", audit_id=42, reason="review rollback")
+                ],
+                dry_run_candidates=[
+                    module.WorkerDryRunCandidate(
+                        "dry-private",
+                        "self_learn",
+                        "capture",
+                        "reflection",
+                        "recorded",
+                        summary=raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe dry-run candidate",
+                    )
+                ],
+                process_events=[
+                    module.WorkerProcessEvent(
+                        "event-private",
+                        "media",
+                        "dead_letter",
+                        "open",
+                        raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe process event",
+                    )
+                ],
+                action_slots=[
+                    module.WorkerControlActionSlot(
+                        "proposal",
+                        "Queue Control Proposal",
+                        "Runtime owns the post target.",
+                        '<form action="/workers/proposals" method="post"><button>Queue</button></form>',
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "worker_operations_render", "worker operations render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-worker-ops-surface" in html
+        and "Reflection worker" in html
+        and "Reflection schedule" in html
+        and "safe worker run failure" in html
+        and "safe dead letter reason" in html
+        and "safe dry-run candidate" in html
+        and "safe process event" in html
+        and "Queue Control Proposal" in html
+        and "/workers/proposals" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "worker_operations_render", "worker operations surface renders with safe alternates")
 
 
 def _settings_editor_render_check(module: Any) -> DoctorCheck:

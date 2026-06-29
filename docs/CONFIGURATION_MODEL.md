@@ -1263,16 +1263,17 @@ After changing a consumer's installed package, checked-out tag, source mount, or
 service image, run the generic doctor before deeper runtime-specific smokes:
 
 ```bash
-PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.31
+PYTHONPATH=/path/to/personaconsole/src python3 /path/to/personaconsole/scripts/consumer_integration_doctor.py --expected-version 1.0.32
 ```
 
 The doctor verifies that `personaconsole` and its legacy compatibility shims
 import, report the same version, expose adapter-health, availability-monitor,
-admin-list, detail-dossier, media-library, token-health, owner-private,
-message/activity/media/people/review/journal/operations/bridge/terminal/
-persona-editor/command-intake/settings-editor/system-health helpers plus shared
-controls, and can render a generic shell plus redacted feature panels. It does
-not read runtime secrets, databases, private routes, or consumer settings.
+admin-list, detail-dossier, media-library, worker-operations, token-health,
+owner-private, message/activity/media/people/review/journal/operations/bridge/
+terminal/persona-editor/command-intake/settings-editor/system-health helpers
+plus shared controls, and can render a generic shell plus redacted feature
+panels. It does not read runtime secrets, databases, private routes, or
+consumer settings.
 Filesystem paths are omitted from output unless `--show-paths` is explicitly
 passed for local diagnostics.
 

@@ -90,6 +90,12 @@ PersonaConsole should supply reusable primitives for common module surfaces:
   chips, safety/sendability flags, review state, non-image fallbacks, and
   runtime-owned upload/import action slots; consumers still own storage, byte
   serving, generation, moderation policy, auth, and mutations.
+- `worker_operations`: readiness cards, schedule rows, run telemetry, dead
+  letters, rollback candidates, dry-run candidates, process feed events, and
+  review-first action slots. PersonaConsole `1.0.32` supplies the typed render
+  surface; consumers still own worker execution, retries, service management,
+  dead-letter status changes, rollback proposal writes, dry-run producer logic,
+  auth, and deployment behavior.
 - `people`: profile and relationship summaries rendered from consumer-owned
   data. PersonaConsole `1.0.11` supplies the typed filter/table/notes surface;
   consumers still own lookups, auth, edits, and private scope mapping.

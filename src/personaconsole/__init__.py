@@ -26,6 +26,11 @@ from .media_library import (
     media_library_surface_feature_enabled,
     render_media_library_surface,
 )
+from .worker_operations import (
+    WORKER_OPERATIONS_FEATURE,
+    render_worker_operations_surface,
+    worker_operations_surface_feature_enabled,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -187,6 +192,15 @@ from .models import (
     TokenHealthCheck,
     TokenHealthConfig,
     UserPill,
+    WorkerControlActionSlot,
+    WorkerDeadLetterRow,
+    WorkerDryRunCandidate,
+    WorkerOperationsSurfaceConfig,
+    WorkerProcessEvent,
+    WorkerReadinessRow,
+    WorkerRollbackCandidate,
+    WorkerRunTelemetryRow,
+    WorkerScheduleRow,
 )
 from .render import (
     active_nav_label,
@@ -492,6 +506,7 @@ __all__ = [
     "TokenHealthConfig",
     "UserPill",
     "WITHHELD_PRIVATE_TEXT",
+    "WORKER_OPERATIONS_FEATURE",
     "active_nav_label",
     "activity_surface_feature_enabled",
     "admin_list_surface_feature_enabled",
@@ -581,14 +596,25 @@ __all__ = [
     "token_health_config_for_providers",
     "token_health_feature_enabled",
     "terminal_stream_feature_enabled",
+    "worker_operations_surface_feature_enabled",
     "settings_editor_feature_enabled",
     "system_health_surface_feature_enabled",
     "render_user_pill",
     "token_health_lookup",
     "token_health_provider_keys",
+    "render_worker_operations_surface",
+    "WorkerControlActionSlot",
+    "WorkerDeadLetterRow",
+    "WorkerDryRunCandidate",
+    "WorkerOperationsSurfaceConfig",
+    "WorkerProcessEvent",
+    "WorkerReadinessRow",
+    "WorkerRollbackCandidate",
+    "WorkerRunTelemetryRow",
+    "WorkerScheduleRow",
 ]
 
-__version__ = "1.0.31"
+__version__ = "1.0.32"
 
 
 def configure_jinja_loader(*args, **kwargs):

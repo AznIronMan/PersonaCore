@@ -130,6 +130,7 @@ def run_visual_smoke(output_dir: Path, *, headed: bool = False) -> None:
                     expect(page.locator(".pc-media-library-surface")).to_be_visible()
                     expect(page.locator(".pc-journal-surface")).to_be_visible()
                     expect(page.locator(".pc-operations-surface")).to_be_visible()
+                    expect(page.locator(".pc-worker-ops-surface")).to_be_visible()
                     expect(page.locator(".pc-persona-surface")).to_be_visible()
                     expect(page.locator(".pc-agent-ops-surface")).to_be_visible()
                     expect(page.locator(".pc-public-settings-surface")).to_be_visible()

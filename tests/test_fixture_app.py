@@ -21,6 +21,7 @@ def test_fixture_uses_public_personaconsole_config_name():
     assert config.features["people"] is True
     assert config.features["admin_list"] is True
     assert config.features["operations"] is True
+    assert config.features["worker_operations"] is True
     assert config.features["bridge_ops"] is True
     assert config.features["command_intake"] is True
     assert config.features["availability_monitor"] is True
@@ -85,6 +86,15 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Owner-private log line summarized for operators." in html
     assert "raw fixture private log line" not in html
     assert "Settings Posture" in html
+    assert "pc-worker-ops-surface" in html
+    assert "Worker Operations" in html
+    assert "Reflection worker" in html
+    assert "Owner-private worker failure summarized for operators." in html
+    assert "Owner-private dead letter summarized for operators." in html
+    assert "Owner-private dry-run candidate summarized for operators." in html
+    assert "Owner-private worker process event summarized for operators." in html
+    assert "raw fixture private worker" not in html
+    assert "/workers/raw-private" not in html
     assert "pc-persona-surface" in html
     assert "Owner-private persona state summarized for operators." in html
     assert "Owner-private continuity item summarized for operators." in html
