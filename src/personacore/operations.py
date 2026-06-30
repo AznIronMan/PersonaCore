@@ -1,0 +1,53 @@
+"""Deprecated personacore compatibility wrapper for personaconsole."""
+
+from personaconsole.models import (
+    AgentOpsSurfaceConfig,
+    AgentSessionRow,
+    BridgeStatusCard,
+    ContinuityItem,
+    OperationsSurfaceConfig,
+    OpsLogEvent,
+    OpsSettingItem,
+    OpsStatusCard,
+    OpsTableRow,
+    PersonaPanel,
+    PersonaRuntimeSurfaceConfig,
+    SurfaceAction,
+)
+from personaconsole.operations import (
+    AGENT_OPS_FEATURE,
+    OPERATIONS_FEATURE,
+    PERSONA_RUNTIME_FEATURE,
+    agent_ops_surface_feature_enabled,
+    operations_surface_feature_enabled,
+    persona_runtime_surface_feature_enabled,
+    render_agent_ops_surface,
+    render_operations_surface,
+    render_persona_runtime_surface,
+    render_workflow_sections,
+)
+
+__all__ = [
+    "AGENT_OPS_FEATURE",
+    "OPERATIONS_FEATURE",
+    "PERSONA_RUNTIME_FEATURE",
+    "AgentOpsSurfaceConfig",
+    "AgentSessionRow",
+    "BridgeStatusCard",
+    "ContinuityItem",
+    "OperationsSurfaceConfig",
+    "OpsLogEvent",
+    "OpsSettingItem",
+    "OpsStatusCard",
+    "OpsTableRow",
+    "PersonaPanel",
+    "PersonaRuntimeSurfaceConfig",
+    "SurfaceAction",
+    "agent_ops_surface_feature_enabled",
+    "operations_surface_feature_enabled",
+    "persona_runtime_surface_feature_enabled",
+    "render_agent_ops_surface",
+    "render_operations_surface",
+    "render_persona_runtime_surface",
+    "render_workflow_sections",
+]

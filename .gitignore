@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.private/
+.tasks/
+AGENTS.md
+.env
+.env.*
+dist/
+build/
+*.egg-info/
+.stfolder/
+.stignore

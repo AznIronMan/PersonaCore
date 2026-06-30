@@ -1,0 +1,95 @@
+# Feature Extraction Plan
+
+PersonaConsole should pull shared behavior out of private consoles deliberately.
+The public repo should describe the process without naming private consumers or
+including private screenshots, paths, or operational details.
+
+## Reference-First Approach
+
+1. Treat the best current private console as the reference implementation for
+   initial quality, density, and workflow expectations.
+2. Inventory other private consoles for features the reference does not have.
+3. Inventory attempted next-generation admin work for useful ideas that did not
+   yet land in the main reference console.
+4. Convert the union into a public-safe feature backlog with generic names.
+5. Extract only the pieces that can be made generic: body styles, cards,
+   metrics, tables, review queues, dashboards, activity feeds, message views,
+   media/workflow panels, worker health, scheduling, and feature toggles.
+
+The shared composition target is documented in
+[Reference Admin Parity Spec](REFERENCE_ADMIN_PARITY_SPEC.md). Consumer
+migrations should align to that shape through configuration and shared
+primitives before adding runtime-specific code.
+
+## First Shared Modules
+
+Recommended first extraction targets:
+
+- Dashboard attention overview, filter chips, metric/stat cards, route cards,
+  queue bars, and activity rows.
+- Count/status summary-card builders that turn consumer-owned mappings into
+	  shared metric cards without moving route or database ownership into
+	  PersonaConsole.
+- Runtime health/status summary strip and health detail cards.
+- Token/credential health panels for provider tokens and webhook secrets,
+  enabled by runtime settings and populated by runtime-owned lookups.
+- Adapter/provider health cards with route state, last in/out timestamps,
+  queued/failed counts, and optional sparkline buckets.
+  - Initial public-safe renderer: PersonaConsole `1.0.8`.
+- Message flow visualization for inbound/outbound activity.
+- Review queue summary cards and decision rows.
+- Conversation/message browser surfaces.
+  - Initial public-safe message/activity/media surfaces shipped in PersonaConsole
+    `1.0.9`.
+- Reference admin parity fixture.
+  - Public-safe spec and fuller operator workspace fixture shipped in
+    PersonaConsole `1.0.10`.
+- People list surface.
+  - Initial typed filter/table/relationship/notes renderer shipped in
+    PersonaConsole `1.0.11`.
+- Journal reader surface.
+  - Calendar-driven continuity reader with default paper theme and selectable
+    theme catalog shipped in PersonaConsole `1.0.18`.
+- Public presence surfaces.
+  - Branded splash, login, chat, connector-choice, media hero, social-link,
+    legal-modal, and public settings renderers shipped in PersonaConsole `1.0.19`.
+- Operations, persona runtime, continuity, bridge, and agent-ops surfaces.
+  - Initial typed runtime posture renderers shipped in PersonaConsole `1.0.17`.
+- Command preview/queue panels.
+- Media/workflow status panels.
+- Worker, scheduling, and availability/live monitor panels.
+
+## Acceptance For Each Extracted Feature
+
+- Generic public naming and fake fixture data.
+- Feature flag or capability setting controls visibility.
+- No private runtime imports.
+- No optional heavy dependency on the core import path.
+- Focused tests for rendering, disabled states, and missing data.
+- Browser visual fixture when practical.
+
+## Consumer Migration Requirements
+
+Each private consumer migration should be handled in that consumer's repository
+and task system. The public PersonaConsole repo should only receive generic shared
+code and sanitized docs.
+
+For each consumer:
+
+1. Update the consumer's `AGENTS.md` with its PersonaConsole update process.
+2. Document where the consumer gets PersonaConsole from: installed package,
+   checked-out tag, mounted source directory, or another versioned mechanism.
+3. Document required focused tests, visual/render smoke, and restart/rebuild
+   steps.
+4. Archive the legacy hardcoded console implementation into the consumer's
+   ignored private area before removing it from tracked code.
+5. Remove the old tracked console implementation only after the PersonaConsole
+   implementation passes tests and live/render smoke.
+
+Archives are operational safety nets. They should not be committed to
+PersonaConsole or to public consumer repos.
+
+## Backlog
+
+See [Reference Console Backlog](REFERENCE_CONSOLE_BACKLOG.md) for the sanitized
+module list derived from the private reference console.

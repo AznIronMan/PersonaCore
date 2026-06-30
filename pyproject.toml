@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personaconsole"
+version = "1.0.39"
+description = "Reusable admin console shell, dashboard primitives, navigation, and style system for persona runtimes."
+requires-python = ">=3.11"
+dependencies = [
+  "jinja2>=3.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/AznIronMan/PersonaConsole"
+Repository = "https://github.com/AznIronMan/PersonaConsole"
+
+[project.optional-dependencies]
+fastapi = [
+  "fastapi>=0.110",
+]
+test = [
+  "pytest>=8",
+]
+visual = [
+  "playwright>=1.45",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+personaconsole = [
+  "static/*.css",
+  "static/*.js",
+  "templates/personaconsole/*.html",
+]

@@ -1,0 +1,209 @@
+from __future__ import annotations
+
+import argparse
+import contextlib
+import http.server
+import socket
+import sys
+import threading
+from pathlib import Path
+from typing import Iterator
+
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from examples.fixture_app import (
+    render_admin_login_fixture_page,
+    render_admin_password_change_fixture_page,
+    render_chat_fixture_page,
+    render_dashboard_fragment,
+    render_fixture_page,
+    render_login_fixture_page,
+    render_public_settings_fixture_page,
+    render_public_splash_fixture_page,
+)
+
+
+class FixtureHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, output_dir: Path, **kwargs):
+        self.output_dir = output_dir
+        super().__init__(*args, directory=str(ROOT), **kwargs)
+
+    def log_message(self, format: str, *args: object) -> None:
+        return
+
+    def do_GET(self) -> None:
+        path = self.path.split("?", 1)[0]
+        if path in {"/", "/index.html"}:
+            self._send_html((self.output_dir / "index.html").read_text(encoding="utf-8"))
+            return
+        if path == "/public/splash":
+            self._send_html(render_public_splash_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/public/login":
+            self._send_html(render_login_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/admin/login":
+            self._send_html(render_admin_login_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/admin/password-change":
+            self._send_html(render_admin_password_change_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/public/chat":
+            self._send_html(render_chat_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/settings/public-presence":
+            self._send_html(render_public_settings_fixture_page(static_base_url="/src/personaconsole/static"))
+            return
+        if path == "/fragments/dashboard":
+            self._send_html(render_dashboard_fragment())
+            return
+        super().do_GET()
+
+    def _send_html(self, html: str) -> None:
+        body = html.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+@contextlib.contextmanager
+def serve_fixture(output_dir: Path) -> Iterator[str]:
+    port = _free_port()
+
+    def handler(*args, **kwargs):
+        return FixtureHandler(*args, output_dir=output_dir, **kwargs)
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", port), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{port}/"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def write_fixture(output_dir: Path) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    html_path = output_dir / "index.html"
+    html_path.write_text(
+        render_fixture_page(static_base_url="/src/personaconsole/static"),
+        encoding="utf-8",
+    )
+    return html_path
+
+
+def run_visual_smoke(output_dir: Path, *, headed: bool = False) -> None:
+    try:
+        from playwright.sync_api import expect, sync_playwright
+    except ImportError as exc:
+        raise SystemExit(
+            "Playwright is not installed. Run: python3 -m pip install -e '.[visual]' "
+            "&& python3 -m playwright install chromium"
+        ) from exc
+
+    write_fixture(output_dir)
+    screenshot_dir = output_dir / "screenshots"
+    screenshot_dir.mkdir(parents=True, exist_ok=True)
+
+    with serve_fixture(output_dir) as url:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=not headed)
+            try:
+                for name, viewport in {
+                    "desktop": {"width": 1440, "height": 1000},
+                    "mobile": {"width": 390, "height": 844},
+                }.items():
+                    page = browser.new_page(viewport=viewport)
+                    page.goto(url, wait_until="networkidle")
+                    expect(page.locator(".persona-console-shell")).to_be_visible()
+                    expect(page.locator(".pc-dashboard-overview")).to_be_visible()
+                    expect(page.locator(".pc-dashboard-stat-grid").first).to_be_visible()
+                    expect(page.locator(".pc-dashboard-health")).to_be_visible()
+                    expect(page.locator(".pc-token-health")).to_be_visible()
+                    expect(page.locator(".pc-dashboard-adapter-grid")).to_be_visible()
+                    expect(page.locator(".pc-people-surface")).to_be_visible()
+                    expect(page.locator(".pc-media-library-surface")).to_be_visible()
+                    expect(page.locator(".pc-journal-surface")).to_be_visible()
+                    expect(page.locator(".pc-operations-surface")).to_be_visible()
+                    expect(page.locator(".pc-worker-ops-surface")).to_be_visible()
+                    expect(page.locator(".pc-persona-surface")).to_be_visible()
+                    expect(page.locator(".pc-agent-ops-surface")).to_be_visible()
+                    expect(page.locator(".pc-public-settings-surface")).to_be_visible()
+                    expect(page.locator("#live-pill")).to_be_visible()
+                    expect(page.locator(".pc-live-region")).to_be_visible()
+                    expect(page.locator(".pc-live-region")).to_have_attribute("data-pc-live-stale-after", "120")
+                    page.locator("#page-refresh-button").click()
+                    expect(page.locator("#page-refresh-status")).to_have_attribute("data-state", "ok")
+                    if name == "mobile":
+                        toggle = page.locator(".admin-mobile-toggle")
+                        expect(toggle).to_be_visible()
+                        toggle.click()
+                        expect(page.locator(".admin-mobile-panel")).to_be_visible()
+                    else:
+                        expect(page.locator(".admin-nav-groups")).to_be_visible()
+                    page.screenshot(path=screenshot_dir / f"{name}.png", full_page=True)
+                    page.close()
+
+                    for slug, selector in {
+                        "public-splash": ".pc-public-splash",
+                        "public-login": ".pc-public-login-page",
+                        "public-chat": ".pc-public-chat-shell",
+                        "public-settings": ".pc-public-settings-surface",
+                        "admin-login": ".pc-admin-login-page",
+                        "admin-password-change": ".pc-admin-password-change-page",
+                    }.items():
+                        public_page = browser.new_page(viewport=viewport)
+                        if slug == "public-settings":
+                            target = url + "settings/public-presence"
+                        elif slug == "admin-login":
+                            target = url + "admin/login"
+                        elif slug == "admin-password-change":
+                            target = url + "admin/password-change"
+                        else:
+                            target = url + slug.replace("public-", "public/")
+                        public_page.goto(target, wait_until="networkidle")
+                        expect(public_page.locator(selector)).to_be_visible()
+                        if slug == "public-splash":
+                            expect(public_page.locator(".pc-public-primary-action")).to_be_visible()
+                        if slug == "public-login":
+                            expect(public_page.locator(".pc-connector-option").first).to_be_visible()
+                        if slug == "public-chat":
+                            expect(public_page.locator("[data-pc-chat-form]")).to_be_visible()
+                        if slug.startswith("admin-"):
+                            expect(public_page.locator("[data-pc-admin-auth-form]")).to_be_visible()
+                        public_page.screenshot(path=screenshot_dir / f"{name}-{slug}.png", full_page=True)
+                        public_page.close()
+            finally:
+                browser.close()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run PersonaConsole fixture visual smoke checks.")
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=ROOT / "build" / "visual-smoke",
+        help="Directory for generated fixture HTML and screenshots.",
+    )
+    parser.add_argument("--headed", action="store_true", help="Run Chromium with a visible window.")
+    args = parser.parse_args()
+
+    run_visual_smoke(args.output_dir, headed=args.headed)
+    print(f"Visual smoke passed. Screenshots: {args.output_dir / 'screenshots'}")
+
+
+if __name__ == "__main__":
+    main()
