@@ -44,6 +44,13 @@ from .composition import (
     surface_registry_report_to_dict,
     surface_registry_to_nav_groups,
 )
+from .cutover_audit import (
+    CutoverAuditFinding,
+    CutoverAuditReport,
+    cutover_audit_report_to_text,
+    load_cutover_audit_ignore_patterns,
+    run_consumer_shared_ui_cutover_audit,
+)
 from .dashboard import (
     dashboard_metrics_from_counts,
     format_dashboard_metric_value,
@@ -410,6 +417,8 @@ __all__ = [
     "ConnectorGroup",
     "ConnectorOption",
     "ContinuityItem",
+    "CutoverAuditFinding",
+    "CutoverAuditReport",
     "DashboardAction",
     "DashboardActivityItem",
     "DashboardAdapterCard",
@@ -568,6 +577,7 @@ __all__ = [
     "bridge_ops_feature_enabled",
     "command_intake_feature_enabled",
     "configure_jinja_loader",
+    "cutover_audit_report_to_text",
     "dashboard_metrics_from_counts",
     "detail_dossier_surface_feature_enabled",
     "doctor_report_to_text",
@@ -581,6 +591,7 @@ __all__ = [
     "journal_surface_feature_enabled",
     "journal_theme_key",
     "journal_theme_options",
+    "load_cutover_audit_ignore_patterns",
     "operations_surface_feature_enabled",
     "people_surface_feature_enabled",
     "persona_editor_feature_enabled",
@@ -646,6 +657,7 @@ __all__ = [
     "render_token_health_panel",
     "render_workflow_sections",
     "run_consumer_integration_doctor",
+    "run_consumer_shared_ui_cutover_audit",
     "token_health_checks_for_providers",
     "token_health_config_for_providers",
     "token_health_feature_enabled",
@@ -672,7 +684,7 @@ __all__ = [
     "WorkerScheduleRow",
 ]
 
-__version__ = "1.0.36"
+__version__ = "1.0.37"
 
 
 def configure_jinja_loader(*args, **kwargs):

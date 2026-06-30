@@ -44,6 +44,8 @@ def test_personaconsole_is_canonical_api():
     assert personaconsole.SystemPaginationState
     assert personaconsole.SurfaceRegistryConfig
     assert personaconsole.render_surface_registry_report
+    assert personaconsole.CutoverAuditReport
+    assert personaconsole.run_consumer_shared_ui_cutover_audit
     assert "PersonaConsoleConfig" in personaconsole.__all__
     assert "PersonaCoreConfig" in personaconsole.__all__
     assert "render_public_splash_page" in personaconsole.__all__
@@ -61,6 +63,7 @@ def test_personaconsole_is_canonical_api():
     assert "render_system_health_surface" in personaconsole.__all__
     assert "render_persona_editor" in personaconsole.__all__
     assert "run_consumer_integration_doctor" in personaconsole.__all__
+    assert "run_consumer_shared_ui_cutover_audit" in personaconsole.__all__
 
 
 def test_legacy_import_shims_reexport_canonical_api():
@@ -97,6 +100,8 @@ def test_legacy_import_shims_reexport_canonical_api():
         assert legacy.SystemPaginationState is personaconsole.SystemPaginationState
         assert legacy.SurfaceRegistryConfig is personaconsole.SurfaceRegistryConfig
         assert legacy.render_surface_registry_report is personaconsole.render_surface_registry_report
+        assert legacy.CutoverAuditReport is personaconsole.CutoverAuditReport
+        assert legacy.run_consumer_shared_ui_cutover_audit is personaconsole.run_consumer_shared_ui_cutover_audit
         assert legacy.render_private_text is personaconsole.render_private_text
 
 
@@ -113,6 +118,7 @@ def test_legacy_submodules_reexport_canonical_implementation():
         "command_intake": "render_command_intake_surface",
         "composition": "render_surface_registry_report",
         "controls": "render_flash_banners",
+        "cutover_audit": "run_consumer_shared_ui_cutover_audit",
         "dashboard": "render_dashboard_sections",
         "doctor": "run_consumer_integration_doctor",
         "fastapi": "register_static_assets",
@@ -154,4 +160,4 @@ def test_public_package_metadata_matches_runtime_version():
     pyproject = tomllib.loads(Path("pyproject.toml").read_text())
 
     assert pyproject["project"]["name"] == "personaconsole"
-    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.36"
+    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.37"

@@ -150,6 +150,10 @@ screenshots, data, and runtime policy stay outside the public repo.
   feature flags, route/nav bindings, renderer and static-asset coverage,
   theme/live-refresh hints, and consumer-owned adapter labels. Initial typed
   validator and report renderer shipped in PersonaConsole `1.0.36`.
+- Consumer shared-UI cutover audit tooling for final migration evidence,
+  legacy compatibility names, fallback markers, copied static assets, generic
+  helper definitions, and missing surface-registry declarations. Initial
+  public-safe audit shipped in PersonaConsole `1.0.37`.
 - Bridge/provider operation panels for webhook posture, queues, heartbeats,
   provider capability rows, delivery claims, documentation links, and action
   slots. Initial typed renderer shipped in PersonaConsole `1.0.26`.
