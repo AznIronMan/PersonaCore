@@ -156,6 +156,111 @@ def test_control_center_renders_structured_detail_inspector_and_mode_badges():
     assert "editable" in html
 
 
+def test_control_center_applies_access_context_visibility_and_edit_roles():
+    config = ControlCenterConfig(
+        enabled=True,
+        form_action="/control/save",
+        sections=[
+            ControlSection(
+                "features",
+                "Features",
+                groups=[
+                    ControlGroup(
+                        "runtime",
+                        "Runtime",
+                        items=[
+                            ControlItem(
+                                "provider",
+                                "Provider",
+                                "runtime.llm.provider",
+                                "select",
+                                "openai",
+                                options=[ControlOption("local", "Local"), ControlOption("openai", "OpenAI")],
+                                edit_roles=("owner", "operator"),
+                            ),
+                            ControlItem(
+                                "owner-only",
+                                "Owner-only switch",
+                                "runtime.owner_only",
+                                "switch",
+                                True,
+                                view_roles=("owner",),
+                                edit_roles=("owner",),
+                            ),
+                            ControlItem(
+                                "default",
+                                "Default policy",
+                                "runtime.default",
+                                "text",
+                                "runtime default",
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ],
+    )
+
+    owner_html = render_control_center(
+        config,
+        access_context={"role": "owner", "can_view_all": True, "can_edit_all": True, "default_can_edit": True},
+    )
+    operator_html = render_control_center(config, access_context={"role": "operator", "default_can_edit": False})
+    moderator_html = render_control_center(config, access_context={"role": "moderator", "default_can_edit": False})
+
+    assert "Owner-only switch" in owner_html
+    assert "Owner-only switch" not in operator_html
+    assert "owner/operator edit" in operator_html
+    assert 'name="runtime.llm.provider"' in operator_html
+    assert 'name="runtime.default" disabled' in operator_html
+    assert "view-only" in operator_html
+    assert 'name="runtime.llm.provider" disabled' in moderator_html
+    assert 'name="runtime.default" disabled' in moderator_html
+    assert 'type="submit" class="pc-settings-action pc-settings-save pc-dashboard-tone-good" disabled' in moderator_html
+
+
+def test_control_center_secret_clear_action_is_explicit_and_redacted():
+    raw_secret = "raw-secret-to-redact"
+    config = ControlCenterConfig(
+        enabled=True,
+        sections=[
+            ControlSection(
+                "integrations",
+                "Integrations",
+                groups=[
+                    ControlGroup(
+                        "provider-keys",
+                        "Provider Keys",
+                        items=[
+                            ControlItem(
+                                "openai",
+                                "OpenAI API key",
+                                "runtime.provider.openai_api_key",
+                                "secret",
+                                raw_secret,
+                                display_value="configured",
+                                clearable=True,
+                                edit_roles=("owner",),
+                            )
+                        ],
+                    )
+                ],
+            )
+        ],
+    )
+
+    owner_html = render_control_center(config, access_context={"role": "owner", "default_can_edit": False})
+    moderator_html = render_control_center(config, access_context={"role": "moderator", "default_can_edit": False})
+
+    assert raw_secret not in owner_html
+    assert 'placeholder="Stored; type here to overwrite"' in owner_html
+    assert 'name="runtime.provider.openai_api_key.__clear" value="true"' in owner_html
+    assert "Clear stored value" in owner_html
+    assert raw_secret not in moderator_html
+    assert 'name="runtime.provider.openai_api_key" disabled' in moderator_html
+    assert 'name="runtime.provider.openai_api_key.__clear" value="true" disabled' in moderator_html
+
+
 def test_control_center_feature_gate_and_empty_state():
     config = ControlCenterConfig(enabled=True)
 

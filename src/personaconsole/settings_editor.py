@@ -7,6 +7,7 @@ from typing import Any, Mapping, Sequence, TypeVar
 
 from .models import (
     BrandAssets,
+    ControlAccessContext,
     ControlCenterConfig,
     ControlChange,
     ControlGroup,
@@ -663,6 +664,75 @@ def control_center_feature_enabled(
     return bool(model.enabled) and feature_enabled(features, str(model.feature or CONTROL_CENTER_FEATURE), default=True)
 
 
+def _control_access_context(value: ControlAccessContext | Mapping[str, object] | None) -> ControlAccessContext | None:
+    if value is None:
+        return None
+    return _coerce(value, ControlAccessContext)
+
+
+def _control_access_term(value: object) -> str:
+    return str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _control_access_terms(values: Sequence[str] | str | None) -> tuple[str, ...]:
+    if not values:
+        return ()
+    raw_values: Sequence[object]
+    if isinstance(values, str):
+        raw_values = (values,)
+    else:
+        raw_values = tuple(values)
+    terms: list[str] = []
+    for value in raw_values:
+        term = _control_access_term(value)
+        if term and term not in terms:
+            terms.append(term)
+    return tuple(terms)
+
+
+def _control_context_terms(access: ControlAccessContext) -> set[str]:
+    terms = set(_control_access_terms(access.scopes))
+    role = _control_access_term(access.role)
+    if role:
+        terms.add(role)
+    return terms
+
+
+def _control_context_role_terms(access: ControlAccessContext) -> set[str]:
+    role = _control_access_term(access.role)
+    return {role} if role else set()
+
+
+def _control_can_view(item: ControlItem, access: ControlAccessContext | None) -> bool:
+    if access is None or access.can_view_all:
+        return True
+    roles = set(_control_access_terms(item.view_roles))
+    if not roles:
+        return True
+    return bool(roles & _control_context_terms(access))
+
+
+def _control_can_edit(item: ControlItem, access: ControlAccessContext | None) -> bool:
+    if item.disabled or item.readonly:
+        return False
+    if access is None:
+        return True
+    if access.can_edit_all:
+        return True
+    roles = set(_control_access_terms(item.edit_roles))
+    if roles:
+        return bool(roles & _control_context_role_terms(access))
+    return bool(access.default_can_edit)
+
+
+def _control_access_badge(item: ControlItem) -> str:
+    roles = _control_access_terms(item.edit_roles)
+    if not roles:
+        return ""
+    label = "/".join(role.replace("_", " ") for role in roles)
+    return f'<span class="pc-control-badge pc-control-access">{escape(label)} edit</span>'
+
+
 def _control_kind(value: object) -> str:
     raw = str(value or "").strip().lower().replace("_", "-")
     return raw if raw in _CONTROL_KINDS else "text"
@@ -796,9 +866,9 @@ def _control_option_html(raw_option: ControlOption | Mapping[str, object] | str,
     )
 
 
-def _control_segment_html(item: ControlItem, item_id: str, selected_value: str) -> str:
+def _control_segment_html(item: ControlItem, item_id: str, selected_value: str, *, editable: bool = True) -> str:
     name = _control_name(item)
-    disabled = bool(item.disabled or item.readonly)
+    disabled = bool(not editable or item.disabled or item.readonly)
     buttons: list[str] = []
     for index, raw_option in enumerate(item.options):
         option = _coerce(raw_option, ControlOption)
@@ -813,10 +883,16 @@ def _control_segment_html(item: ControlItem, item_id: str, selected_value: str) 
     return f'<div class="pc-control-segments" role="group" aria-labelledby="{escape(item_id, quote=True)}-label">{"".join(buttons)}</div>'
 
 
-def _control_control_html(item: ControlItem, item_id: str) -> str:
+def _control_secret_configured(item: ControlItem) -> bool:
+    status = str(item.status or "").strip().lower()
+    display = str(item.display_value or "").strip().lower()
+    return bool(item.value or item.changed or item.pending_value is not None or status == "configured" or display == "configured")
+
+
+def _control_control_html(item: ControlItem, item_id: str, *, editable: bool = True) -> str:
     kind = _control_kind(item.kind)
     name = _control_name(item)
-    disabled = bool(item.disabled or item.readonly)
+    disabled = bool(not editable or item.disabled)
     required = bool(item.required)
     value = _control_value_for_edit(item)
     value_text = _display(value)
@@ -842,7 +918,7 @@ def _control_control_html(item: ControlItem, item_id: str) -> str:
         options = "".join(_control_option_html(option, value_text) for option in item.options)
         return f'<select{common}>{options}</select>'
     if kind == "segmented":
-        return _control_segment_html(item, item_id, value_text)
+        return _control_segment_html(item, item_id, value_text, editable=editable)
     if kind in {"boolean", "switch", "toggle"}:
         checked = _bool(value)
         hidden = f'<input type="hidden" name="{escape(name, quote=True)}" value="false"{_attrs(disabled=disabled)}>'
@@ -857,21 +933,35 @@ def _control_control_html(item: ControlItem, item_id: str) -> str:
         input_type = kind
     else:
         input_type = "text"
-    placeholder = item.placeholder or ("Leave blank to keep current value" if _control_is_secret(item) else "")
+    placeholder = item.placeholder or (
+        "Stored; type here to overwrite" if _control_is_secret(item) and _control_secret_configured(item) else "Type to store value" if _control_is_secret(item) else ""
+    )
     swatch = f'<span class="pc-control-swatch"{_attrs(style=f"background: {value_text}")}></span>' if kind == "color" and value_text else ""
-    return (
+    input_html = (
         f'{swatch}<input type="{input_type}"{common}'
         f'{_attrs(value="" if _control_is_secret(item) else value_text, placeholder=placeholder, min=item.min_value, max=item.max_value, step=item.step)}>'
     )
+    if _control_is_secret(item) and item.clearable and name:
+        clear_name = str(item.clear_name or f"{name}.__clear")
+        clear_label = str(item.clear_label or "Clear stored value")
+        input_html += (
+            '<label class="pc-control-clear">'
+            f'<input type="checkbox"{_attrs(name=clear_name, value="true", disabled=disabled)}>'
+            f'<span>{escape(clear_label)}</span></label>'
+        )
+    return input_html
 
 
-def _control_item_html(raw_item: ControlItem | Mapping[str, object]) -> str:
+def _control_item_html(raw_item: ControlItem | Mapping[str, object], access: ControlAccessContext | None = None) -> str:
     item = _coerce(raw_item, ControlItem, {"key": "control"})
+    if not _control_can_view(item, access):
+        return ""
     key = _key(item.key, "control")
     label = str(item.label or item.key)
     item_id = f"pc-control-{key}"
     changed = bool(item.changed)
     restart_required = bool(item.restart_required)
+    editable = _control_can_edit(item, access)
     tone = item.tone or item.status
     if item.dangerous and not tone:
         tone = "bad"
@@ -888,13 +978,15 @@ def _control_item_html(raw_item: ControlItem | Mapping[str, object]) -> str:
         classes.append("is-disabled")
     if item.readonly:
         classes.append("is-readonly")
+    if not editable and not item.readonly and not item.disabled:
+        classes.append("is-view-only")
     if item.dangerous:
         classes.append("is-dangerous")
     if _control_is_secret(item):
         classes.append("is-secret")
     status = f'<span class="pc-control-badge pc-dashboard-tone-{_tone(item.status)}">{escape(str(item.status))}</span>' if item.status else ""
     owner = f'<span class="pc-control-owner">{escape(str(item.owner or "Runtime"))}</span>'
-    mode_label = "disabled" if item.disabled else "read-only" if item.readonly else "editable"
+    mode_label = "disabled" if item.disabled else "read-only" if item.readonly else "editable" if editable else "view-only"
     mode = f'<span class="pc-control-badge">{mode_label}</span>'
     required = '<span class="pc-control-badge">required</span>' if item.required else ""
     redacted = '<span class="pc-control-badge">redacted</span>' if _control_is_secret(item) else ""
@@ -912,19 +1004,21 @@ def _control_item_html(raw_item: ControlItem | Mapping[str, object]) -> str:
         f'<article class="{" ".join(classes)}" data-pc-control-item data-pc-settings-field data-control-key="{escape(key, quote=True)}">'
         '<div class="pc-control-item-head">'
         f'<div><label id="{escape(item_id, quote=True)}-label" for="{escape(item_id, quote=True)}">{escape(label)}</label>{source}</div>'
-        f'<div class="pc-control-flags">{owner}{mode}{status}{required}{redacted}{changed_pill}{restart}{dangerous}</div>'
+        f'<div class="pc-control-flags">{owner}{mode}{_control_access_badge(item)}{status}{required}{redacted}{changed_pill}{restart}{dangerous}</div>'
         '</div>'
-        f'<div class="pc-control-input">{_control_control_html(item, item_id)}</div>'
+        f'<div class="pc-control-input">{_control_control_html(item, item_id, editable=editable)}</div>'
         f'{preview}{help_text}{_control_detail_html(item)}{_messages_html(item.messages)}{_badges_html(item.badges)}{_actions_html(item.actions)}'
         '</article>'
     )
 
 
-def _control_group_html(raw_group: ControlGroup | Mapping[str, object]) -> str:
+def _control_group_html(raw_group: ControlGroup | Mapping[str, object], access: ControlAccessContext | None = None) -> str:
     group = _coerce(raw_group, ControlGroup, {"key": "controls", "title": "Controls"})
     key = _key(group.key, "controls")
-    item_html = "".join(_control_item_html(item) for item in group.items)
+    item_html = "".join(_control_item_html(item, access) for item in group.items)
     if not item_html:
+        if access is not None:
+            return ""
         item_html = '<div class="pc-dashboard-empty">No controls in this group.</div>'
     status = f'<span class="pc-surface-status pc-dashboard-tone-{_tone(group.tone or group.status)}">{escape(str(group.status))}</span>' if group.status else ""
     restart = '<span class="pc-control-restart">restart required</span>' if group.restart_required else ""
@@ -939,11 +1033,13 @@ def _control_group_html(raw_group: ControlGroup | Mapping[str, object]) -> str:
     )
 
 
-def _control_section_html(raw_section: ControlSection | Mapping[str, object]) -> str:
+def _control_section_html(raw_section: ControlSection | Mapping[str, object], access: ControlAccessContext | None = None) -> str:
     section = _coerce(raw_section, ControlSection, {"key": "section", "title": "Section"})
     key = _key(section.key, "section")
-    groups_html = "".join(_control_group_html(group) for group in section.groups)
+    groups_html = "".join(_control_group_html(group, access) for group in section.groups)
     if not groups_html:
+        if access is not None:
+            return ""
         groups_html = '<div class="pc-dashboard-empty">No controls in this section.</div>'
     status = f'<span class="pc-surface-status pc-dashboard-tone-{_tone(section.tone or section.status)}">{escape(str(section.status))}</span>' if section.status else ""
     return (
@@ -955,20 +1051,28 @@ def _control_section_html(raw_section: ControlSection | Mapping[str, object]) ->
     )
 
 
-def _control_items(sections: Sequence[ControlSection | Mapping[str, object]]) -> list[ControlItem]:
+def _control_items(
+    sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
+) -> list[ControlItem]:
     items: list[ControlItem] = []
     for raw_section in sections:
         section = _coerce(raw_section, ControlSection, {"key": "section", "title": "Section"})
         for raw_group in section.groups:
             group = _coerce(raw_group, ControlGroup, {"key": "controls", "title": "Controls"})
             for raw_item in group.items:
-                items.append(_coerce(raw_item, ControlItem, {"key": "control"}))
+                item = _coerce(raw_item, ControlItem, {"key": "control"})
+                if _control_can_view(item, access):
+                    items.append(item)
     return items
 
 
-def _auto_control_changes(sections: Sequence[ControlSection | Mapping[str, object]]) -> list[ControlChange]:
+def _auto_control_changes(
+    sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
+) -> list[ControlChange]:
     changes: list[ControlChange] = []
-    for item in _control_items(sections):
+    for item in _control_items(sections, access):
         if not item.changed:
             continue
         changes.append(
@@ -998,11 +1102,42 @@ def _control_change_html(raw_change: ControlChange | Mapping[str, object]) -> st
     )
 
 
+def _control_visible_keys(
+    sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
+) -> set[str]:
+    return {
+        key
+        for item in _control_items(sections, access)
+        for key in (str(item.key or ""), str(item.source_path or ""), _control_name(item))
+        if key
+    }
+
+
+def _control_explicit_changes(
+    changes: Sequence[ControlChange | Mapping[str, object]],
+    sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
+) -> list[ControlChange]:
+    visible_keys = _control_visible_keys(sections, access)
+    rendered: list[ControlChange] = []
+    for raw_change in changes:
+        change = _coerce(raw_change, ControlChange, {"label": "Control"})
+        if access is not None and change.control_key and str(change.control_key) not in visible_keys:
+            continue
+        rendered.append(change)
+    return rendered
+
+
 def _control_changes_html(
     changes: Sequence[ControlChange | Mapping[str, object]],
     sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
 ) -> str:
-    all_changes = list(changes) or _auto_control_changes(sections)
+    if changes:
+        all_changes = _control_explicit_changes(changes, sections, access)
+    else:
+        all_changes = _auto_control_changes(sections, access)
     body = "".join(_control_change_html(change) for change in all_changes)
     if not body:
         return ""
@@ -1016,12 +1151,16 @@ def _control_changes_html(
     )
 
 
-def _control_overview_html(model: ControlCenterConfig, sections: Sequence[ControlSection | Mapping[str, object]]) -> str:
-    items = _control_items(sections)
+def _control_overview_html(
+    model: ControlCenterConfig,
+    sections: Sequence[ControlSection | Mapping[str, object]],
+    access: ControlAccessContext | None = None,
+) -> str:
+    items = _control_items(sections, access)
     bool_items = [item for item in items if _control_kind(item.kind) in {"boolean", "switch", "toggle"}]
     enabled = sum(1 for item in bool_items if _bool(item.pending_value if item.pending_value is not None else item.value))
     disabled = max(0, len(bool_items) - enabled)
-    changes = len(model.changes) or len(_auto_control_changes(sections))
+    changes = len(_control_explicit_changes(model.changes, sections, access)) if model.changes else len(_auto_control_changes(sections, access))
     restart = sum(1 for item in items if item.restart_required or item.changed and item.restart_required)
     secrets = sum(1 for item in items if _control_is_secret(item))
     metrics = (
@@ -1043,36 +1182,46 @@ def render_control_center(
     config: ControlCenterConfig | Mapping[str, object] | None,
     *,
     features: Mapping[str, bool] | None = None,
+    access_context: ControlAccessContext | Mapping[str, object] | None = None,
 ) -> str:
     if config is None:
         return ""
     model = _coerce(config, ControlCenterConfig)
     if not control_center_feature_enabled(model, features):
         return ""
+    access = _control_access_context(access_context)
     sections = tuple(model.sections or ())
-    section_html = "".join(_control_section_html(section) for section in sections)
+    rendered_sections: list[tuple[ControlSection, str]] = []
+    for raw_section in sections:
+        section = _coerce(raw_section, ControlSection, {"key": "section", "title": "Section"})
+        html = _control_section_html(section, access)
+        if html:
+            rendered_sections.append((section, html))
+    section_html = "".join(html for _section, html in rendered_sections)
     if not section_html:
         section_html = f'<div class="pc-dashboard-empty">{escape(str(model.empty_label))}</div>'
     method = str(model.form_method or "post").strip().lower()
     if method not in {"get", "post"}:
         method = "post"
-    restart_required = bool(model.restart_required or any(item.restart_required for item in _control_items(sections)))
+    visible_items = _control_items(sections, access)
+    restart_required = bool(model.restart_required or any(item.restart_required for item in visible_items))
     restart = '<span class="pc-control-restart">restart required</span>' if restart_required else ""
     actions = _actions_html(model.actions, form=bool(model.form_action))
     reset = f'<a class="pc-settings-action pc-dashboard-tone-neutral" href="{escape(model.reset_href, quote=True)}">{escape(str(model.reset_label))}</a>' if model.reset_href else ""
+    save_disabled = bool(access is not None and not any(_control_can_edit(item, access) for item in visible_items))
     save = (
-        f'<button type="submit" class="pc-settings-action pc-settings-save pc-dashboard-tone-good">{escape(str(model.save_label))}</button>'
+        f'<button type="submit" class="pc-settings-action pc-settings-save pc-dashboard-tone-good"{_attrs(disabled=save_disabled, title="No editable controls for this access level" if save_disabled else "")}>{escape(str(model.save_label))}</button>'
         if model.form_action
         else ""
     )
     footer = f'<div class="pc-control-footer">{save}{reset}{actions}</div>' if save or reset or actions else ""
     nav = "".join(
         f'<a href="#pc-control-section-{escape(_key(_coerce(section, ControlSection, {"key": "section", "title": "Section"}).key), quote=True)}">{escape(str(_coerce(section, ControlSection, {"key": "section", "title": "Section"}).title))}</a>'
-        for section in sections
+        for section, _html in rendered_sections
     )
     body = (
         f'{_banners_html(model.banners)}{_messages_html(model.messages)}'
-        f'{_control_overview_html(model, sections)}{_control_changes_html(model.changes, sections)}'
+        f'{_control_overview_html(model, sections, access)}{_control_changes_html(model.changes, sections, access)}'
         f'{f"<nav class=\"pc-control-nav\" aria-label=\"Control Center sections\">{nav}</nav>" if nav else ""}'
         f'{section_html}{footer}'
     )

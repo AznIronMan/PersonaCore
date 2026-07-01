@@ -191,4 +191,4 @@ def test_public_package_metadata_matches_runtime_version():
     pyproject = tomllib.loads(Path("pyproject.toml").read_text())
 
     assert pyproject["project"]["name"] == "personaconsole"
-    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.49"
+    assert pyproject["project"]["version"] == personaconsole.__version__ == "1.0.50"

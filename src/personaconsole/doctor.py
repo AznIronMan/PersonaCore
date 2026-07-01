@@ -296,6 +296,7 @@ _COMMAND_INTAKE_EXPORTS = (
 )
 _SETTINGS_EDITOR_EXPORTS = (
     "CONTROL_CENTER_FEATURE",
+    "ControlAccessContext",
     "ControlCenterConfig",
     "ControlChange",
     "ControlGroup",

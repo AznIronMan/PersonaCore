@@ -5431,6 +5431,9 @@ pre {
 .pc-control-item.is-dangerous {
   border-color: color-mix(in srgb, var(--pc-danger) 54%, var(--pc-border));
 }
+.pc-control-item.is-view-only {
+  background: color-mix(in srgb, var(--pc-muted) 8%, transparent);
+}
 .pc-control-item-head {
   align-items: start;
   display: flex;
@@ -5507,6 +5510,30 @@ pre {
   min-width: 0;
   padding: 8px 10px;
   width: 100%;
+}
+.pc-control-input input:disabled,
+.pc-control-input select:disabled,
+.pc-control-input textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+.pc-control-clear {
+  align-items: center;
+  color: var(--pc-muted);
+  display: inline-flex;
+  flex: 1 1 180px;
+  gap: 7px;
+  min-width: min(220px, 100%);
+}
+.pc-control-clear input[type="checkbox"] {
+  accent-color: var(--pc-info);
+  flex: 0 0 auto;
+  height: 16px;
+  width: 16px;
+}
+.pc-control-clear span {
+  font-size: 12px;
+  font-weight: 740;
 }
 .pc-control-switch {
   align-items: center;

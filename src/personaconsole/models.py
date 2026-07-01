@@ -1048,6 +1048,15 @@ class ControlChange:
 
 
 @dataclass(frozen=True)
+class ControlAccessContext:
+    role: str = ""
+    scopes: Sequence[str] = field(default_factory=tuple)
+    can_view_all: bool = False
+    can_edit_all: bool = False
+    default_can_edit: bool = True
+
+
+@dataclass(frozen=True)
 class ControlItem:
     key: str
     label: str = ""
@@ -1072,6 +1081,11 @@ class ControlItem:
     changed: bool = False
     restart_required: bool = False
     dangerous: bool = False
+    clearable: bool = False
+    clear_name: str = ""
+    clear_label: str = "Clear stored value"
+    view_roles: Sequence[str] = field(default_factory=tuple)
+    edit_roles: Sequence[str] = field(default_factory=tuple)
     rows: int = 4
     min_value: str | int | float = ""
     max_value: str | int | float = ""

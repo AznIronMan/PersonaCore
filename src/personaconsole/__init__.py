@@ -127,6 +127,7 @@ from .models import (
     ConnectorGroup,
     ConnectorOption,
     ContinuityItem,
+    ControlAccessContext,
     ControlCenterConfig,
     ControlChange,
     ControlGroup,
@@ -511,6 +512,7 @@ __all__ = [
     "ConnectorOption",
     "ContinuityItem",
     "CONTROL_CENTER_FEATURE",
+    "ControlAccessContext",
     "ControlCenterConfig",
     "ControlChange",
     "ControlGroup",
@@ -837,7 +839,7 @@ __all__ = [
     "WorkerScheduleRow",
 ]
 
-__version__ = "1.0.49"
+__version__ = "1.0.50"
 
 
 def configure_jinja_loader(*args, **kwargs):
