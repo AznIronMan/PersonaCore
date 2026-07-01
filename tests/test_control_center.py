@@ -367,3 +367,46 @@ def test_build_control_center_from_console_and_engine_sources():
     assert "engine.projection.cadence_settings.max_chunk_chars" in html
     assert "runtime.control.extra_sections" in html
     assert "Surface registry preview" in html
+
+
+def test_engine_catalog_controls_preserve_access_and_input_metadata():
+    config = build_control_center_from_sources(
+        PersonaConsoleConfig(brand_name="Example", page_title="Dashboard"),
+        engine_catalog={
+            "groups": [
+                {
+                    "key": "engine-cadence",
+                    "label": "Cadence",
+                    "section": "runtime",
+                    "controls": [
+                        {
+                            "key": "engine-cadence-base-delay",
+                            "label": "Base delay",
+                            "source_path": "engine.projection.cadence_settings.base_delay_ms",
+                            "kind": "number",
+                            "value": 500,
+                            "owner": "Engine",
+                            "restart_required": True,
+                            "view_roles": ("owner", "operator", "moderator"),
+                            "edit_roles": ("owner", "operator"),
+                            "min_value": 0,
+                            "max_value": 60000,
+                            "step": 50,
+                        }
+                    ],
+                }
+            ]
+        },
+        form_action="/control/save",
+    )
+
+    operator_html = render_control_center(config, access_context={"role": "operator", "default_can_edit": False})
+    moderator_html = render_control_center(config, access_context={"role": "moderator", "default_can_edit": False})
+
+    assert 'name="engine.projection.cadence_settings.base_delay_ms"' in operator_html
+    assert 'name="engine.projection.cadence_settings.base_delay_ms" disabled' not in operator_html
+    assert 'min="0"' in operator_html
+    assert 'max="60000"' in operator_html
+    assert 'step="50"' in operator_html
+    assert "owner/operator edit" in operator_html
+    assert 'name="engine.projection.cadence_settings.base_delay_ms" disabled' in moderator_html

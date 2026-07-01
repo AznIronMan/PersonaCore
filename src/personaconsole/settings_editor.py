@@ -281,7 +281,7 @@ def _attrs(**attrs: object) -> str:
     for name, value in attrs.items():
         if value is True:
             parts.append(f" {name.replace('_', '-')}")
-        elif value not in (None, False, ""):
+        elif value is not None and value is not False and value != "":
             parts.append(f' {name.replace("_", "-")}="{escape(str(value), quote=True)}"')
     return "".join(parts)
 
@@ -1478,18 +1478,37 @@ def _engine_control_item(raw_control: Mapping[str, object] | object, section: st
         name=source_path,
         kind=str(data.get("kind") or "text"),
         value=data.get("value", ""),
+        pending_value=data.get("pending_value", data.get("pendingValue", None)),
         display_value=str(data.get("display_value") or data.get("displayValue") or ""),
+        pending_display_value=str(data.get("pending_display_value") or data.get("pendingDisplayValue") or ""),
+        placeholder=str(data.get("placeholder") or ""),
         help_text=str(data.get("description") or ""),
         owner=str(data.get("owner") or "Engine"),
         source_path=source_path,
         section=str(data.get("section") or section),
         status=str(data.get("status") or ""),
         tone=str(data.get("tone") or "neutral"),
-        restart_required=bool(data.get("restart_required") or data.get("restartRequired") or False),
-        secret=bool(data.get("secret") or False),
+        required=bool(data.get("required") or False),
         readonly=bool(data.get("readonly") or False),
         disabled=bool(data.get("disabled") or False),
+        restart_required=bool(data.get("restart_required") or data.get("restartRequired") or False),
+        secret=bool(data.get("secret") or False),
+        redacted=bool(data.get("redacted") or False),
+        changed=bool(data.get("changed") or False),
+        dangerous=bool(data.get("dangerous") or False),
+        clearable=bool(data.get("clearable") or False),
+        clear_name=str(data.get("clear_name") or data.get("clearName") or ""),
+        clear_label=str(data.get("clear_label") or data.get("clearLabel") or "Clear stored value"),
+        view_roles=tuple(str(role) for role in data.get("view_roles", data.get("viewRoles", ())) or ()),
+        edit_roles=tuple(str(role) for role in data.get("edit_roles", data.get("editRoles", ())) or ()),
+        rows=int(data.get("rows") or 4),
+        min_value=data.get("min_value", data.get("minValue", "")),
+        max_value=data.get("max_value", data.get("maxValue", "")),
+        step=data.get("step", ""),
         options=options,
+        messages=tuple(data.get("messages", ()) or ()),
+        badges=tuple(data.get("badges", ()) or ()),
+        actions=tuple(data.get("actions", ()) or ()),
         metadata=_mapping(data.get("metadata")),
     )
 
