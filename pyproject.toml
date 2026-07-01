@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "personaconsole"
-version = "1.0.40"
+version = "1.0.41"
 description = "Reusable admin console shell, dashboard primitives, navigation, and style system for persona runtimes."
 requires-python = ">=3.11"
 dependencies = [

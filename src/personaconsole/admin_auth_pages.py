@@ -131,8 +131,34 @@ def _safe_root_relative(value: object, fallback: str = "/") -> str:
     return raw
 
 
-def _safe_next_path(value: object, blocked_prefixes: Sequence[str], fallback: str = "/") -> str:
-    safe = _safe_root_relative(value, fallback)
+def _origin_for_url(value: object) -> str:
+    parts = urlsplit(str(value or "").strip())
+    if parts.scheme not in {"http", "https"} or not parts.netloc:
+        return ""
+    return f"{parts.scheme}://{parts.netloc}".lower()
+
+
+def _safe_next_path(
+    value: object,
+    blocked_prefixes: Sequence[str],
+    fallback: str = "/",
+    allowed_origins: Sequence[str] = (),
+) -> str:
+    raw = str(value or "").strip()
+    safe = _safe_root_relative(raw, "")
+    if not safe:
+        raw_parts = urlsplit(raw)
+        allowed = {_origin_for_url(origin) for origin in allowed_origins}
+        allowed.discard("")
+        if (
+            raw_parts.scheme in {"http", "https"}
+            and raw_parts.netloc
+            and _origin_for_url(raw) in allowed
+            and not any(char in raw for char in ("\r", "\n", "\t", "\x00", "\\"))
+        ):
+            safe = raw
+        else:
+            safe = fallback
     path = urlsplit(safe).path.rstrip("/") or "/"
     for prefix in blocked_prefixes:
         blocked = _safe_root_relative(prefix, "").rstrip("/")
@@ -311,7 +337,12 @@ def render_admin_login_page(config: AdminLoginPageConfig | Mapping[str, object])
     model = _coerce(config, AdminLoginPageConfig)
     brand = _brand(model.brand, model.title)
     action = _safe_root_relative(model.form_action, "/login")
-    next_path = _safe_next_path(model.next_path, model.blocked_next_prefixes, "/")
+    next_path = _safe_next_path(
+        model.next_path,
+        model.blocked_next_prefixes,
+        "/",
+        model.allowed_next_origins,
+    )
     next_name = _safe_name(model.next_field_name, "next")
     username_name = _safe_name(model.username_name, "username")
     password_name = _safe_name(model.password_name, "password")

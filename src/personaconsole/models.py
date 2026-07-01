@@ -146,6 +146,7 @@ class AdminLoginPageConfig:
     next_path: str = "/"
     next_field_name: str = "next"
     blocked_next_prefixes: Sequence[str] = ("/login",)
+    allowed_next_origins: Sequence[str] = field(default_factory=tuple)
     username_label: str = "Username"
     username_name: str = "username"
     username_value: str = ""

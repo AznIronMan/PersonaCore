@@ -75,6 +75,28 @@ def test_admin_login_page_sanitizes_hosted_urls_and_blocked_next_path():
     assert not any(host in html for host in PRIVATE_HOSTS)
 
 
+def test_admin_login_page_can_preserve_explicitly_allowed_absolute_next_url():
+    html = personaconsole.render_admin_login_page(
+        personaconsole.AdminLoginPageConfig(
+            next_path="https://console.example.test/messages?page=2",
+            allowed_next_origins=("https://console.example.test",),
+        )
+    )
+    blocked = personaconsole.render_admin_login_page(
+        personaconsole.AdminLoginPageConfig(
+            next_path="https://console.example.test/login?next=/runtime",
+            allowed_next_origins=("https://console.example.test",),
+        )
+    )
+
+    assert (
+        'name="next" value="https://console.example.test/messages?page=2"'
+        in html
+    )
+    assert 'name="next" value="/"' in blocked
+    assert "private-auth.example" not in html
+
+
 def test_admin_password_change_page_renders_disabled_state_and_min_length():
     html = personaconsole.render_admin_password_change_page(
         personaconsole.AdminPasswordChangePageConfig(
