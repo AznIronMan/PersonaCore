@@ -373,7 +373,9 @@ The media-library surface is a richer shared renderer for asset galleries,
 received media, generated artifacts, reference anchors, and review queues. It
 adds grid/list view options, preview dialogs, metadata chips, safety and
 sendability flags, non-image fallback states, source labels, and action slots
-for runtime-owned upload/import/regenerate controls.
+for runtime-owned upload/import/regenerate controls. Individual items may also
+provide `detail_html` for consumer-owned review forms or local controls that
+must stay beside a shared card without becoming PersonaConsole business logic.
 
 ```python
 from personaconsole import (
@@ -400,12 +402,13 @@ html = render_media_library_surface(
             MediaLibraryItem(
                 "asset-1",
                 "Reference image",
-                kind="image",
-                preview_src="/media/reference-1/preview",
-                detail_href="/media/reference-1",
+                media_type="image",
+                preview_url="/media/reference-1/preview",
+                href="/media/reference-1",
                 status="review",
-                safety_label="review needed",
-                sendability_label="blocked",
+                safety="review needed",
+                sendability="blocked",
+                detail_html='<form method="post" action="/media/reference-1/review">...</form>',
                 metadata=[MediaLibraryMetadata("Source", "operator upload")],
             )
         ],
@@ -419,6 +422,8 @@ URLs. Consumers own storage, upload validation, byte serving, provider
 generation, moderation policy, mutations, auth, and retention. Owner-private
 items use the same safe-alternate behavior as the other shared surfaces and raw
 preview/detail URLs are stripped unless the viewer can see the matching scope.
+`detail_html` is omitted for owner-private items when the viewer cannot see raw
+content for that scope.
 
 ## Generic Admin List Surface
 
@@ -850,6 +855,271 @@ PersonaEngine can later provide provider-neutral connector/capability metadata
 that consumers pass into PersonaConsole, but PersonaConsole should remain a renderer
 and configuration model only.
 
+## Public Profile Admin Surface
+
+`render_public_profile_surface(...)` renders the admin/editor view for public
+profile metadata, readiness checks, preview handoffs, media references, and
+change history. PersonaConsole does not render the public website, process
+public login, run chat, upload media, publish content, or decide profile policy.
+Consumers own those routes, stores, callbacks, and business rules.
+
+```python
+from personaconsole import (
+    PUBLIC_PROFILE_FEATURE,
+    PublicProfileField,
+    PublicProfilePreview,
+    PublicProfileReadinessCheck,
+    PublicProfileSection,
+    PublicProfileSurfaceConfig,
+    SurfaceAction,
+    render_public_profile_surface,
+)
+
+html = render_public_profile_surface(
+    PublicProfileSurfaceConfig(
+        enabled=True,
+        title="Public Profile",
+        subtitle="Draft copy, readiness, preview, and publication handoff.",
+        status="draft",
+        form_action="/admin/profile/save",
+        preview=PublicProfilePreview(
+            "Example Persona",
+            "Public preview",
+            "Generic public biography.",
+            href="/admin/profile/preview",
+            image_url="/media/profile.jpg",
+            status="draft",
+            tone="info",
+        ),
+        readiness=[
+            PublicProfileReadinessCheck("copy", "Profile copy", "ready", "good"),
+            PublicProfileReadinessCheck("media", "Hero media", "missing", "bad"),
+        ],
+        sections=[
+            PublicProfileSection(
+                "copy",
+                "Copy",
+                fields=[
+                    PublicProfileField("display_name", "Display name", "Example Persona", required=True),
+                    PublicProfileField("bio", "Bio", "Short public introduction.", multiline=True),
+                ],
+            )
+        ],
+        actions=[SurfaceAction("Open preview", "/admin/profile/preview", "info")],
+    ),
+    features={PUBLIC_PROFILE_FEATURE: True},
+)
+```
+
+Rows and fields support the same owner-private redaction contract as other admin
+surfaces. Public profile forms should post to consumer-owned endpoints; disabled
+or action-only controls are useful when publication must be handed off to an
+existing review or deploy workflow.
+
+## Presence Monitor Surface
+
+`render_presence_monitor_surface(...)` renders the admin view for runtime
+presence state, channel posture, schedules, source freshness, policy notes, and
+recent transitions. PersonaConsole does not call providers, decide whether a
+persona is publicly available, run scheduling engines, change public chat
+behavior, or mutate runtime state.
+
+```python
+from personaconsole import (
+    PRESENCE_MONITOR_FEATURE,
+    LiveRefreshConfig,
+    PresenceChannelRow,
+    PresenceMonitorSurfaceConfig,
+    PresenceScheduleWindow,
+    PresenceSourceFreshnessRow,
+    PresenceStateCard,
+    PresenceTransitionRow,
+    render_presence_monitor_surface,
+)
+
+html = render_presence_monitor_surface(
+    PresenceMonitorSurfaceConfig(
+        enabled=True,
+        status="degraded",
+        status_tone="warn",
+        states=[
+            PresenceStateCard("runtime", "Runtime Presence", "online", "good", "available", "web")
+        ],
+        channels=[
+            PresenceChannelRow("web", "Web chat", "web", "online", "good", "available")
+        ],
+        schedule=[
+            PresenceScheduleWindow("day", "Daytime", "active", "good", "08:00", "18:00", "UTC", "daily")
+        ],
+        sources=[
+            PresenceSourceFreshnessRow("adapter", "Adapter heartbeat", "adapter", "fresh", "good", "1m ago")
+        ],
+        transitions=[
+            PresenceTransitionRow("online", "Went online", "offline", "online", "applied", "good")
+        ],
+        live_refresh=LiveRefreshConfig(enabled=True, url="/admin/presence/fragment"),
+    ),
+    features={PRESENCE_MONITOR_FEATURE: True},
+)
+```
+
+Consumers should pass sanitized adapter data and keep provider credentials,
+private schedules, presence decision rules, public widgets, mutation endpoints,
+and audit persistence in the owning runtime. Rows with a privacy scope strip raw
+hrefs and render safe alternates for non-owner contexts.
+
+## Runtime Task Board Surface
+
+`render_runtime_task_board_surface(...)` renders an adapter-fed board for
+operational tasks, status tabs, filters, priorities, owners, due dates, selected
+detail, linked records, history, pagination, live refresh, and runtime-owned
+action slots. PersonaConsole does not own the task database, workflow rules,
+notifications, identity policy, or task mutations.
+
+```python
+from personaconsole import (
+    RUNTIME_TASK_BOARD_FEATURE,
+    RuntimeTaskBoardSurfaceConfig,
+    RuntimeTaskHistoryRow,
+    RuntimeTaskLinkedRecord,
+    RuntimeTaskRow,
+    StatusTab,
+    SurfaceAction,
+    render_runtime_task_board_surface,
+)
+
+task = RuntimeTaskRow(
+    "task-one",
+    "Review shared surface",
+    "review",
+    "warn",
+    "medium",
+    "normal",
+    "operator",
+    "tomorrow",
+    "09:00",
+    "Check adapter-fed task detail before migration.",
+    "/admin/tasks/task-one",
+    linked_records=[RuntimeTaskLinkedRecord("route", "Admin route", "surface", "ready", "good")],
+    history=[RuntimeTaskHistoryRow("created", "Created", "open", "info", "operator", "08:00")],
+    actions=[SurfaceAction("Mark reviewed", "/admin/tasks/task-one/reviewed", "good", method="post")],
+)
+
+html = render_runtime_task_board_surface(
+    RuntimeTaskBoardSurfaceConfig(
+        enabled=True,
+        tabs=[StatusTab("All", "/admin/tasks", 1, active=True)],
+        tasks=[task],
+        selected_task=task,
+    ),
+    features={RUNTIME_TASK_BOARD_FEATURE: True},
+)
+```
+
+Task IDs, status vocabulary, action URLs, and persistence remain consumer-owned.
+Private task titles, summaries, details, linked records, history rows, and raw
+hrefs should be passed with `privacy_scope` and `safe_alternate` when they are
+not suitable for all operator contexts.
+
+## Infrastructure Posture Surface
+
+`render_infrastructure_posture_surface(...)` renders sanitized DNS,
+certificate, edge endpoint, propagation, and warning posture from
+consumer-provided diagnostics. PersonaConsole does not call DNS providers,
+store credentials, run ACME clients, renew certificates, deploy public edges, or
+restart services.
+
+```python
+from personaconsole import (
+    INFRASTRUCTURE_POSTURE_FEATURE,
+    InfrastructureCertificateRow,
+    InfrastructureDnsRecordRow,
+    InfrastructurePostureSurfaceConfig,
+    render_infrastructure_posture_surface,
+)
+
+html = render_infrastructure_posture_surface(
+    InfrastructurePostureSurfaceConfig(
+        enabled=True,
+        status="degraded",
+        status_tone="warn",
+        dns_records=[
+            InfrastructureDnsRecordRow(
+                "apex",
+                "Apex A",
+                "A",
+                "example.com",
+                "203.0.113.10",
+                "203.0.113.10",
+                "verified",
+                "good",
+            )
+        ],
+        certificates=[
+            InfrastructureCertificateRow(
+                "edge",
+                "Edge certificate",
+                "example.com",
+                "Example CA",
+                "expiring",
+                "warn",
+                "2026-08-01",
+                31,
+            )
+        ],
+    ),
+    features={INFRASTRUCTURE_POSTURE_FEATURE: True},
+)
+```
+
+Consumers should redact private hostnames, account IDs, provider details, and
+deployment paths before passing data into the surface. Runtime-owned actions can
+be exposed as disabled buttons or action slots when an operator handoff is
+needed, but provider calls and renewal execution stay in the consumer runtime.
+
+## Admin Access Surface
+
+`render_admin_access_surface(...)` renders sanitized admin access posture:
+principals, active/recent sessions, allow/block rules, lockout warnings, access
+audit summaries, live refresh, and runtime-owned action slots. It complements
+the centralized admin login pages; it does not verify credentials, issue
+session cookies, enforce authorization, mutate blocklists, display secrets, or
+define emergency unlock policy.
+
+```python
+from personaconsole import (
+    ADMIN_ACCESS_FEATURE,
+    AdminAccessPrincipalRow,
+    AdminAccessRuleRow,
+    AdminAccessSessionRow,
+    AdminAccessSurfaceConfig,
+    render_admin_access_surface,
+)
+
+html = render_admin_access_surface(
+    AdminAccessSurfaceConfig(
+        enabled=True,
+        status="locked",
+        status_tone="bad",
+        principals=[
+            AdminAccessPrincipalRow("operator", "Operator", "admin", "active", "good")
+        ],
+        sessions=[
+            AdminAccessSessionRow("session", "Current session", "operator", "active", "good")
+        ],
+        rules=[
+            AdminAccessRuleRow("allow", "Operator allow", "allow", "active", "good", "operator")
+        ],
+    ),
+    features={ADMIN_ACCESS_FEATURE: True},
+)
+```
+
+Consumers should pass only sanitized account labels, session metadata, policy
+summaries, and audit rows. Raw device details, private principals, blocklist
+targets, and sensitive audit summaries should use `privacy_scope` plus
+`safe_alternate`; mutation endpoints should be runtime-owned handoffs.
+
 ## Admin Authentication Pages
 
 Admin auth pages are reusable HTML shells for runtime operator login and forced
@@ -1118,6 +1388,7 @@ operators, persist queues, call providers, or touch local files.
 from personaconsole import (
     CommandCandidateRow,
     CommandConfirmationStep,
+    CommandIntakeActionSlot,
     CommandIntakeSurfaceConfig,
     CommandParsedField,
     CommandQueueRow,
@@ -1153,6 +1424,32 @@ Consumers own parsing, target lookup, policy evaluation, confirmation
 semantics, queue storage, execution, audit logging, permissions, and side
 effects. Use `privacy_scope` plus `safe_alternate` for private prompt text,
 candidate details, queued commands, and history.
+
+When a runtime already has a validated form or control panel, keep that form in
+the consumer repo and mount it through an action slot instead of duplicating the
+field contract in PersonaConsole:
+
+```python
+html = render_command_intake_surface(
+    CommandIntakeSurfaceConfig(
+        enabled=True,
+        show_form=False,
+        action_slots=[
+            CommandIntakeActionSlot(
+                "runtime-command",
+                "Runtime Command",
+                description="Consumer-owned validation and submit route.",
+                body_html='<form method="post" action="/commands/preview">...</form>',
+            )
+        ],
+        queue=[CommandQueueRow("queued", "Queued command", command="Adjust schedule")],
+    )
+)
+```
+
+Action-slot `body` text participates in owner-private redaction. `body_html` is
+consumer-supplied markup and should only contain HTML the runtime already owns
+and sanitizes.
 
 ## Shared Availability Monitor
 

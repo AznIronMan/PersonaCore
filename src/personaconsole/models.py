@@ -1501,6 +1501,20 @@ class CommandHistoryRow:
 
 
 @dataclass(frozen=True)
+class CommandIntakeActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
 class CommandIntakeSurfaceConfig:
     enabled: bool = False
     feature: str = "command_intake"
@@ -1511,6 +1525,7 @@ class CommandIntakeSurfaceConfig:
     metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
     form_action: str = ""
     form_method: str = "post"
+    show_form: bool = True
     input_name: str = "command"
     input_label: str = "Command"
     input_placeholder: str = "Describe the operator intent..."
@@ -1528,6 +1543,7 @@ class CommandIntakeSurfaceConfig:
     queue: Sequence[CommandQueueRow | Mapping[str, object]] = field(default_factory=tuple)
     history: Sequence[CommandHistoryRow | Mapping[str, object]] = field(default_factory=tuple)
     actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    action_slots: Sequence[CommandIntakeActionSlot | Mapping[str, object]] = field(default_factory=tuple)
     empty_label: str = "No command preview data configured."
 
 
@@ -2040,6 +2056,584 @@ class PersonaEditorConfig:
 
 
 @dataclass(frozen=True)
+class PublicProfileField:
+    key: str
+    label: str
+    value: str | int | float | bool = ""
+    input_name: str = ""
+    input_type: str = "text"
+    placeholder: str = ""
+    detail: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    required: bool = False
+    disabled: bool = False
+    readonly: bool = False
+    multiline: bool = False
+    rows: int = 3
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfileSection:
+    key: str
+    title: str
+    description: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    fields: Sequence[PublicProfileField | Mapping[str, object]] = field(default_factory=tuple)
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfileReadinessCheck:
+    key: str
+    label: str
+    status: str = "unknown"
+    tone: str = "neutral"
+    detail: str = ""
+    required: bool = True
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfilePreview:
+    title: str = ""
+    subtitle: str = ""
+    body: str = ""
+    href: str = ""
+    image_url: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfileMediaItem:
+    key: str
+    label: str
+    kind: str = "image"
+    url: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    detail: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfileHistoryRow:
+    key: str
+    label: str
+    status: str = ""
+    tone: str = "neutral"
+    actor: str = ""
+    timestamp: str = ""
+    summary: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PublicProfileSurfaceConfig:
+    enabled: bool = False
+    feature: str = "public_profile"
+    key: str = "public-profile"
+    title: str = "Public Profile"
+    subtitle: str = "Public profile metadata, readiness, preview handoff, and history"
+    status: str = ""
+    status_tone: str = "neutral"
+    form_action: str = ""
+    form_method: str = "post"
+    submit_label: str = "Save draft"
+    sections: Sequence[PublicProfileSection | Mapping[str, object]] = field(default_factory=tuple)
+    readiness: Sequence[PublicProfileReadinessCheck | Mapping[str, object]] = field(default_factory=tuple)
+    preview: PublicProfilePreview | Mapping[str, object] | None = None
+    media: Sequence[PublicProfileMediaItem | Mapping[str, object]] = field(default_factory=tuple)
+    history: Sequence[PublicProfileHistoryRow | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No public profile data configured."
+
+
+@dataclass(frozen=True)
+class PresenceStateCard:
+    key: str
+    label: str
+    status: str = "unknown"
+    tone: str = "neutral"
+    mode: str = ""
+    channel: str = ""
+    detail: str = ""
+    last_seen: str = ""
+    next_change: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresenceChannelRow:
+    key: str
+    label: str
+    channel: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    mode: str = ""
+    audience: str = ""
+    last_seen: str = ""
+    freshness: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresenceScheduleWindow:
+    key: str
+    label: str
+    status: str = "scheduled"
+    tone: str = "info"
+    starts_at: str = ""
+    ends_at: str = ""
+    timezone: str = ""
+    repeat: str = ""
+    channel: str = ""
+    policy: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresenceSourceFreshnessRow:
+    key: str
+    label: str
+    source: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    last_seen: str = ""
+    lag: str = ""
+    target: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresencePolicyNotice:
+    key: str
+    label: str
+    status: str = ""
+    tone: str = "neutral"
+    summary: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresenceTransitionRow:
+    key: str
+    label: str
+    from_state: str = ""
+    to_state: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    actor: str = ""
+    timestamp: str = ""
+    summary: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class PresenceMonitorSurfaceConfig:
+    enabled: bool = False
+    feature: str = "presence_monitor"
+    key: str = "presence-monitor"
+    title: str = "Presence Monitor"
+    subtitle: str = "Runtime presence state, channel posture, schedules, and recent transitions"
+    status: str = ""
+    status_tone: str = "neutral"
+    tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    states: Sequence[PresenceStateCard | Mapping[str, object]] = field(default_factory=tuple)
+    channels: Sequence[PresenceChannelRow | Mapping[str, object]] = field(default_factory=tuple)
+    schedule: Sequence[PresenceScheduleWindow | Mapping[str, object]] = field(default_factory=tuple)
+    sources: Sequence[PresenceSourceFreshnessRow | Mapping[str, object]] = field(default_factory=tuple)
+    policies: Sequence[PresencePolicyNotice | Mapping[str, object]] = field(default_factory=tuple)
+    transitions: Sequence[PresenceTransitionRow | Mapping[str, object]] = field(default_factory=tuple)
+    live_refresh: LiveRefreshConfig | Mapping[str, object] | None = None
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No presence monitor items configured."
+
+
+@dataclass(frozen=True)
+class RuntimeTaskLinkedRecord:
+    key: str
+    label: str
+    kind: str = ""
+    status: str = ""
+    tone: str = "neutral"
+    href: str = ""
+    detail: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class RuntimeTaskHistoryRow:
+    key: str
+    label: str
+    status: str = ""
+    tone: str = "neutral"
+    actor: str = ""
+    timestamp: str = ""
+    summary: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class RuntimeTaskRow:
+    key: str
+    title: str
+    status: str = "open"
+    tone: str = "neutral"
+    priority: str = ""
+    severity: str = ""
+    owner: str = ""
+    due_at: str = ""
+    updated_at: str = ""
+    summary: str = ""
+    href: str = ""
+    detail_title: str = ""
+    detail: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    linked_records: Sequence[RuntimeTaskLinkedRecord | Mapping[str, object]] = field(default_factory=tuple)
+    history: Sequence[RuntimeTaskHistoryRow | Mapping[str, object]] = field(default_factory=tuple)
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class RuntimeTaskActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class RuntimeTaskBoardSurfaceConfig:
+    enabled: bool = False
+    feature: str = "runtime_task_board"
+    key: str = "runtime-task-board"
+    title: str = "Runtime Task Board"
+    subtitle: str = "Adapter-fed task status, priorities, ownership, detail, and history"
+    status: str = ""
+    status_tone: str = "neutral"
+    tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    filters: Sequence[DashboardFilter | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    tasks: Sequence[RuntimeTaskRow | Mapping[str, object]] = field(default_factory=tuple)
+    selected_task: RuntimeTaskRow | Mapping[str, object] | None = None
+    pagination: AdminListPagination | Mapping[str, object] | None = None
+    live_refresh: LiveRefreshConfig | Mapping[str, object] | None = None
+    action_slots: Sequence[RuntimeTaskActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No runtime tasks configured."
+    row_label: str = "tasks"
+
+
+@dataclass(frozen=True)
+class InfrastructureDnsRecordRow:
+    key: str
+    label: str
+    record_type: str = ""
+    name: str = ""
+    value: str = ""
+    expected_value: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    ttl: str | int = ""
+    provider: str = ""
+    last_checked: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructureCertificateRow:
+    key: str
+    label: str
+    subject: str = ""
+    issuer: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    expires_at: str = ""
+    days_remaining: str | int = ""
+    renewal: str = ""
+    last_checked: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructureEndpointRow:
+    key: str
+    label: str
+    url: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    method: str = ""
+    code: str | int = ""
+    latency: str = ""
+    last_checked: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructureCheckRow:
+    key: str
+    label: str
+    status: str = "unknown"
+    tone: str = "neutral"
+    source: str = ""
+    target: str = ""
+    observed: str = ""
+    expected: str = ""
+    last_checked: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructureWarningRow:
+    key: str
+    label: str
+    status: str = "warning"
+    tone: str = "warn"
+    summary: str = ""
+    severity: str = ""
+    last_seen: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructureActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class InfrastructurePostureSurfaceConfig:
+    enabled: bool = False
+    feature: str = "infrastructure_posture"
+    key: str = "infrastructure-posture"
+    title: str = "Infrastructure Posture"
+    subtitle: str = "DNS, certificate, edge endpoint, propagation, and warning posture"
+    status: str = ""
+    status_tone: str = "neutral"
+    tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    dns_records: Sequence[InfrastructureDnsRecordRow | Mapping[str, object]] = field(default_factory=tuple)
+    certificates: Sequence[InfrastructureCertificateRow | Mapping[str, object]] = field(default_factory=tuple)
+    endpoints: Sequence[InfrastructureEndpointRow | Mapping[str, object]] = field(default_factory=tuple)
+    checks: Sequence[InfrastructureCheckRow | Mapping[str, object]] = field(default_factory=tuple)
+    warnings: Sequence[InfrastructureWarningRow | Mapping[str, object]] = field(default_factory=tuple)
+    live_refresh: LiveRefreshConfig | Mapping[str, object] | None = None
+    action_slots: Sequence[InfrastructureActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No infrastructure posture items configured."
+
+
+@dataclass(frozen=True)
+class AdminAccessPrincipalRow:
+    key: str
+    label: str
+    role: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    last_seen: str = ""
+    scope: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessSessionRow:
+    key: str
+    label: str
+    principal: str = ""
+    status: str = "unknown"
+    tone: str = "neutral"
+    started_at: str = ""
+    last_seen: str = ""
+    expires_at: str = ""
+    device: str = ""
+    location: str = ""
+    detail: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessRuleRow:
+    key: str
+    label: str
+    rule_type: str = "allow"
+    status: str = "unknown"
+    tone: str = "neutral"
+    target: str = ""
+    reason: str = ""
+    expires_at: str = ""
+    updated_at: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessAuditRow:
+    key: str
+    label: str
+    status: str = ""
+    tone: str = "neutral"
+    actor: str = ""
+    action: str = ""
+    target: str = ""
+    timestamp: str = ""
+    summary: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessWarningRow:
+    key: str
+    label: str
+    status: str = "warning"
+    tone: str = "warn"
+    summary: str = ""
+    severity: str = ""
+    last_seen: str = ""
+    href: str = ""
+    privacy_scope: str = ""
+    safe_alternate: str = ""
+    badges: Sequence[SurfaceBadge | Mapping[str, object] | str] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessActionSlot:
+    key: str
+    label: str
+    description: str = ""
+    body_html: str = ""
+    tone: str = "neutral"
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
+class AdminAccessSurfaceConfig:
+    enabled: bool = False
+    feature: str = "admin_access"
+    key: str = "admin-access"
+    title: str = "Admin Access"
+    subtitle: str = "Admin sessions, principals, allow/block rules, lockouts, and audit posture"
+    status: str = ""
+    status_tone: str = "neutral"
+    tabs: Sequence[StatusTab | Mapping[str, object]] = field(default_factory=tuple)
+    metrics: Sequence[DashboardMetric | Mapping[str, object]] = field(default_factory=tuple)
+    principals: Sequence[AdminAccessPrincipalRow | Mapping[str, object]] = field(default_factory=tuple)
+    sessions: Sequence[AdminAccessSessionRow | Mapping[str, object]] = field(default_factory=tuple)
+    rules: Sequence[AdminAccessRuleRow | Mapping[str, object]] = field(default_factory=tuple)
+    audits: Sequence[AdminAccessAuditRow | Mapping[str, object]] = field(default_factory=tuple)
+    warnings: Sequence[AdminAccessWarningRow | Mapping[str, object]] = field(default_factory=tuple)
+    live_refresh: LiveRefreshConfig | Mapping[str, object] | None = None
+    action_slots: Sequence[AdminAccessActionSlot | Mapping[str, object]] = field(default_factory=tuple)
+    actions: Sequence[SurfaceAction | Mapping[str, object]] = field(default_factory=tuple)
+    empty_label: str = "No admin access posture items configured."
+
+
+@dataclass(frozen=True)
 class BridgeStatusCard:
     label: str
     status: str
@@ -2452,6 +3046,7 @@ class MediaLibraryItem:
     source: str = ""
     timestamp: str = ""
     detail: str = ""
+    detail_html: str = ""
     tone: str = "neutral"
     privacy_scope: str = ""
     safe_alternate: str = ""

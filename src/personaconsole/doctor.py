@@ -4,6 +4,7 @@ import argparse
 import importlib
 import importlib.metadata
 import json
+import tomllib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
@@ -49,6 +50,18 @@ _ADMIN_LIST_EXPORTS = (
     "admin_list_surface_feature_enabled",
     "render_admin_list_surface",
 )
+_ADMIN_ACCESS_EXPORTS = (
+    "ADMIN_ACCESS_FEATURE",
+    "AdminAccessActionSlot",
+    "AdminAccessAuditRow",
+    "AdminAccessPrincipalRow",
+    "AdminAccessRuleRow",
+    "AdminAccessSessionRow",
+    "AdminAccessSurfaceConfig",
+    "AdminAccessWarningRow",
+    "admin_access_feature_enabled",
+    "render_admin_access_surface",
+)
 _ADMIN_AUTH_PAGE_EXPORTS = (
     "AdminAuthLink",
     "AdminAuthSummaryItem",
@@ -83,6 +96,18 @@ _MEDIA_LIBRARY_EXPORTS = (
     "MediaLibrarySurfaceConfig",
     "media_library_surface_feature_enabled",
     "render_media_library_surface",
+)
+_INFRASTRUCTURE_POSTURE_EXPORTS = (
+    "INFRASTRUCTURE_POSTURE_FEATURE",
+    "InfrastructureActionSlot",
+    "InfrastructureCertificateRow",
+    "InfrastructureCheckRow",
+    "InfrastructureDnsRecordRow",
+    "InfrastructureEndpointRow",
+    "InfrastructurePostureSurfaceConfig",
+    "InfrastructureWarningRow",
+    "infrastructure_posture_feature_enabled",
+    "render_infrastructure_posture_surface",
 )
 _SURFACE_EXPORTS = (
     "ACTIVITY_FEATURE",
@@ -156,6 +181,40 @@ _PUBLIC_PRESENCE_EXPORTS = (
     "render_public_settings_surface",
     "render_public_splash_page",
 )
+_PUBLIC_PROFILE_EXPORTS = (
+    "PUBLIC_PROFILE_FEATURE",
+    "PublicProfileField",
+    "PublicProfileHistoryRow",
+    "PublicProfileMediaItem",
+    "PublicProfilePreview",
+    "PublicProfileReadinessCheck",
+    "PublicProfileSection",
+    "PublicProfileSurfaceConfig",
+    "public_profile_feature_enabled",
+    "render_public_profile_surface",
+)
+_PRESENCE_MONITOR_EXPORTS = (
+    "PRESENCE_MONITOR_FEATURE",
+    "PresenceChannelRow",
+    "PresenceMonitorSurfaceConfig",
+    "PresencePolicyNotice",
+    "PresenceScheduleWindow",
+    "PresenceSourceFreshnessRow",
+    "PresenceStateCard",
+    "PresenceTransitionRow",
+    "presence_monitor_feature_enabled",
+    "render_presence_monitor_surface",
+)
+_RUNTIME_TASK_BOARD_EXPORTS = (
+    "RUNTIME_TASK_BOARD_FEATURE",
+    "RuntimeTaskActionSlot",
+    "RuntimeTaskBoardSurfaceConfig",
+    "RuntimeTaskHistoryRow",
+    "RuntimeTaskLinkedRecord",
+    "RuntimeTaskRow",
+    "render_runtime_task_board_surface",
+    "runtime_task_board_feature_enabled",
+)
 _OPERATIONS_EXPORTS = (
     "AGENT_OPS_FEATURE",
     "OPERATIONS_FEATURE",
@@ -224,6 +283,7 @@ _BRIDGE_OPS_EXPORTS = (
 )
 _COMMAND_INTAKE_EXPORTS = (
     "COMMAND_INTAKE_FEATURE",
+    "CommandIntakeActionSlot",
     "CommandCandidateRow",
     "CommandConfirmationStep",
     "CommandHistoryRow",
@@ -365,7 +425,7 @@ def run_consumer_integration_doctor(
     personaconsole = _module_snapshot("personaconsole", include_paths=include_paths)
     persona_console_compat = _module_snapshot("persona_console", include_paths=include_paths)
     personacore_compat = _module_snapshot("personacore", include_paths=include_paths)
-    package_version = _distribution_version("personaconsole")
+    package_version = _distribution_version("personaconsole", runtime_version=personaconsole.version)
 
     checks.append(_check(personaconsole.imported, "personaconsole_import", "personaconsole importable", personaconsole.error))
     checks.append(
@@ -411,7 +471,7 @@ def run_consumer_integration_doctor(
             _check(
                 package_version == personaconsole.version,
                 "package_metadata_match",
-                f"installed package metadata matches runtime {package_version}",
+                f"package metadata matches runtime {package_version}",
                 f"package={package_version} runtime={personaconsole.version or 'unknown'}",
             )
         )
@@ -420,15 +480,20 @@ def run_consumer_integration_doctor(
         checks.extend(_export_checks(module, "adapter_health_exports", _ADAPTER_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "availability_monitor_exports", _AVAILABILITY_MONITOR_EXPORTS))
         checks.extend(_export_checks(module, "admin_list_exports", _ADMIN_LIST_EXPORTS))
+        checks.extend(_export_checks(module, "admin_access_exports", _ADMIN_ACCESS_EXPORTS))
         checks.extend(_export_checks(module, "admin_auth_page_exports", _ADMIN_AUTH_PAGE_EXPORTS))
         checks.extend(_export_checks(module, "detail_dossier_exports", _DETAIL_DOSSIER_EXPORTS))
         checks.extend(_export_checks(module, "media_library_exports", _MEDIA_LIBRARY_EXPORTS))
+        checks.extend(_export_checks(module, "infrastructure_posture_exports", _INFRASTRUCTURE_POSTURE_EXPORTS))
         checks.extend(_export_checks(module, "token_health_exports", _TOKEN_HEALTH_EXPORTS))
         checks.extend(_export_checks(module, "surface_exports", _SURFACE_EXPORTS))
         checks.extend(_export_checks(module, "people_exports", _PEOPLE_EXPORTS))
         checks.extend(_export_checks(module, "review_exports", _REVIEW_EXPORTS))
         checks.extend(_export_checks(module, "journal_exports", _JOURNAL_EXPORTS))
         checks.extend(_export_checks(module, "public_presence_exports", _PUBLIC_PRESENCE_EXPORTS))
+        checks.extend(_export_checks(module, "public_profile_exports", _PUBLIC_PROFILE_EXPORTS))
+        checks.extend(_export_checks(module, "presence_monitor_exports", _PRESENCE_MONITOR_EXPORTS))
+        checks.extend(_export_checks(module, "runtime_task_board_exports", _RUNTIME_TASK_BOARD_EXPORTS))
         checks.extend(_export_checks(module, "operations_exports", _OPERATIONS_EXPORTS))
         checks.extend(_export_checks(module, "worker_operations_exports", _WORKER_OPERATIONS_EXPORTS))
         checks.extend(_export_checks(module, "bridge_ops_exports", _BRIDGE_OPS_EXPORTS))
@@ -442,9 +507,11 @@ def run_consumer_integration_doctor(
         checks.append(_adapter_health_render_check(module))
         checks.append(_availability_monitor_render_check(module))
         checks.append(_admin_list_render_check(module))
+        checks.append(_admin_access_render_check(module))
         checks.append(_admin_auth_page_render_check(module))
         checks.append(_detail_dossier_render_check(module))
         checks.append(_media_library_render_check(module))
+        checks.append(_infrastructure_posture_render_check(module))
         checks.append(_token_health_render_check(module))
         checks.append(_controls_render_check(module))
         checks.append(_surface_render_check(module))
@@ -452,6 +519,9 @@ def run_consumer_integration_doctor(
         checks.append(_review_render_check(module))
         checks.append(_journal_render_check(module))
         checks.append(_public_presence_render_check(module))
+        checks.append(_public_profile_render_check(module))
+        checks.append(_presence_monitor_render_check(module))
+        checks.append(_runtime_task_board_render_check(module))
         checks.append(_operations_render_check(module))
         checks.append(_worker_operations_render_check(module))
         checks.append(_persona_editor_render_check(module))
@@ -525,11 +595,37 @@ def _module_snapshot(name: str, *, include_paths: bool) -> ModuleSnapshot:
     )
 
 
-def _distribution_version(name: str) -> str:
+def _distribution_version(name: str, *, runtime_version: str = "") -> str:
+    metadata_version = ""
     try:
-        return importlib.metadata.version(name)
+        metadata_version = importlib.metadata.version(name)
     except importlib.metadata.PackageNotFoundError:
+        metadata_version = ""
+    if runtime_version and metadata_version != runtime_version:
+        source_version = _source_project_version(name)
+        if source_version == runtime_version:
+            return source_version
+    return metadata_version
+
+
+def _source_project_version(name: str) -> str:
+    try:
+        module = importlib.import_module(name)
+        module_file = Path(getattr(module, "__file__", "") or "").resolve()
+    except Exception:
         return ""
+    for parent in module_file.parents:
+        pyproject = parent / "pyproject.toml"
+        if not pyproject.exists():
+            continue
+        try:
+            data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        except (OSError, tomllib.TOMLDecodeError):
+            return ""
+        project = data.get("project", {})
+        if project.get("name") == name:
+            return str(project.get("version") or "")
+    return ""
 
 
 def _check(ok: bool, key: str, summary: str, detail: str = "") -> DoctorCheck:
@@ -761,6 +857,128 @@ def _admin_list_render_check(module: Any) -> DoctorCheck:
         and raw_url not in html
     )
     return _check(ok, "admin_list_render", "generic admin list renders controls, rows, cards, and redaction")
+
+
+def _admin_access_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-admin-access"
+    raw_url = "/doctor/raw-private-admin-access"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_admin_access_surface(
+            module.AdminAccessSurfaceConfig(
+                enabled=True,
+                title="Admin Access",
+                status="locked",
+                status_tone="bad",
+                metrics=[module.DashboardMetric("Active sessions", "2", detail="1 stale", tone="warn")],
+                principals=[
+                    module.AdminAccessPrincipalRow("operator", "Fixture Operator", "admin", "active", "good", "1m ago", "operator"),
+                    module.AdminAccessPrincipalRow(
+                        "private-principal",
+                        "Private principal",
+                        "owner",
+                        "locked",
+                        "bad",
+                        "14m ago",
+                        "owner_private",
+                        raw_value,
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe principal",
+                    ),
+                ],
+                sessions=[
+                    module.AdminAccessSessionRow("session", "Current session", "operator", "active", "good", "09:00", "1m ago", "10:00", "browser", "local"),
+                    module.AdminAccessSessionRow(
+                        "private-session",
+                        "Private session",
+                        "owner",
+                        "stale",
+                        "warn",
+                        "08:00",
+                        "14m ago",
+                        "09:00",
+                        raw_value,
+                        raw_value,
+                        raw_value,
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe session",
+                    ),
+                ],
+                rules=[
+                    module.AdminAccessRuleRow("allow", "Operator allow", "allow", "active", "good", "operator", "Public allow rule."),
+                    module.AdminAccessRuleRow(
+                        "block",
+                        "Blocked source",
+                        "block",
+                        "blocked",
+                        "bad",
+                        raw_value,
+                        raw_value,
+                        "today",
+                        "09:05",
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe block",
+                    ),
+                ],
+                warnings=[module.AdminAccessWarningRow("lockout", "Lockout active", "locked", "bad", "Lockout needs review.", "high", "1m ago")],
+                audits=[
+                    module.AdminAccessAuditRow("login", "Login accepted", "accepted", "good", "operator", "login", "admin", "09:00", "Operator login accepted."),
+                    module.AdminAccessAuditRow(
+                        "private-audit",
+                        "Private audit",
+                        "denied",
+                        "bad",
+                        "owner",
+                        "login",
+                        "admin",
+                        "09:05",
+                        raw_value,
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe audit",
+                    ),
+                ],
+                live_refresh=module.LiveRefreshConfig(enabled=True, key="access", url="/fragments/access", target_id="admin-access"),
+                action_slots=[
+                    module.AdminAccessActionSlot(
+                        "handoff",
+                        "Runtime-owned unlock",
+                        "Consumer route owns emergency unlock.",
+                        '<form action="/access/unlock" method="post"></form>',
+                        "warn",
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "admin_access_render", "admin access surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-admin-access-surface" in html
+        and "Fixture Operator" in html
+        and "Current session" in html
+        and "Operator allow" in html
+        and "Lockout active" in html
+        and "Login accepted" in html
+        and "Runtime-owned unlock" in html
+        and "data-pc-live-controls" in html
+        and "safe principal" in html
+        and "safe session" in html
+        and "safe block" in html
+        and "safe audit" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "admin_access_render", "admin access renders sessions, rules, audits, lockouts, and redaction")
 
 
 def _admin_auth_page_render_check(module: Any) -> DoctorCheck:
@@ -1011,6 +1229,111 @@ def _media_library_render_check(module: Any) -> DoctorCheck:
         and unsafe_url not in html
     )
     return _check(ok, "media_library_render", "media library renders gallery controls, action slots, previews, and redaction")
+
+
+def _infrastructure_posture_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-infrastructure"
+    raw_url = "/doctor/raw-private-infrastructure"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_infrastructure_posture_surface(
+            module.InfrastructurePostureSurfaceConfig(
+                enabled=True,
+                title="Infrastructure Posture",
+                status="degraded",
+                status_tone="warn",
+                metrics=[module.DashboardMetric("Expiring", "1", detail="certificate window", tone="warn")],
+                dns_records=[
+                    module.InfrastructureDnsRecordRow("apex", "Apex A", "A", "example.com", "203.0.113.10", "203.0.113.10", "verified", "good", 300, "generic dns", "1m ago"),
+                    module.InfrastructureDnsRecordRow(
+                        "private-dns",
+                        "Private DNS",
+                        "CNAME",
+                        raw_value,
+                        raw_value,
+                        raw_value,
+                        "stale",
+                        "warn",
+                        60,
+                        "provider",
+                        "14m ago",
+                        raw_value,
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe dns",
+                    ),
+                ],
+                certificates=[
+                    module.InfrastructureCertificateRow("edge", "Edge certificate", "example.com", "Example CA", "expiring", "warn", "2026-08-01", 31, "managed", "1m ago"),
+                    module.InfrastructureCertificateRow(
+                        "private-cert",
+                        "Private certificate",
+                        raw_value,
+                        raw_value,
+                        "failed",
+                        "bad",
+                        "2026-07-10",
+                        9,
+                        "manual",
+                        "14m ago",
+                        raw_value,
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe certificate",
+                    ),
+                ],
+                endpoints=[module.InfrastructureEndpointRow("home", "Public homepage", "https://example.com", "healthy", "good", "GET", 200, "84ms", "1m ago")],
+                checks=[module.InfrastructureCheckRow("propagation", "DNS propagation", "propagating", "warn", "resolver", "Apex A", "2/3", "3/3", "1m ago")],
+                warnings=[
+                    module.InfrastructureWarningRow(
+                        "private-warning",
+                        "Private warning",
+                        "warning",
+                        "bad",
+                        raw_value,
+                        "high",
+                        "1m ago",
+                        raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe warning",
+                    )
+                ],
+                live_refresh=module.LiveRefreshConfig(enabled=True, key="infra", url="/fragments/infra", target_id="infrastructure-posture"),
+                action_slots=[
+                    module.InfrastructureActionSlot(
+                        "handoff",
+                        "Provider handoff",
+                        "Consumer owns provider actions.",
+                        '<form action="/infra/handoff" method="post"></form>',
+                        "info",
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "infrastructure_posture_render", "infrastructure posture surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-infra-posture-surface" in html
+        and "Apex A" in html
+        and "Edge certificate" in html
+        and "Public homepage" in html
+        and "DNS propagation" in html
+        and "Provider handoff" in html
+        and "data-pc-live-controls" in html
+        and "safe dns" in html
+        and "safe certificate" in html
+        and "safe warning" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "infrastructure_posture_render", "infrastructure posture renders DNS, cert, endpoint, warning, and redaction")
 
 
 def _controls_render_check(module: Any) -> DoctorCheck:
@@ -1445,6 +1768,296 @@ def _public_presence_render_check(module: Any) -> DoctorCheck:
         and len(module.PUBLIC_THEME_KEYS) >= 12
     )
     return _check(ok, "public_presence_render", "public splash, login, chat, and settings surfaces render safely")
+
+
+def _public_profile_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-public-profile"
+    raw_url = "/doctor/raw-private-public-profile"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_public_profile_surface(
+            module.PublicProfileSurfaceConfig(
+                enabled=True,
+                title="Public Profile",
+                form_action="/public-profile/save",
+                preview=module.PublicProfilePreview(
+                    "Example Persona",
+                    "Public preview",
+                    "Generic public biography.",
+                    "/public-profile/preview",
+                    "/media/example.jpg",
+                    "draft",
+                    "info",
+                ),
+                readiness=[
+                    module.PublicProfileReadinessCheck("copy", "Profile copy", "ready", "good", "Copy is present."),
+                    module.PublicProfileReadinessCheck("media", "Hero media", "missing", "bad", "Hero media needs review."),
+                ],
+                sections=[
+                    module.PublicProfileSection(
+                        "copy",
+                        "Copy",
+                        fields=[
+                            module.PublicProfileField("display", "Display", "Example Persona", required=True),
+                            module.PublicProfileField(
+                                "private",
+                                "Private note",
+                                raw_value,
+                                detail=raw_value,
+                                privacy_scope="owner_private",
+                                safe_alternate="safe public profile note",
+                            ),
+                        ],
+                    )
+                ],
+                media=[
+                    module.PublicProfileMediaItem(
+                        "private-media",
+                        "Private media",
+                        "image",
+                        raw_url,
+                        "held",
+                        "warn",
+                        raw_value,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe public media",
+                    )
+                ],
+                history=[
+                    module.PublicProfileHistoryRow(
+                        "private-history",
+                        "Private history",
+                        "held",
+                        "warn",
+                        "operator",
+                        "09:00",
+                        raw_value,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe public history",
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "public_profile_render", "public profile surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-public-profile-surface" in html
+        and "/public-profile/save" in html
+        and "safe public profile note" in html
+        and "safe public media" in html
+        and "safe public history" in html
+        and "Hero media" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "public_profile_render", "public profile admin surface renders with safe alternates")
+
+
+def _presence_monitor_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-presence"
+    raw_url = "/doctor/raw-private-presence"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        html = module.render_presence_monitor_surface(
+            module.PresenceMonitorSurfaceConfig(
+                enabled=True,
+                title="Presence Monitor",
+                status="stale",
+                status_tone="warn",
+                metrics=[module.DashboardMetric("Channels", "2", detail="1 stale", tone="warn")],
+                states=[
+                    module.PresenceStateCard("runtime", "Runtime Presence", "online", "good", "available", "web"),
+                    module.PresenceStateCard(
+                        "private-state",
+                        "Private state",
+                        "held",
+                        "warn",
+                        detail=raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe presence state",
+                    ),
+                ],
+                channels=[
+                    module.PresenceChannelRow("web", "Web chat", "web", "online", "good", "available"),
+                    module.PresenceChannelRow(
+                        "private-channel",
+                        "Private channel",
+                        "private",
+                        "stale",
+                        "warn",
+                        detail=raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe channel",
+                    ),
+                ],
+                schedule=[
+                    module.PresenceScheduleWindow("day", "Daytime", "active", "good", "08:00", "18:00", "UTC", "daily", "web"),
+                ],
+                sources=[
+                    module.PresenceSourceFreshnessRow("adapter", "Adapter heartbeat", "adapter", "fresh", "good", "1m ago", "8s", "30s"),
+                ],
+                policies=[
+                    module.PresencePolicyNotice("quiet", "Quiet hours", "active", "info", "Public policy."),
+                ],
+                transitions=[
+                    module.PresenceTransitionRow("online", "Went online", "offline", "online", "applied", "good", "operator", "09:00", "Public transition."),
+                    module.PresenceTransitionRow(
+                        "private-transition",
+                        "Private transition",
+                        "hidden",
+                        "available",
+                        "held",
+                        "warn",
+                        "operator",
+                        "09:05",
+                        raw_value,
+                        href=raw_url,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe transition",
+                    ),
+                ],
+                live_refresh=module.LiveRefreshConfig(
+                    enabled=True,
+                    key="presence",
+                    url="/fragments/presence",
+                    target_id="presence-monitor",
+                    controls_id="presence-live-controls",
+                ),
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "presence_monitor_render", "presence monitor surface render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-presence-monitor-surface" in html
+        and "Runtime Presence" in html
+        and "Web chat" in html
+        and "Daytime" in html
+        and "Adapter heartbeat" in html
+        and "Quiet hours" in html
+        and "Went online" in html
+        and "safe presence state" in html
+        and "safe channel" in html
+        and "safe transition" in html
+        and "data-pc-live-controls" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "presence_monitor_render", "presence monitor renders posture, freshness, transitions, and redaction")
+
+
+def _runtime_task_board_render_check(module: Any) -> DoctorCheck:
+    raw_value = "raw-doctor-private-runtime-task"
+    raw_url = "/doctor/raw-private-runtime-task"
+    try:
+        policy = module.OwnerPrivateScopePolicy(owner_private_scopes={"owner_private": ("owner",)})
+        operator = module.AdminPrivacyContext(
+            access_tier="operator",
+            viewer_person_key="operator",
+            allowed_scopes=("public", "operator"),
+        )
+        private_task = module.RuntimeTaskRow(
+            "private",
+            raw_value,
+            "blocked",
+            "bad",
+            "high",
+            "critical",
+            "operator",
+            "today",
+            "09:10",
+            raw_value,
+            raw_url,
+            detail=raw_value,
+            privacy_scope="owner_private",
+            safe_alternate="safe runtime task",
+            linked_records=[
+                module.RuntimeTaskLinkedRecord(
+                    "record",
+                    "Private record",
+                    "issue",
+                    "held",
+                    "warn",
+                    raw_url,
+                    raw_value,
+                    privacy_scope="owner_private",
+                    safe_alternate="safe linked task record",
+                )
+            ],
+            history=[
+                module.RuntimeTaskHistoryRow(
+                    "history",
+                    "Private update",
+                    "held",
+                    "warn",
+                    "operator",
+                    "09:15",
+                    raw_value,
+                    raw_url,
+                    privacy_scope="owner_private",
+                    safe_alternate="safe task history",
+                )
+            ],
+        )
+        html = module.render_runtime_task_board_surface(
+            module.RuntimeTaskBoardSurfaceConfig(
+                enabled=True,
+                title="Runtime Task Board",
+                tabs=[module.StatusTab("All", "/tasks", 2, active=True)],
+                filters=[module.DashboardFilter("Mine", "/tasks?owner=operator", "owner", active=True)],
+                metrics=[module.DashboardMetric("Open", "2", detail="1 blocked", tone="warn")],
+                tasks=[
+                    module.RuntimeTaskRow("public", "Review task", "review", "warn", "medium", "normal", "operator", "tomorrow", "09:00", "Public task.", "/tasks/public"),
+                    private_task,
+                ],
+                selected_task=private_task,
+                pagination=module.AdminListPagination(count=2, page=1, page_count=1, summary="Showing 2 runtime tasks"),
+                live_refresh=module.LiveRefreshConfig(enabled=True, key="tasks", url="/fragments/tasks", target_id="runtime-task-board"),
+                action_slots=[
+                    module.RuntimeTaskActionSlot(
+                        "handoff",
+                        "Runtime-owned update",
+                        "Consumer endpoint owns mutation.",
+                        '<form action="/tasks/update" method="post"></form>',
+                        "info",
+                    )
+                ],
+            ),
+            privacy_policy=policy,
+            privacy_context=operator,
+        )
+    except Exception as exc:
+        return _check(False, "runtime_task_board_render", "runtime task board render failed", f"{exc.__class__.__name__}: {exc}")
+    ok = (
+        "pc-runtime-task-board-surface" in html
+        and "Runtime Task Board" in html
+        and "Review task" in html
+        and "Mine" in html
+        and "Showing 2 runtime tasks" in html
+        and "Runtime-owned update" in html
+        and "data-pc-live-controls" in html
+        and "safe runtime task" in html
+        and "safe linked task record" in html
+        and "safe task history" in html
+        and raw_value not in html
+        and raw_url not in html
+    )
+    return _check(ok, "runtime_task_board_render", "runtime task board renders filters, detail, slots, and redaction")
 
 
 def _operations_render_check(module: Any) -> DoctorCheck:
@@ -2005,6 +2618,17 @@ def _command_intake_render_check(module: Any) -> DoctorCheck:
                         safe_alternate="safe command history",
                     )
                 ],
+                action_slots=[
+                    module.CommandIntakeActionSlot(
+                        "runtime-controls",
+                        "Runtime Controls",
+                        "Consumer-owned command actions",
+                        body=raw_value,
+                        privacy_scope="owner_private",
+                        safe_alternate="safe slot body",
+                        actions=[module.SurfaceAction("Slot action", "/commands/slot", "info", method="post")],
+                    )
+                ],
             ),
             privacy_policy=policy,
             privacy_context=operator,
@@ -2019,6 +2643,8 @@ def _command_intake_render_check(module: Any) -> DoctorCheck:
         and "Confirmations" in html
         and "Queue" in html
         and "History" in html
+        and "pc-command-intake-action-slot" in html
+        and "safe slot body" in html
         and "safe command prompt" in html
         and "safe parsed value" in html
         and "safe candidate" in html

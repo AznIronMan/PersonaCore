@@ -269,6 +269,7 @@ def _item_card_html(
     action_html = f'<div class="pc-media-library-item-actions">{actions}</div>' if actions else ""
     detail = _private_text(item.detail, privacy_scope=item.privacy_scope, safe_alternate=item.safe_alternate, policy=policy, context=context)
     detail_html = f'<p>{escape(str(detail))}</p>' if detail else ""
+    custom_detail_html = str(item.detail_html or "") if _raw_html_allowed(item.privacy_scope, policy=policy, context=context) else ""
     classes = [
         "pc-media-library-card",
         f"pc-dashboard-tone-{_tone(item.tone)}",
@@ -281,7 +282,7 @@ def _item_card_html(
     classes.append(_private_class(privacy_scope=item.privacy_scope, policy=policy, context=context))
     return (
         f'<article class="{" ".join(part for part in classes if part)}">'
-        f"{preview}<div class=\"pc-media-library-card-copy\">{title}{flags}{badges}{meta}{detail_html}{action_html}</div></article>"
+        f"{preview}<div class=\"pc-media-library-card-copy\">{title}{flags}{badges}{meta}{detail_html}{custom_detail_html}{action_html}</div></article>"
     )
 
 
@@ -294,6 +295,7 @@ def _item_row_html(
     title = _item_title_html(item, policy=policy, context=context)
     preview = _preview_html(item, compact=True, policy=policy, context=context)
     detail = _private_text(item.detail, privacy_scope=item.privacy_scope, safe_alternate=item.safe_alternate, policy=policy, context=context)
+    custom_detail_html = str(item.detail_html or "") if _raw_html_allowed(item.privacy_scope, policy=policy, context=context) else ""
     actions = _actions_html(item.actions, class_name="pc-media-library-item-action", policy=policy, context=context)
     source = _source_html(item)
     flags = _flag_badges_html(item)
@@ -301,7 +303,7 @@ def _item_row_html(
     private = _private_class(privacy_scope=item.privacy_scope, policy=policy, context=context)
     return f"""
 <tr class="{private}">
-  <td><div class="pc-media-library-row-media">{preview}<div>{title}{f'<p>{escape(str(detail))}</p>' if detail else ''}</div></div></td>
+  <td><div class="pc-media-library-row-media">{preview}<div>{title}{f'<p>{escape(str(detail))}</p>' if detail else ''}{custom_detail_html}</div></div></td>
   <td>{flags}{meta}</td>
   <td>{source}</td>
   <td><div class="pc-media-library-item-actions">{actions}</div></td>
@@ -531,6 +533,21 @@ def _private_class(
         has_safe_alternate=False,
     )
     return "is-private" if mode.value != "raw" else ""
+
+
+def _raw_html_allowed(
+    privacy_scope: str,
+    *,
+    policy: OwnerPrivateScopePolicy | None,
+    context: AdminPrivacyContext | Mapping[str, Any] | None,
+) -> bool:
+    if not privacy_scope:
+        return True
+    if policy is None:
+        return False
+    if not policy.is_owner_private_scope(privacy_scope):
+        return True
+    return can_view_raw_private(policy, context, privacy_scope)
 
 
 def _safe_url(value: object) -> str:

@@ -22,17 +22,21 @@ def test_fixture_uses_public_personaconsole_config_name():
     assert config.nav_badges["lists"] == 2
     assert config.features["people"] is True
     assert config.features["admin_list"] is True
+    assert config.features["admin_access"] is True
     assert config.features["operations"] is True
     assert config.features["worker_operations"] is True
     assert config.features["bridge_ops"] is True
     assert config.features["command_intake"] is True
     assert config.features["availability_monitor"] is True
+    assert config.features["presence_monitor"] is True
+    assert config.features["runtime_task_board"] is True
     assert config.features["persona"] is True
     assert config.features["persona_editor"] is True
     assert config.features["agent_ops"] is True
     assert config.features["terminal_stream"] is True
     assert config.features["settings_editor"] is True
     assert config.features["system_health"] is True
+    assert config.features["infrastructure_posture"] is True
     assert config.features["journal"] is True
     assert config.features["public_presence"] is True
     assert config.brand_assets is not None
@@ -58,6 +62,19 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "raw fixture private admin-list summary" not in html
     assert "raw fixture private admin-list card summary" not in html
     assert "/lists/private-raw" not in html
+    assert "pc-admin-access-surface" in html
+    assert "Admin Access" in html
+    assert "Fixture Operator" in html
+    assert "Current session" in html
+    assert "Operator allow" in html
+    assert "Lockout active" in html
+    assert "Runtime-owned unlock" in html
+    assert "Owner-private principal summarized for operators." in html
+    assert "Owner-private session summarized for operators." in html
+    assert "Owner-private block rule summarized for operators." in html
+    assert "Owner-private access audit summarized for operators." in html
+    assert "raw fixture private admin access" not in html
+    assert "/access/raw-private" not in html
     assert "pc-detail-dossier-surface" in html
     assert "Example Detail" in html
     assert "Owner-private dossier field summarized for operators." in html
@@ -92,6 +109,14 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Owner-private log line summarized for operators." in html
     assert "raw fixture private log line" not in html
     assert "Settings Posture" in html
+    assert "pc-runtime-task-board-surface" in html
+    assert "Runtime Task Board" in html
+    assert "Review profile migration" in html
+    assert "Task Detail" in html
+    assert "Runtime-owned update" in html
+    assert "Owner-private runtime task summarized for operators." in html
+    assert "raw fixture private task" not in html
+    assert "/tasks/raw-private" not in html
     assert "pc-worker-ops-surface" in html
     assert "Worker Operations" in html
     assert "Reflection worker" in html
@@ -120,6 +145,11 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "new raw fixture persona editor secret" not in html
     assert "raw fixture private persona editor before" not in html
     assert "raw fixture private persona editor after" not in html
+    assert "pc-public-profile-surface" in html
+    assert "Public Profile" in html
+    assert "Owner-private public profile note summarized for operators." in html
+    assert "Consumer runtime owns media upload." in html
+    assert "raw fixture private public profile note" not in html
     assert "pc-agent-ops-surface" in html
     assert "Owner-private agent session summarized for operators." in html
     assert "raw fixture private agent" not in html
@@ -173,6 +203,18 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "/availability/windows/raw-private" not in html
     assert "/availability/scenarios/raw-private" not in html
     assert "/availability/events/raw-private" not in html
+    assert "pc-presence-monitor-surface" in html
+    assert "Presence Monitor" in html
+    assert "Runtime Presence" in html
+    assert "Web chat" in html
+    assert "Adapter heartbeat" in html
+    assert "Owner-private presence state summarized for operators." in html
+    assert "Owner-private channel summarized for operators." in html
+    assert "Owner-private schedule summarized for operators." in html
+    assert "Owner-private policy summarized for operators." in html
+    assert "Owner-private transition summarized for operators." in html
+    assert "raw fixture private presence" not in html
+    assert "/presence/raw-private" not in html
     assert "pc-settings-editor" in html
     assert "Runtime Settings" in html
     assert "Admin icon URL" in html
@@ -193,6 +235,17 @@ def test_fixture_renders_shared_shell_with_generic_data():
     assert "Owner-private system audit summarized for operators." in html
     assert "raw fixture private system audit" not in html
     assert "/audit/raw-private-fixture" not in html
+    assert "pc-infra-posture-surface" in html
+    assert "Infrastructure Posture" in html
+    assert "Apex A" in html
+    assert "Edge certificate" in html
+    assert "DNS propagation" in html
+    assert "Provider handoff" in html
+    assert "Owner-private DNS record summarized for operators." in html
+    assert "Owner-private certificate summarized for operators." in html
+    assert "Owner-private infrastructure warning summarized for operators." in html
+    assert "raw fixture private infrastructure" not in html
+    assert "/infrastructure/raw-private" not in html
     assert "pc-surface-registry" in html
     assert "Surface Registry" in html
     assert "Message rows" in html

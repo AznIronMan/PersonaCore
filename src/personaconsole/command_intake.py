@@ -6,6 +6,7 @@ from typing import Any, Mapping, Sequence, TypeVar
 
 from .controls import render_status_tabs
 from .models import (
+    CommandIntakeActionSlot,
     CommandCandidateRow,
     CommandConfirmationStep,
     CommandHistoryRow,
@@ -194,6 +195,56 @@ def _action_html(raw_action: SurfaceAction | Mapping[str, object], features: Map
 def _actions_html(actions: Sequence[SurfaceAction | Mapping[str, object]], features: Mapping[str, bool] | None) -> str:
     body = "".join(_action_html(action, features) for action in actions)
     return f'<div class="pc-command-intake-actions">{body}</div>' if body else ""
+
+
+def _action_slot_html(
+    raw_slot: CommandIntakeActionSlot | Mapping[str, object],
+    *,
+    features: Mapping[str, bool] | None,
+    policy: OwnerPrivateScopePolicy | None,
+    context: AdminPrivacyContext | Mapping[str, Any] | None,
+) -> str:
+    slot = _coerce(raw_slot, CommandIntakeActionSlot, {"key": "action-slot", "label": "Action"})
+    if not slot.label:
+        return ""
+    body_text = _private_text(
+        slot.body,
+        privacy_scope=slot.privacy_scope,
+        safe_alternate=slot.safe_alternate,
+        policy=policy,
+        context=context,
+    )
+    body = f'<p>{escape(str(body_text))}</p>' if body_text else ""
+    body += str(slot.body_html or "")
+    badges = _badges_html(slot.badges)
+    actions = _actions_html(slot.actions, features)
+    action_html = f'<div class="pc-command-intake-slot-actions">{actions}</div>' if actions else ""
+    private = _private_class(privacy_scope=slot.privacy_scope, policy=policy, context=context)
+    slot_key = _key(slot.key or slot.label, "command-intake-slot")
+    description = escape(str(slot.description or ""))
+    return (
+        f'<section id="{escape(slot_key, quote=True)}" data-command-slot="{escape(slot_key, quote=True)}" '
+        f'class="pc-command-intake-action-slot pc-dashboard-panel pc-dashboard-tone-{_tone(slot.tone)}{private}">'
+        '<div class="pc-dashboard-panel-head"><div>'
+        f'<div class="pc-dashboard-section-title">{escape(str(slot.label))}</div>'
+        + (f'<div class="pc-dashboard-section-meta">{description}</div>' if description else "")
+        + f'</div>{badges}</div>'
+        f'<div class="pc-command-intake-slot-body">{body}</div>{action_html}</section>'
+    )
+
+
+def _action_slots_html(
+    slots: Sequence[CommandIntakeActionSlot | Mapping[str, object]],
+    *,
+    features: Mapping[str, bool] | None,
+    policy: OwnerPrivateScopePolicy | None,
+    context: AdminPrivacyContext | Mapping[str, Any] | None,
+) -> str:
+    body = "".join(
+        _action_slot_html(slot, features=features, policy=policy, context=context)
+        for slot in slots
+    )
+    return f'<div class="pc-command-intake-action-slots">{body}</div>' if body else ""
 
 
 def command_intake_feature_enabled(
@@ -468,6 +519,12 @@ def render_command_intake_surface(
     tabs = render_status_tabs(model.tabs) if model.tabs else ""
     metrics = "".join(_metric_html(metric) for metric in model.metrics)
     metrics_html = f'<div class="pc-command-intake-metrics">{metrics}</div>' if metrics else ""
+    action_slots = _action_slots_html(
+        model.action_slots,
+        features=features,
+        policy=privacy_policy,
+        context=privacy_context,
+    )
 
     prompt = _private_text(
         model.input_value,
@@ -481,33 +538,35 @@ def render_command_intake_surface(
         policy=privacy_policy,
         context=privacy_context,
     )
-    method = str(model.form_method or "post").strip().lower()
-    form_method = "get" if method == "get" else "post"
-    queue_method = str(model.queue_method or "").strip().upper()
-    queue_action = ""
-    if model.queue_label:
-        if model.queue_href:
-            queue_action = (
-                f'<a class="pc-command-intake-action pc-dashboard-tone-good" href="{escape(model.queue_href, quote=True)}"'
-                f'{_attrs(data_method=queue_method) if queue_method else ""}>{escape(model.queue_label)}</a>'
-            )
-        else:
-            queue_action = f'<span class="pc-command-intake-action pc-dashboard-tone-neutral is-disabled" aria-disabled="true">{escape(model.queue_label)}</span>'
-    form_actions = (
-        '<div class="pc-command-intake-form-actions">'
-        f'<button type="submit" class="pc-command-intake-submit">{escape(str(model.submit_label or "Preview"))}</button>'
-        f'{queue_action}</div>'
-    )
-    form_html = (
-        f'<form class="pc-command-intake-form pc-dashboard-panel{input_private}" method="{escape(form_method)}"'
-        f'{_attrs(action=model.form_action)} data-pc-command-intake>'
-        '<div class="pc-dashboard-panel-head"><div>'
-        f'<label class="pc-dashboard-section-title" for="pc-command-input-{escape(key, quote=True)}">{escape(str(model.input_label or "Command"))}</label>'
-        f'<div class="pc-dashboard-section-meta">{escape(str(model.input_placeholder or ""))}</div>'
-        '</div></div>'
-        f'<textarea id="pc-command-input-{escape(key, quote=True)}" name="{escape(str(model.input_name or "command"), quote=True)}" rows="5" placeholder="{escape(str(model.input_placeholder or ""), quote=True)}">{escape(prompt)}</textarea>'
-        f'{form_actions}</form>'
-    )
+    form_html = ""
+    if model.show_form:
+        method = str(model.form_method or "post").strip().lower()
+        form_method = "get" if method == "get" else "post"
+        queue_method = str(model.queue_method or "").strip().upper()
+        queue_action = ""
+        if model.queue_label:
+            if model.queue_href:
+                queue_action = (
+                    f'<a class="pc-command-intake-action pc-dashboard-tone-good" href="{escape(model.queue_href, quote=True)}"'
+                    f'{_attrs(data_method=queue_method) if queue_method else ""}>{escape(model.queue_label)}</a>'
+                )
+            else:
+                queue_action = f'<span class="pc-command-intake-action pc-dashboard-tone-neutral is-disabled" aria-disabled="true">{escape(model.queue_label)}</span>'
+        form_actions = (
+            '<div class="pc-command-intake-form-actions">'
+            f'<button type="submit" class="pc-command-intake-submit">{escape(str(model.submit_label or "Preview"))}</button>'
+            f'{queue_action}</div>'
+        )
+        form_html = (
+            f'<form class="pc-command-intake-form pc-dashboard-panel{input_private}" method="{escape(form_method)}"'
+            f'{_attrs(action=model.form_action)} data-pc-command-intake>'
+            '<div class="pc-dashboard-panel-head"><div>'
+            f'<label class="pc-dashboard-section-title" for="pc-command-input-{escape(key, quote=True)}">{escape(str(model.input_label or "Command"))}</label>'
+            f'<div class="pc-dashboard-section-meta">{escape(str(model.input_placeholder or ""))}</div>'
+            '</div></div>'
+            f'<textarea id="pc-command-input-{escape(key, quote=True)}" name="{escape(str(model.input_name or "command"), quote=True)}" rows="5" placeholder="{escape(str(model.input_placeholder or ""), quote=True)}">{escape(prompt)}</textarea>'
+            f'{form_actions}</form>'
+        )
 
     parsed = "".join(
         _field_html(field, policy=privacy_policy, context=privacy_context)
@@ -531,7 +590,7 @@ def render_command_intake_surface(
         for row in model.history
     )
 
-    has_content = any((parsed, candidate_rows, risk_rows, confirmations, queue, history, metrics_html, tabs, actions))
+    has_content = any((parsed, candidate_rows, risk_rows, confirmations, queue, history, metrics_html, tabs, actions, action_slots))
     empty = "" if has_content else f'<p class="pc-dashboard-empty">{escape(str(model.empty_label))}</p>'
 
     body = (
@@ -540,7 +599,7 @@ def render_command_intake_surface(
         f'<div class="pc-dashboard-section-title">{title}</div>'
         + (f'<div class="pc-dashboard-section-meta">{subtitle}</div>' if subtitle else "")
         + f'</div>{actions}</div>'
-        f'{tabs}{metrics_html}{form_html}{empty}'
+        f'{tabs}{metrics_html}{form_html}{action_slots}{empty}'
         + _section_html("Parsed Preview", parsed, subtitle="Consumer-supplied command interpretation")
         + _section_html("Candidates", candidate_rows, subtitle="Possible targets or records")
         + _section_html("Risks", risk_rows, subtitle="Consumer-owned policy and safety checks")

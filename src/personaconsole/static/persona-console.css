@@ -1665,6 +1665,659 @@ pre {
   background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
 }
 
+.pc-public-profile-surface,
+.pc-public-profile-editor,
+.pc-public-profile-section,
+.pc-public-profile-readiness,
+.pc-public-profile-media-list,
+.pc-public-profile-history {
+  display: grid;
+  gap: 12px;
+}
+.pc-public-profile-fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.pc-public-profile-preview,
+.pc-public-profile-section,
+.pc-public-profile-row,
+.pc-public-profile-field,
+.pc-public-profile-media {
+  background: color-mix(in srgb, var(--pc-surface) 74%, black);
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  min-width: 0;
+  padding: 11px;
+}
+.pc-public-profile-preview {
+  display: grid;
+  gap: 10px;
+}
+.pc-public-profile-preview img,
+.pc-public-profile-media img {
+  aspect-ratio: 16 / 9;
+  background: var(--pc-surface-muted);
+  border: 1px solid color-mix(in srgb, var(--pc-border) 70%, transparent);
+  border-radius: 8px;
+  object-fit: cover;
+  width: 100%;
+}
+.pc-public-profile-row,
+.pc-public-profile-media {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.pc-public-profile-media {
+  grid-template-columns: 132px minmax(0, 1fr);
+}
+.pc-public-profile-row-main,
+.pc-public-profile-media > div {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+.pc-public-profile-field {
+  color: inherit;
+  display: grid;
+  gap: 8px;
+}
+.pc-public-profile-field-head,
+.pc-public-profile-row-title,
+.pc-public-profile-badges,
+.pc-public-profile-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pc-public-profile-field-head,
+.pc-public-profile-row-title {
+  justify-content: space-between;
+}
+.pc-public-profile-field strong,
+.pc-public-profile-row strong,
+.pc-public-profile-media strong {
+  color: var(--pc-text);
+  overflow-wrap: anywhere;
+}
+.pc-public-profile-field small,
+.pc-public-profile-preview p,
+.pc-public-profile-row p,
+.pc-public-profile-media p {
+  color: color-mix(in srgb, var(--pc-text) 76%, var(--pc-muted));
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pc-public-profile-input {
+  background: color-mix(in srgb, var(--pc-surface-muted) 72%, transparent);
+  border: 1px solid var(--pc-border);
+  border-radius: 7px;
+  color: var(--pc-text);
+  font: inherit;
+  min-height: 34px;
+  padding: 7px 9px;
+  resize: vertical;
+  width: 100%;
+}
+.pc-public-profile-input:disabled,
+.pc-public-profile-input[readonly] {
+  color: var(--pc-muted);
+  opacity: .78;
+}
+.pc-public-profile-badge {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 999px;
+  color: var(--pc-muted);
+  display: inline-flex;
+  font-size: 11px;
+  min-height: 22px;
+  padding: 2px 7px;
+}
+.pc-public-profile-action,
+.pc-public-profile-preview-link,
+.pc-public-profile-row-link,
+.pc-public-profile-submit button {
+  align-items: center;
+  background: color-mix(in srgb, var(--pc-surface-muted) 78%, transparent);
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  color: inherit;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 740;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pc-public-profile-action.is-disabled {
+  cursor: default;
+  opacity: .58;
+}
+.pc-public-profile-submit {
+  display: flex;
+  justify-content: flex-end;
+}
+.pc-public-profile-field.is-private {
+  background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
+}
+
+.pc-presence-monitor-surface,
+.pc-presence-section {
+  display: grid;
+  gap: 12px;
+}
+.pc-presence-metrics,
+.pc-presence-card-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pc-presence-metric,
+.pc-presence-card,
+.pc-presence-row {
+  background: color-mix(in srgb, var(--pc-surface) 74%, black);
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  color: inherit;
+  min-width: 0;
+  padding: 11px;
+  text-decoration: none;
+}
+.pc-presence-metric {
+  display: grid;
+  gap: 4px;
+}
+.pc-presence-metric span,
+.pc-presence-metric small {
+  color: var(--pc-muted);
+  font-size: 12px;
+}
+.pc-presence-metric strong {
+  color: var(--pc-text);
+  font-size: 20px;
+  line-height: 1.1;
+}
+.pc-presence-card,
+.pc-presence-row-main {
+  display: grid;
+  gap: 8px;
+}
+.pc-presence-row {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.pc-presence-card-head,
+.pc-presence-row-title,
+.pc-presence-badges,
+.pc-presence-actions,
+.pc-presence-facts {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pc-presence-card-head,
+.pc-presence-row-title {
+  justify-content: space-between;
+}
+.pc-presence-card strong,
+.pc-presence-row strong {
+  color: var(--pc-text);
+  overflow-wrap: anywhere;
+}
+.pc-presence-card p,
+.pc-presence-row p {
+  color: color-mix(in srgb, var(--pc-text) 76%, var(--pc-muted));
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pc-presence-facts span,
+.pc-presence-badge {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 999px;
+  color: var(--pc-muted);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 5px;
+  min-height: 22px;
+  padding: 2px 7px;
+}
+.pc-presence-facts b {
+  color: color-mix(in srgb, var(--pc-muted) 80%, var(--pc-text));
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.pc-presence-action {
+  align-items: center;
+  background: color-mix(in srgb, var(--pc-surface-muted) 78%, transparent);
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  color: inherit;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 740;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pc-presence-action.is-disabled {
+  cursor: default;
+  opacity: .58;
+}
+.pc-presence-card.is-private,
+.pc-presence-row.is-private {
+  background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
+}
+
+.pc-runtime-task-board-surface,
+.pc-runtime-task-detail,
+.pc-runtime-task-linked-list,
+.pc-runtime-task-history,
+.pc-runtime-task-slots {
+  display: grid;
+  gap: 12px;
+}
+.pc-runtime-task-filters,
+.pc-runtime-task-actions,
+.pc-runtime-task-badges,
+.pc-runtime-task-facts,
+.pc-runtime-task-pagination,
+.pc-runtime-task-pagination > div {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pc-runtime-task-filter,
+.pc-runtime-task-action,
+.pc-runtime-task-page-link {
+  align-items: center;
+  background: color-mix(in srgb, var(--pc-surface-muted) 78%, transparent);
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  color: inherit;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 740;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pc-runtime-task-filter.is-active {
+  background: color-mix(in srgb, var(--pc-accent) 18%, var(--pc-surface-muted));
+}
+.pc-runtime-task-action.is-disabled,
+.pc-runtime-task-page-link.is-disabled {
+  cursor: default;
+  opacity: .58;
+}
+.pc-runtime-task-metrics {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pc-runtime-task-metric,
+.pc-runtime-task-card,
+.pc-runtime-task-detail,
+.pc-runtime-task-linked,
+.pc-runtime-task-history-row,
+.pc-runtime-task-slot {
+  background: color-mix(in srgb, var(--pc-surface) 74%, black);
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  color: inherit;
+  min-width: 0;
+  padding: 11px;
+  text-decoration: none;
+}
+.pc-runtime-task-metric {
+  display: grid;
+  gap: 4px;
+}
+.pc-runtime-task-metric span,
+.pc-runtime-task-metric small,
+.pc-runtime-task-history-row small,
+.pc-runtime-task-linked small {
+  color: var(--pc-muted);
+  font-size: 12px;
+}
+.pc-runtime-task-metric strong {
+  color: var(--pc-text);
+  font-size: 20px;
+  line-height: 1.1;
+}
+.pc-runtime-task-table-wrap {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 70%, transparent);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.pc-runtime-task-table {
+  min-width: 920px;
+}
+.pc-runtime-task-table th {
+  color: var(--pc-muted);
+  background: color-mix(in srgb, var(--pc-surface) 66%, black);
+  font-size: 11px;
+}
+.pc-runtime-task-table td {
+  font-size: 12px;
+  line-height: 1.35;
+  vertical-align: top;
+}
+.pc-runtime-task-table td p,
+.pc-runtime-task-card p,
+.pc-runtime-task-detail p,
+.pc-runtime-task-linked p,
+.pc-runtime-task-history-row p,
+.pc-runtime-task-slot p {
+  color: color-mix(in srgb, var(--pc-text) 76%, var(--pc-muted));
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pc-runtime-task-open a,
+.pc-runtime-task-card > a,
+.pc-runtime-task-history-row > a {
+  color: var(--pc-text);
+  font-weight: 740;
+}
+.pc-runtime-task-cards {
+  display: none;
+  gap: 10px;
+}
+.pc-runtime-task-card,
+.pc-runtime-task-linked,
+.pc-runtime-task-history-row,
+.pc-runtime-task-slot {
+  display: grid;
+  gap: 8px;
+}
+.pc-runtime-task-card-head,
+.pc-runtime-task-linked-head,
+.pc-runtime-task-row-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: space-between;
+}
+.pc-runtime-task-facts span,
+.pc-runtime-task-badge {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 999px;
+  color: var(--pc-muted);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 5px;
+  min-height: 22px;
+  padding: 2px 7px;
+}
+.pc-runtime-task-facts b {
+  color: color-mix(in srgb, var(--pc-muted) 80%, var(--pc-text));
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.pc-runtime-task-pagination {
+  justify-content: space-between;
+}
+.pc-runtime-task-slot h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.pc-runtime-task-card.is-private,
+.pc-runtime-task-detail.is-private,
+.pc-runtime-task-linked.is-private,
+.pc-runtime-task-history-row.is-private,
+.pc-runtime-task-table tr.is-private {
+  background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
+}
+
+.pc-infra-posture-surface,
+.pc-infra-section,
+.pc-infra-slots {
+  display: grid;
+  gap: 12px;
+}
+.pc-infra-metrics {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pc-infra-metric,
+.pc-infra-row,
+.pc-infra-slot {
+  background: color-mix(in srgb, var(--pc-surface) 74%, black);
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  color: inherit;
+  min-width: 0;
+  padding: 11px;
+  text-decoration: none;
+}
+.pc-infra-metric {
+  display: grid;
+  gap: 4px;
+}
+.pc-infra-metric span,
+.pc-infra-metric small {
+  color: var(--pc-muted);
+  font-size: 12px;
+}
+.pc-infra-metric strong {
+  color: var(--pc-text);
+  font-size: 20px;
+  line-height: 1.1;
+}
+.pc-infra-row {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.pc-infra-row-main,
+.pc-infra-slot {
+  display: grid;
+  gap: 8px;
+}
+.pc-infra-row-title,
+.pc-infra-facts,
+.pc-infra-badges,
+.pc-infra-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pc-infra-row-title {
+  justify-content: space-between;
+}
+.pc-infra-row strong,
+.pc-infra-slot h3 {
+  color: var(--pc-text);
+  overflow-wrap: anywhere;
+}
+.pc-infra-row p,
+.pc-infra-slot p {
+  color: color-mix(in srgb, var(--pc-text) 76%, var(--pc-muted));
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pc-infra-facts span,
+.pc-infra-badge {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 999px;
+  color: var(--pc-muted);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 5px;
+  min-height: 22px;
+  padding: 2px 7px;
+}
+.pc-infra-facts b {
+  color: color-mix(in srgb, var(--pc-muted) 80%, var(--pc-text));
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.pc-infra-action {
+  align-items: center;
+  background: color-mix(in srgb, var(--pc-surface-muted) 78%, transparent);
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  color: inherit;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 740;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pc-infra-action.is-disabled {
+  cursor: default;
+  opacity: .58;
+}
+.pc-infra-slot h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.pc-infra-row.is-private {
+  background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
+}
+
+.pc-admin-access-surface,
+.pc-admin-access-section,
+.pc-admin-access-slots {
+  display: grid;
+  gap: 12px;
+}
+.pc-admin-access-metrics {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pc-admin-access-metric,
+.pc-admin-access-row,
+.pc-admin-access-slot {
+  background: color-mix(in srgb, var(--pc-surface) 74%, black);
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  color: inherit;
+  min-width: 0;
+  padding: 11px;
+  text-decoration: none;
+}
+.pc-admin-access-metric {
+  display: grid;
+  gap: 4px;
+}
+.pc-admin-access-metric span,
+.pc-admin-access-metric small {
+  color: var(--pc-muted);
+  font-size: 12px;
+}
+.pc-admin-access-metric strong {
+  color: var(--pc-text);
+  font-size: 20px;
+  line-height: 1.1;
+}
+.pc-admin-access-row {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.pc-admin-access-row-main,
+.pc-admin-access-slot {
+  display: grid;
+  gap: 8px;
+}
+.pc-admin-access-row-title,
+.pc-admin-access-facts,
+.pc-admin-access-badges,
+.pc-admin-access-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.pc-admin-access-row-title {
+  justify-content: space-between;
+}
+.pc-admin-access-row strong,
+.pc-admin-access-slot h3 {
+  color: var(--pc-text);
+  overflow-wrap: anywhere;
+}
+.pc-admin-access-row p,
+.pc-admin-access-slot p {
+  color: color-mix(in srgb, var(--pc-text) 76%, var(--pc-muted));
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pc-admin-access-facts span,
+.pc-admin-access-badge {
+  border: 1px solid color-mix(in srgb, var(--pc-border) 76%, transparent);
+  border-radius: 999px;
+  color: var(--pc-muted);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 5px;
+  min-height: 22px;
+  padding: 2px 7px;
+}
+.pc-admin-access-facts b {
+  color: color-mix(in srgb, var(--pc-muted) 80%, var(--pc-text));
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.pc-admin-access-action {
+  align-items: center;
+  background: color-mix(in srgb, var(--pc-surface-muted) 78%, transparent);
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  color: inherit;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 740;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pc-admin-access-action.is-disabled {
+  cursor: default;
+  opacity: .58;
+}
+.pc-admin-access-slot h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.pc-admin-access-row.is-private {
+  background: color-mix(in srgb, var(--pc-warning) 6%, var(--pc-surface));
+}
+
 .pc-bridge-ops-surface,
 .pc-bridge-ops-section,
 .pc-bridge-ops-list {
@@ -4721,6 +5374,13 @@ pre {
   display: grid;
   gap: 10px;
 }
+.pc-command-intake-action-slots,
+.pc-command-intake-action-slot,
+.pc-command-intake-slot-body {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
 .pc-command-intake-form textarea {
   background: color-mix(in srgb, var(--pc-bg) 42%, var(--pc-surface));
   border: 1px solid var(--pc-border);
@@ -4734,6 +5394,7 @@ pre {
 }
 .pc-command-intake-form-actions,
 .pc-command-intake-actions,
+.pc-command-intake-slot-actions,
 .pc-command-intake-badges,
 .pc-command-intake-facts {
   align-items: center;
@@ -4988,6 +5649,56 @@ pre {
   .pc-persona-editor-section-meta {
     justify-content: flex-start;
   }
+  .pc-public-profile-fields,
+  .pc-public-profile-row,
+  .pc-public-profile-media {
+    grid-template-columns: 1fr;
+  }
+  .pc-public-profile-actions,
+  .pc-public-profile-row-title {
+    justify-content: flex-start;
+  }
+  .pc-presence-metrics,
+  .pc-presence-card-grid,
+  .pc-presence-row {
+    grid-template-columns: 1fr;
+  }
+  .pc-presence-actions,
+  .pc-presence-row-title {
+    justify-content: flex-start;
+  }
+  .pc-runtime-task-metrics {
+    grid-template-columns: 1fr;
+  }
+  .pc-runtime-task-table-wrap {
+    display: none;
+  }
+  .pc-runtime-task-cards {
+    display: grid;
+  }
+  .pc-runtime-task-pagination,
+  .pc-runtime-task-card-head,
+  .pc-runtime-task-linked-head,
+  .pc-runtime-task-row-title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .pc-infra-metrics,
+  .pc-infra-row {
+    grid-template-columns: 1fr;
+  }
+  .pc-infra-actions,
+  .pc-infra-row-title {
+    justify-content: flex-start;
+  }
+  .pc-admin-access-metrics,
+  .pc-admin-access-row {
+    grid-template-columns: 1fr;
+  }
+  .pc-admin-access-actions,
+  .pc-admin-access-row-title {
+    justify-content: flex-start;
+  }
   .pc-bridge-ops-metrics,
   .pc-bridge-ops-card-grid,
   .pc-bridge-ops-row {
@@ -5054,6 +5765,7 @@ pre {
   }
   .pc-command-intake-form-actions,
   .pc-command-intake-actions,
+  .pc-command-intake-slot-actions,
   .pc-command-intake-row-title,
   .pc-availability-actions,
   .pc-availability-row-title {

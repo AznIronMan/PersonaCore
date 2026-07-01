@@ -1,6 +1,7 @@
 from personaconsole import (
     COMMAND_INTAKE_FEATURE,
     AdminPrivacyContext,
+    CommandIntakeActionSlot,
     CommandCandidateRow,
     CommandConfirmationStep,
     CommandHistoryRow,
@@ -139,6 +140,19 @@ def _config() -> CommandIntakeSurfaceConfig:
                 safe_alternate="safe command history",
             )
         ],
+        action_slots=[
+            CommandIntakeActionSlot(
+                "runtime-controls",
+                "Runtime Controls",
+                "Consumer-owned command controls",
+                body="raw private slot body",
+                body_html='<form action="/runtime/command" data-runtime-command-intake><input name="runtime_owned"></form>',
+                privacy_scope="owner_private",
+                safe_alternate="safe slot body",
+                badges=["Runtime"],
+                actions=[SurfaceAction("Run slot", "/commands/slot", "info", method="post")],
+            )
+        ],
         actions=[SurfaceAction("Open docs", "/commands/docs", "info")],
     )
 
@@ -167,6 +181,10 @@ def test_command_intake_surface_renders_preview_and_redacts_private_text():
     assert "Operator confirmation" in html
     assert "safe queued command" in html
     assert "safe command history" in html
+    assert "pc-command-intake-action-slot" in html
+    assert "safe slot body" in html
+    assert "data-runtime-command-intake" in html
+    assert "Run slot" in html
     assert 'data-method="POST"' in html
     assert 'aria-disabled="true"' in html
     assert "raw private command prompt" not in html
@@ -178,6 +196,7 @@ def test_command_intake_surface_renders_preview_and_redacts_private_text():
     assert "raw private queue detail" not in html
     assert "raw private command history" not in html
     assert "raw private history detail" not in html
+    assert "raw private slot body" not in html
     assert "/commands/queue/raw-private" not in html
     assert "/commands/history/raw-private" not in html
 
@@ -193,6 +212,7 @@ def test_command_intake_owner_can_see_private_command_links():
     assert "raw private parsed target" in html
     assert "raw private queued command" in html
     assert "raw private command history" in html
+    assert "raw private slot body" in html
     assert "/commands/queue/raw-private" in html
     assert "/commands/history/raw-private" in html
     assert "safe queued command" not in html
@@ -209,3 +229,39 @@ def test_command_intake_feature_gate_and_empty_state():
 
     assert "No command preview data configured." in html
     assert "Queue command" in html
+
+
+def test_command_intake_can_render_without_builtin_form():
+    config = CommandIntakeSurfaceConfig(
+        enabled=True,
+        show_form=False,
+        title="Runtime-owned intake",
+        action_slots=[
+            {
+                "key": "runtime-form",
+                "label": "Runtime form",
+                "description": "Consumer-owned controls",
+                "body_html": '<form action="/runtime/run" data-runtime-command-intake><input name="runtime_owned"></form>',
+            }
+        ],
+        history=[
+            CommandHistoryRow(
+                "history",
+                "Previous runtime action",
+                "completed",
+                "good",
+                "safe command history",
+            )
+        ],
+    )
+
+    html = render_command_intake_surface(config)
+
+    assert "pc-command-intake-surface" in html
+    assert "Runtime-owned intake" in html
+    assert "pc-command-intake-action-slot" in html
+    assert 'action="/runtime/run"' in html
+    assert 'name="runtime_owned"' in html
+    assert "Previous runtime action" in html
+    assert 'id="pc-command-input' not in html
+    assert "data-pc-command-intake" not in html

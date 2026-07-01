@@ -73,6 +73,7 @@ def _library_config(view: str = "grid") -> personaconsole.MediaLibrarySurfaceCon
                 source="upload",
                 timestamp="now",
                 detail="Primary visual anchor.",
+                detail_html='<form method="post" action="/media/artifacts/portrait/review"><button>Save local review</button></form>',
                 badges=["reference", personaconsole.SurfaceBadge("visual", "info")],
                 metadata=[
                     personaconsole.MediaLibraryMetadata("ratio", "Ratio", "4:5"),
@@ -123,6 +124,8 @@ def test_media_library_renders_grid_controls_actions_and_preview_dialog():
     assert "pc-media-library-grid" in html
     assert "Portrait reference" in html
     assert "/media/artifacts/portrait.jpg" in html
+    assert 'action="/media/artifacts/portrait/review"' in html
+    assert "Save local review" in html
     assert "pc-media-library-dialog" in html
     assert "pc-media-library-flag" in html
     assert "<b>safety</b>safe" in html
@@ -155,6 +158,7 @@ def test_media_library_redacts_private_items_and_strips_unsafe_urls():
                     "href": "/media/raw-private/detail",
                     "preview_url": raw_url,
                     "detail": "raw private media detail",
+                    "detail_html": '<form action="/media/private-review"><button>Private review</button></form>',
                     "safe_alternate": "operator-safe media summary",
                     "privacy_scope": "owner_private",
                     "metadata": [
@@ -184,6 +188,8 @@ def test_media_library_redacts_private_items_and_strips_unsafe_urls():
     assert "operator-safe media summary" in html
     assert "safe metadata" in html
     assert "raw private" not in html
+    assert "Private review" not in html
+    assert "/media/private-review" not in html
     assert raw_url not in html
     assert "https://private.example" not in html
     assert "javascript:" not in html
