@@ -837,7 +837,7 @@ __all__ = [
     "WorkerScheduleRow",
 ]
 
-__version__ = "1.0.47"
+__version__ = "1.0.48"
 
 
 def configure_jinja_loader(*args, **kwargs):

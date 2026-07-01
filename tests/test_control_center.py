@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from personaconsole import (
     CONTROL_CENTER_FEATURE,
     ControlCenterConfig,
@@ -14,6 +16,13 @@ from personaconsole import (
     control_center_feature_enabled,
     render_control_center,
 )
+
+
+def test_control_center_css_prevents_form_grid_column_inheritance():
+    css = Path("src/personaconsole/static/persona-console.css").read_text()
+
+    assert ".pc-control-center {\n  display: grid;\n  gap: 14px;\n  grid-template-columns: minmax(0, 1fr);" in css
+    assert "repeat(auto-fit, minmax(min(300px, 100%), 1fr))" in css
 
 
 def test_control_center_renders_switches_changes_actions_and_redacted_secret():

@@ -5341,6 +5341,8 @@ pre {
 .pc-control-center {
   display: grid;
   gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
 }
 .pc-control-overview-meta,
 .pc-control-section-meta,
@@ -5356,7 +5358,7 @@ pre {
 .pc-control-overview {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
 }
 .pc-control-metric,
 .pc-control-item {
@@ -5413,7 +5415,7 @@ pre {
 .pc-control-grid {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
 }
 .pc-control-item {
   display: grid;
@@ -5432,6 +5434,7 @@ pre {
 .pc-control-item-head {
   align-items: start;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: space-between;
   min-width: 0;
@@ -5450,9 +5453,9 @@ pre {
   display: block;
   font-size: 11px;
   margin-top: 3px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .pc-control-owner,
 .pc-control-badge,
@@ -5485,6 +5488,7 @@ pre {
 .pc-control-input {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
 }
@@ -5873,7 +5877,7 @@ pre {
   .pc-control-overview,
   .pc-control-grid,
   .pc-availability-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   }
 }
 
